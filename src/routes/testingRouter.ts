@@ -4,8 +4,9 @@ import {testingRepository} from "../repositories/testingRepository";
 export const testingRouter = Router();
 
 export const testingController = {
-    deleteAll() {
-
+    deleteAll(req: Request, res: Response) {
+        const deleteAll = testingRepository.deleteAllBlogs();
+        res.sendStatus(204)
     }
 
 }
