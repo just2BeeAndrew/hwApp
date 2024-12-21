@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import {blogsRepository} from "../repositories/blogsRepository";
+import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
+import {descriptionValidator, nameValidator, websiteUrlValidator} from "../middlewares/expressValidationMiddleware";
 
 export const blogRouter = Router();
 
@@ -39,9 +41,19 @@ export const blogController = {
 }
 
 blogRouter.get('/', blogController.getAllBlogs);
-blogRouter.post('/', blogController.createBlog);
+blogRouter.post('/',
+    nameValidator,
+    descriptionValidator,
+    websiteUrlValidator,
+    errorsResultMiddleware,
+    blogController.createBlog);
 blogRouter.get('/:id', blogController.getBlogById);
-blogRouter.put('/:id', blogController.updateBlog);
+blogRouter.put('/:id',
+    nameValidator,
+    descriptionValidator,
+    websiteUrlValidator,
+    errorsResultMiddleware,
+    blogController.updateBlog);
 blogRouter.delete('/:id',blogController.deleteBlog);
 
 

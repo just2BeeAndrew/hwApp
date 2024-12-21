@@ -1,12 +1,20 @@
 import {Router, Request, Response} from 'express';
-import {postsRepository} from "../repositories/postsRepository";;
+import {postsRepository} from "../repositories/postsRepository";
+import {
+    blogIdValidator,
+    contentValidator,
+    shortDescriptionValidator,
+    titleValidator
+} from "../middlewares/expressValidationMiddleware";
+import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
+
 
 export const postRouter = Router();
 
 export const postController = {
     getAllPosts(req: Request, res: Response) {
         const posts = postsRepository.getAllPosts();
-
+        res.status(200).send(posts);
     },
 
     createPost(req: Request, res: Response) {
@@ -39,7 +47,19 @@ export const postController = {
 }
 
 postRouter.get('/', postController.getAllPosts);
-postRouter.post('/', postController.createPost);
+postRouter.post('/',
+    titleValidator,
+    shortDescriptionValidator,
+    contentValidator,
+    blogIdValidator,
+    errorsResultMiddleware,
+    postController.createPost);
 postRouter.get('/:id', postController.getPostById);
-postRouter.put('/:id', postController.updatePost);
+postRouter.put('/:id',
+    titleValidator,
+    shortDescriptionValidator,
+    contentValidator,
+    blogIdValidator,
+    errorsResultMiddleware,
+    postController.updatePost);
 postRouter.delete('/:id', postController.deletePost);
