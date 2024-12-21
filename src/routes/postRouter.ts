@@ -7,6 +7,7 @@ import {
     titleValidator
 } from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
+import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 
 
 export const postRouter = Router();
@@ -48,6 +49,7 @@ export const postController = {
 
 postRouter.get('/', postController.getAllPosts);
 postRouter.post('/',
+    authorizationMiddleware,
     titleValidator,
     shortDescriptionValidator,
     contentValidator,
@@ -56,10 +58,13 @@ postRouter.post('/',
     postController.createPost);
 postRouter.get('/:id', postController.getPostById);
 postRouter.put('/:id',
+    authorizationMiddleware,
     titleValidator,
     shortDescriptionValidator,
     contentValidator,
     blogIdValidator,
     errorsResultMiddleware,
     postController.updatePost);
-postRouter.delete('/:id', postController.deletePost);
+postRouter.delete('/:id',
+    authorizationMiddleware,
+    postController.deletePost);

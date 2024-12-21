@@ -14,21 +14,21 @@ export const nameValidator = body("name")
 
 export const descriptionValidator = body("description")
     .isString()
-    .withMessage("name should be a string")
+    .withMessage("description should be a string")
     .trim()
     .notEmpty()
-    .withMessage("name is required")
+    .withMessage("description is required")
     .isLength({min: 1, max: 500})
-    .withMessage("name should contain 1 - 500 symbols")
+    .withMessage("description should contain 1 - 500 symbols")
 
 export const websiteUrlValidator = body("websiteUrl")
     .isString()
     .withMessage("websiteUrl should be a string")
     .trim()
     .notEmpty()
-    .withMessage("name is required")
+    .withMessage("websiteUrl is required")
     .isLength({min: 1, max: 100})
-    .withMessage("name should contain 1 - 500 symbols")
+    .withMessage("websiteUrl should contain 1 - 100 symbols")
     .isURL()
     .withMessage("websiteUrl should be a valid URL")
 
@@ -68,7 +68,7 @@ export const blogIdValidator = body("blogId")
     .withMessage("content is required")
     .custom(id => {
         const blogId = blogsRepository.getBlogById(id)
-        return !!id
+        return !!blogId
     })
     .withMessage("blog isn't exists")
 
