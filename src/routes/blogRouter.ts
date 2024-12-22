@@ -14,6 +14,7 @@ export const blogController = {
 
     createBlog(req:Request, res: Response) {
         const blog = blogsRepository.createBlog(req.body);
+        console.log(blog);
         res.status(201).json(blog);
     },
 
@@ -22,22 +23,22 @@ export const blogController = {
         if (blogId)
             res.status(200).json(blogId);
         else
-            res.status(404);
+            res.sendStatus(404);
     },
 
     updateBlog(req:Request, res: Response) {
         const updatedBlog = blogsRepository.updateBlog(req.params.id,req.body);
         if (updatedBlog)
             res.status(204).json(updatedBlog);
-        else res.status(400);
-
+        res.sendStatus(404);
     },
+
     deleteBlog(req:Request, res: Response) {
         const deletedBlog = blogsRepository.deleteBlog(req.params.id);
-        if (deletedBlog)
-            res.status(204);
-        else
-            res.status(404);
+        if (deletedBlog){
+            res.sendStatus(204);
+        }
+        res.sendStatus(404)
     }
 }
 
@@ -58,7 +59,7 @@ blogRouter.put('/:id',
     errorsResultMiddleware,
     blogController.updateBlog);
 blogRouter.delete('/:id',
-    authorizationMiddleware
-    ,blogController.deleteBlog);
+    authorizationMiddleware,
+    blogController.deleteBlog);
 
 

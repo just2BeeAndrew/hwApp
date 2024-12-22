@@ -28,22 +28,22 @@ export const postController = {
         if (postId)
             res.status(200).send(postId);
         else
-            res.status(404)
+            res.sendStatus(404)
     },
 
     updatePost(req: Request, res: Response) {
         const updatedPost = postsRepository.updatePost(req.params.id, req.body);
         if (updatedPost)
-            res.status(200).json(updatedPost);
-        else res.status(400)
+            res.status(204).json(updatedPost);
+        res.sendStatus(404)
     },
 
     deletePost(req: Request, res: Response) {
         const deletedPost = postsRepository.deletePost(req.params.id);
         if (deletedPost)
-            res.status(204)
+            res.sendStatus(204)
         else
-            res.status(404)
+            res.sendStatus(404)
     }
 }
 

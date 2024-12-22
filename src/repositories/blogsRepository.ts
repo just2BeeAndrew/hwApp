@@ -28,7 +28,6 @@ export const blogsRepository = {
             blog.name = body.name ? body.name : blog.name;
             blog.description = body.description ? body.description : blog.description;
             blog.websiteUrl = body.websiteUrl ? body.websiteUrl : blog.websiteUrl;
-
             return blog;
         }
         return false;
@@ -40,9 +39,8 @@ export const blogsRepository = {
                 db.blogs.splice(i, 1);
                 return true;
             }
-        }return false
-
-
+        }
+        return false
 
     }
 }
