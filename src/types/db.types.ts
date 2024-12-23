@@ -7,7 +7,9 @@ export type BlogType = {
     id: string,
     name: string,
     description: string,
-    websiteUrl: string
+    websiteUrl: string,
+    createdAt: string
+    isMembership: boolean
 }
 
 export type PostType = {
@@ -16,7 +18,8 @@ export type PostType = {
     shortDescription: string,
     content: string,
     blogId: string,
-    blogName: string
+    blogName: string,
+    createdAt: string
 }
 
 

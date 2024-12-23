@@ -3,38 +3,39 @@ import {blogsRepository} from "../repositories/blogsRepository";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {descriptionValidator, nameValidator, websiteUrlValidator} from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
+import {ObjectId} from "mongodb";
 
 export const blogRouter = Router();
 
 export const blogController = {
-    getAllBlogs(req:Request, res: Response){
-        const blogs = blogsRepository.getAllBlogs();
+    async getAllBlogs(req:Request, res: Response){
+        const blogs = await blogsRepository.getAllBlogs();
         res.status(200).json(blogs);
     },
 
-    createBlog(req:Request, res: Response) {
-        const blog = blogsRepository.createBlog(req.body);
-        console.log(blog);
+    async createBlog(req:Request, res: Response) {
+        const blog = await blogsRepository.createBlog(req.body);
+        const blogId = await blogsRepository.getBlogById(blog)
         res.status(201).json(blog);
     },
 
-    getBlogById(req:Request, res: Response) {
-        const blogId = blogsRepository.getBlogById(req.params.id);
+    async getBlogById(req:Request, res: Response) {
+        const blogId = await blogsRepository.getBlogById(new ObjectId(req.params.id));
         if (blogId)
             res.status(200).json(blogId);
         else
             res.sendStatus(404);
     },
 
-    updateBlog(req:Request, res: Response) {
-        const updatedBlog = blogsRepository.updateBlog(req.params.id,req.body);
+    async updateBlog(req:Request, res: Response) {
+        const updatedBlog = await blogsRepository.updateBlog(req.params.id,req.body);
         if (updatedBlog)
             res.status(204).json(updatedBlog);
         res.sendStatus(404);
     },
 
-    deleteBlog(req:Request, res: Response) {
-        const deletedBlog = blogsRepository.deleteBlog(req.params.id);
+    async deleteBlog(req:Request, res: Response) {
+        const deletedBlog = await blogsRepository.deleteBlog(req.params.id);
         if (deletedBlog){
             res.sendStatus(204);
         }

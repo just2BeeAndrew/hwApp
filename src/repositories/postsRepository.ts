@@ -1,14 +1,15 @@
 import {db} from "../db/db";
 import {PostType,BlogType} from "../types/db.types";
-import {blogsRepository} from "./blogsRepository";
+import {postsCollection} from "../db/mongoDb";
 
 
 export const postsRepository = {
-    getAllPosts(){
-        return db.posts;
+    async getAllPosts(){
+        return await postsCollection.find().toArray()
+        //return db.posts;
     },
 
-    createPost(body:PostType){
+    async createPost(body:PostType){
         const blogsIndex = db.blogs.findIndex(index => index.id === body.blogId);
         const post: PostType = {
             id: Math.random().toString(),
@@ -16,29 +17,30 @@ export const postsRepository = {
             shortDescription: body.shortDescription,
             content: body.content,
             blogId: body.blogId,
-            blogName: db.blogs[blogsIndex].name
+            blogName: db.blogs[blogsIndex].name,
+            createdAt: new Date().toISOString()
         }
         db.posts = [...db.posts,post];
         return post;
     },
 
-    getPostById(id:string){
+    async getPostById(id:string){
         return db.posts.find(post => post.id === id);
     },
 
-    updatePost(id:string, body:PostType){
+    async updatePost(id:string, body:PostType){
         const post = db.posts.find(post => post.id == id);
         if(post){
-            post.title = body.title ? body.title : post.title;
-            post.shortDescription = body.shortDescription ? body.shortDescription : post.shortDescription;
-            post.content = body.content ? body.content : post.content;
-            post.blogId = body.blogId ? body.blogId : post.blogId;
+            post.title = body.title;
+            post.shortDescription = body.shortDescription;
+            post.content = body.content;
+            post.blogId = body.blogId;
             return post;
         }
         return false;
     },
 
-    deletePost(id:string){
+    async deletePost(id:string){
         for (let i = 0; i < db.posts.length; i++){
             if (db.posts[i].id == id){
                 db.posts.splice(i, 1);

@@ -5,8 +5,8 @@ import {body, validationResult } from "express-validator";
 export const testingRouter = Router();
 
 export const testingController = {
-    deleteAll(req: Request, res: Response) {
-        const deleteAll = testingRepository.deleteAllBlogs();
+    async deleteAll(req: Request, res: Response) {
+        const deleteAll = await testingRepository.deleteAllBlogs();
         res.sendStatus(204)
     }
 }
