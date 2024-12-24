@@ -14,13 +14,13 @@ export const blogController = {
     },
 
     async createBlog(req:Request, res: Response) {
-        const blog = await blogsRepository.createBlog(req.body);
-        const blogId = await blogsRepository.getBlogById(blog)
+        const blogId = await blogsRepository.createBlog(req.body);
+        const blog = await blogsRepository.getBlogBy_Id(blogId)
         res.status(201).json(blog);
     },
 
     async getBlogById(req:Request, res: Response) {
-        const blogId = await blogsRepository.getBlogById(new ObjectId(req.params.id));
+        const blogId = await blogsRepository.getBlogById(req.params.id);
         if (blogId)
             res.status(200).json(blogId);
         else

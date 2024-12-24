@@ -1,4 +1,4 @@
-import {MongoClient, Collection} from "mongodb";
+import {MongoClient,Db, Collection} from "mongodb";
 import {BlogType, PostType} from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -9,11 +9,11 @@ export let blogsCollection: Collection<BlogType>
 export let postsCollection: Collection<PostType>
 
 export async function runDb(url: string): Promise<boolean> {
-    const client = new MongoClient(SETTINGS.MONGO_URL)
-    const db = client.db(SETTINGS.DB_NAME)
+    let client = new MongoClient(url)
+    let db = client.db(SETTINGS.DB_NAME)
 
     blogsCollection = db.collection<BlogType>(SETTINGS.PATH.BLOGS)
-    postsCollection = db.collection(SETTINGS.PATH.POSTS)
+    postsCollection = db.collection<PostType>(SETTINGS.PATH.POSTS)
 
     try {
         await client.connect();

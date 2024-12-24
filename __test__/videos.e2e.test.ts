@@ -3,7 +3,7 @@ import {req} from './test-helpers'
 // import {dataset1} from './datasets'
 import {SETTINGS} from '../src/settings'
 
-describe('/videos', () => {
+describe('/blogs', () => {
     // beforeAll(async () => { // очистка базы данных перед началом тестирования
     //     setDB()
     // })
@@ -12,7 +12,7 @@ describe('/videos', () => {
         // setDB() // очистка базы данных если нужно
 
         const res = await req
-            .get(SETTINGS.PATH.VIDEOS)
+            .get(SETTINGS.PATH.BLOGS)
             .expect(200) // проверяем наличие эндпоинта
 
         console.log(res.body) // можно посмотреть ответ эндпоинта
@@ -23,7 +23,7 @@ describe('/videos', () => {
         // setDB(dataset1) // заполнение базы данных начальными данными если нужно
 
         const res = await req
-            .get(SETTINGS.PATH.VIDEOS)
+            .get(SETTINGS.PATH.BLOGS)
             .expect(200)
 
         console.log(res.body)

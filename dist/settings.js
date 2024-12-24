@@ -15,6 +15,6 @@ exports.SETTINGS = {
         POSTS: '/posts',
         TESTING: '/testing/all-data',
     },
-    MONGO_URL: process.env.MONGO_URL || 'mongodb://localhost/',
-    DB_NAME: process.env.DB_NAME || '',
+    MONGO_URL: process.env.MONGO_URL || "",
+    DB_NAME: process.env.DB_NAME || "testing",
 };

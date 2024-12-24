@@ -7,7 +7,6 @@ import {ObjectId} from "mongodb";
 export const blogsRepository = {
     async getAllBlogs(){
         return await blogsCollection.find().toArray()
-        //return db.blogs
     },
 
     async createBlog(body:BlogType):Promise<ObjectId> {
@@ -23,29 +22,30 @@ export const blogsRepository = {
         return  res.insertedId
     },
 
-    async getBlogById(_id:ObjectId){
+    async getBlogById(id:string){
+        return await blogsCollection.findOne({id});
+    },
+
+    async getBlogBy_Id(_id:ObjectId){
         return await blogsCollection.findOne({_id});
     },
 
-    async updateBlog(id:string,body:BlogType) {
-        const blog = db.blogs.find(blog => blog.id == id);
-        if (blog){
-            blog.name = body.name;
-            blog.description = body.description;
-            blog.websiteUrl = body.websiteUrl;
-            return blog;
-        }
-        return false;
+    async updateBlog(id:string,body:BlogType):Promise<boolean> {
+        const res = await blogsCollection.updateOne(
+            {id},
+            {$set:{ name:body.name,
+                    description:body.description,
+                    websiteUrl:body.websiteUrl,}}
+        )
+        return res.matchedCount === 1
     },
 
-    async deleteBlog(id:string){
-        for (let i = 0; i < db.blogs.length; i++){
-            if (db.blogs[i].id === id){
-                db.blogs.splice(i, 1);
-                return true;
-            }
+    async deleteBlog(id:string):Promise<boolean> {
+        const blog = await this.getBlogById(id)
+        if (blog){
+            const res = await blogsCollection.deleteOne({_id: blog._id});
+            if(res.deletedCount > 0) return true;
         }
         return false
-
     }
 }

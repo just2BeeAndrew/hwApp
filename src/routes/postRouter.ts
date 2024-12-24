@@ -9,7 +9,6 @@ import {
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 
-
 export const postRouter = Router();
 
 export const postController = {
@@ -19,7 +18,8 @@ export const postController = {
     },
 
     async createPost(req: Request, res: Response) {
-        const post = await postsRepository.createPost(req.body);
+        const postId = await postsRepository.createPost(req.body);
+        const post = await postsRepository.getPostBy_Id(postId);
         res.status(201).send(post);
     },
 
@@ -40,9 +40,9 @@ export const postController = {
 
     async deletePost(req: Request, res: Response) {
         const deletedPost = await postsRepository.deletePost(req.params.id);
-        if (deletedPost)
+        if (deletedPost){
             res.sendStatus(204)
-        else
+        }
             res.sendStatus(404)
     }
 }
