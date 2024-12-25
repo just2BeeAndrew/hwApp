@@ -68,7 +68,7 @@ export const blogIdValidator = body("blogId")
     .notEmpty()
     .withMessage("content is required")
     .custom(async (blogId) => {
-        const blog = await blogsCollection.findOne({blogId});
+        const blog = await blogsCollection.findOne({id:blogId});
         if (!blog) throw new Error("blog index not found");
         if (!blog) {
             return false
