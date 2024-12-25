@@ -1,6 +1,7 @@
 import {body} from "express-validator";
 import {postsRepository} from "../repositories/postsRepository";
 import {blogsRepository} from "../repositories/blogsRepository";
+import {blogsCollection} from "../db/mongoDb";
 
 //blogs validation
 export const nameValidator = body("name")
@@ -67,7 +68,7 @@ export const blogIdValidator = body("blogId")
     .notEmpty()
     .withMessage("content is required")
     .custom(async id => {
-        const blogId = await blogsRepository.getBlogById(id)
+        const blogId = await blogsCollection.findOne(id)
         return !!blogId
     })
     .withMessage("blog isn't exists")
