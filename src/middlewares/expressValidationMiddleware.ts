@@ -68,7 +68,7 @@ export const blogIdValidator = body("blogId")
     .notEmpty()
     .withMessage("content is required")
     .custom(async id => {
-        const blogId = await blogsCollection.findOne(id)
+        const blogId = await blogsCollection.findOne({id});
         return !!blogId
     })
     .withMessage("blog isn't exists")
