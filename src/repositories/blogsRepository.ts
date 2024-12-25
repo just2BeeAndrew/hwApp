@@ -6,7 +6,7 @@ import {ObjectId} from "mongodb";
 
 export const blogsRepository = {
     async getAllBlogs(){
-        return await blogsCollection.find().toArray()
+        return await blogsCollection.find({},{projection:{_id:0}}).toArray()
     },
 
     async createBlog(body:BlogType):Promise<ObjectId> {
@@ -23,11 +23,11 @@ export const blogsRepository = {
     },
 
     async getBlogById(id:string){
-        return await blogsCollection.findOne({id});
+        return await blogsCollection.findOne({id},{projection:{_id:0}});
     },
 
     async getBlogBy_Id(_id:ObjectId){
-        return await blogsCollection.findOne({_id});
+        return await blogsCollection.findOne({_id},{projection:{_id:0}});
     },
 
     async updateBlog(id:string,body:BlogType):Promise<boolean> {
@@ -41,7 +41,7 @@ export const blogsRepository = {
     },
 
     async deleteBlog(id:string):Promise<boolean> {
-        const blog = await this.getBlogById(id)
+        const blog = await blogsCollection.findOne({id});
         if (blog){
             const res = await blogsCollection.deleteOne({_id: blog._id});
             if(res.deletedCount > 0) return true;

@@ -5,7 +5,7 @@ const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)(); // добавление переменных из файла .env в process.env
 exports.SETTINGS = {
     // все хардкодные значения должны быть здесь, для удобства их изменения
-    PORT: process.env.PORT || 3004,
+    PORT: process.env.PORT || 1963,
     AUTH: {
         LOGIN: 'admin',
         PASSWORD: 'qwerty',

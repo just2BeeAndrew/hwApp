@@ -6,7 +6,7 @@ import {ObjectId} from "mongodb";
 
 export const postsRepository = {
     async getAllPosts() {
-        return await postsCollection.find().toArray()
+        return await postsCollection.find({},{projection:{_id:0}}).toArray()
     },
 
     async createPost(body: PostType): Promise<ObjectId> {
@@ -27,11 +27,11 @@ export const postsRepository = {
     },
 
     async getPostById(id: string) {
-        return await postsCollection.findOne({id});
+        return await postsCollection.findOne({id}, {projection:{_id:0}});
     },
 
     async getPostBy_Id(_id: ObjectId) {
-        return await postsCollection.findOne({_id});
+        return await postsCollection.findOne({_id},{projection:{_id:0}});
     },
 
     async updatePost(id: string, body: PostType): Promise<boolean> {
@@ -53,10 +53,10 @@ export const postsRepository = {
         return res.matchedCount === 1
     },
 
-    async deletePost(id: string) {
-        const blog = await this.getPostById(id)
-        if (blog){
-            const res = await blogsCollection.deleteOne({_id: blog._id});
+    async deletePost(id:string):Promise<boolean> {
+        const post = await postsCollection.findOne({id});
+        if (post){
+            const res = await postsCollection.deleteOne({_id: post._id});
             if(res.deletedCount > 0) return true;
         }
         return false

@@ -30,7 +30,7 @@ export const blogController = {
     async updateBlog(req:Request, res: Response) {
         const updatedBlog = await blogsRepository.updateBlog(req.params.id,req.body);
         if (updatedBlog)
-            res.status(204).json(updatedBlog);
+            res.sendStatus(204);
         res.sendStatus(404);
     },
 

@@ -16,7 +16,8 @@ const startApp = () => __awaiter(void 0, void 0, void 0, function* () {
     const res = yield (0, mongoDb_1.runDb)(settings_1.SETTINGS.MONGO_URL);
     if (!res)
         process.exit(1);
+    app_1.app.listen(settings_1.SETTINGS.PORT, () => {
+        console.log('...server started in port ' + settings_1.SETTINGS.PORT);
+    });
 });
-app_1.app.listen(settings_1.SETTINGS.PORT, () => {
-    console.log('...server started in port ' + settings_1.SETTINGS.PORT);
-});
+startApp();

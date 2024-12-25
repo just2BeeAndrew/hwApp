@@ -1,13 +1,10 @@
 import {Router, Request, Response} from 'express';
 import {postsRepository} from "../repositories/postsRepository";
-import {
-    blogIdValidator,
-    contentValidator,
-    shortDescriptionValidator,
-    titleValidator
-} from "../middlewares/expressValidationMiddleware";
+import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
+import {ObjectId} from "mongodb";
+import {blogsRepository} from "../repositories/blogsRepository";
 
 export const postRouter = Router();
 
@@ -38,12 +35,12 @@ export const postController = {
         res.sendStatus(404)
     },
 
-    async deletePost(req: Request, res: Response) {
+    async deletePost(req:Request, res: Response) {
         const deletedPost = await postsRepository.deletePost(req.params.id);
         if (deletedPost){
-            res.sendStatus(204)
+            res.sendStatus(204);
         }
-            res.sendStatus(404)
+        res.sendStatus(404)
     }
 }
 
