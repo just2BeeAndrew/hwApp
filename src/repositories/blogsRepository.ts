@@ -1,5 +1,5 @@
 import {db} from "../db/db";
-import {BlogType} from "../types/db.types";
+import {BlogInputType, BlogDbType} from "../types/db.types";
 import {blogsCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
@@ -9,17 +9,17 @@ export const blogsRepository = {
         return await blogsCollection.find({},{projection:{_id:0}}).toArray()
     },
 
-    async createBlog(body:BlogType):Promise<ObjectId> {
-        const blog: BlogType = {
+    async createBlog(createData:BlogInputType):Promise<ObjectId> {
+        const blog:BlogDbType = {
             id: Math.random().toString(),
-            name: body.name,
-            description: body.description,
-            websiteUrl: body.websiteUrl,
+            name: createData.name,
+            description: createData.description,
+            websiteUrl: createData.websiteUrl,
             createdAt: new Date().toISOString(),
             isMembership: false
         }
         const res = await blogsCollection.insertOne(blog)
-        return  res.insertedId
+        return res.insertedId
     },
 
     async getBlogById(id:string){
@@ -30,7 +30,7 @@ export const blogsRepository = {
         return await blogsCollection.findOne({_id},{projection:{_id:0}});
     },
 
-    async updateBlog(id:string,body:BlogType):Promise<boolean> {
+    async updateBlog(id:string,body:BlogDbType):Promise<boolean> {
         const res = await blogsCollection.updateOne(
             {id},
             {$set:{ name:body.name,

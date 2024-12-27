@@ -23,15 +23,19 @@ export const postController = {
     async getPostById(req: Request, res: Response) {
         const postId = await postsRepository.getPostById(req.params.id);
         if (postId)
+        {
             res.status(200).send(postId);
-        else
-            res.sendStatus(404)
+            return
+        }
+        res.sendStatus(404)
     },
 
     async updatePost(req: Request, res: Response) {
         const updatedPost = await postsRepository.updatePost(req.params.id, req.body);
-        if (updatedPost)
+        if (updatedPost) {
             res.status(204).json(updatedPost);
+            return;
+        }
         res.sendStatus(404)
     },
 
@@ -39,6 +43,7 @@ export const postController = {
         const deletedPost = await postsRepository.deletePost(req.params.id);
         if (deletedPost){
             res.sendStatus(204);
+            return
         }
         res.sendStatus(404)
     }

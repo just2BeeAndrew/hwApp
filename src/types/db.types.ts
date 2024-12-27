@@ -1,9 +1,15 @@
 export type  DBType = {
-    blogs: BlogType[],
+    blogs: BlogDbType[],
     posts: PostType[]
 }
 
-export type BlogType = {
+export type BlogInputType = {
+    name: string,
+    description: string,
+    websiteUrl: string,
+}
+
+export type BlogDbType = {
     id: string,
     name: string,
     description: string,

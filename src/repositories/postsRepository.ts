@@ -1,5 +1,5 @@
 import {db} from "../db/db";
-import {PostType, BlogType} from "../types/db.types";
+import {PostType, BlogDbType} from "../types/db.types";
 import {blogsCollection, postsCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
