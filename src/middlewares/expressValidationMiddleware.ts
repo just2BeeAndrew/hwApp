@@ -1,6 +1,6 @@
 import {body} from "express-validator";
 import {postsRepository} from "../repositories/postsRepository";
-import {blogsRepository} from "../repositories/blogsRepository";
+import {blogRepository} from "../repositories/blogRepository";
 import {blogsCollection} from "../db/mongoDb";
 
 //blogs validation

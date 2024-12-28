@@ -4,9 +4,23 @@ import {blogsCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
 
-export const blogsRepository = {
-    async getAllBlogs(){
+export const blogRepository = {
+    async getAllBlogs(
+        searchNameTerm: string | null,
+        sortBy: string,
+        sortDirection: 'asc' | 'desc',
+        pageNumber: number,
+        pageSize: number
+    ){
         return await blogsCollection.find({},{projection:{_id:0}}).toArray()
+    },
+
+    async getBlogsCount(searchNameTerm: string | null): Promise<number> {
+        const filter:any = {}
+        if (searchNameTerm){
+            filter.title = {$regex:searchNameTerm,$options:"i"};
+        }
+        return blogsCollection.countDocuments(filter)
     },
 
     async createBlog(createData:BlogInputType):Promise<ObjectId> {

@@ -4,7 +4,7 @@ import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValid
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {ObjectId} from "mongodb";
-import {blogsRepository} from "../repositories/blogsRepository";
+import {blogRepository} from "../repositories/blogRepository";
 
 export const postRouter = Router();
 

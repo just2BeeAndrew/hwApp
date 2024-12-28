@@ -1,28 +1,41 @@
 import {Router, Request, Response} from 'express';
-import {blogsRepository} from "../repositories/blogsRepository";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {descriptionValidator, nameValidator, websiteUrlValidator} from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
-import {ObjectId} from "mongodb";
+import {ObjectId, SortDirection} from "mongodb";
 import {BlogInputType} from "../types/db.types";
+import {blogService} from "../domains/blogsService";
 
 export const blogRouter = Router();
 
 export const blogController = {
     async getAllBlogs(req: Request, res: Response) {
-        const blogs = await blogsRepository.getAllBlogs();
+        let searchNameTerm = req.query.searchNameTerm ? req.query.searchNameTerm.toString() : null;
+        let sortBy = req.query.sortBy ? req.query.sortBy.toString() : "createdAt";
+        let sortDirection: SortDirection =
+            req.query.sortDirection && req.query.sortDirection.toString() === 'asc'
+                ? 'asc'
+                : 'desc'
+        let pageNumber = req.query.pageNumber ? +req.query.pageNumber : 1;
+        let pageSize = req.query.pageSize ? +req.query.pageSize : 10;
+        const blogs = await blogService.getAllBlogs(
+            searchNameTerm,
+            sortBy,
+            sortDirection,
+            pageNumber,
+            pageSize
+        )
         res.status(200).json(blogs);
     },
 
     async createBlog(req: Request<BlogInputType>, res: Response) {
-        const blogCreateData:BlogInputType = req.body;
-        const blogId = await blogsRepository.createBlog(req.body);
-        const blog = await blogsRepository.getBlogBy_Id(blogId)
+        const blogId = await blogService.createBlog(req.body);
+        const blog = await blogService.getBlogBy_Id(blogId)
         res.status(201).json(blog);
     },
 
     async getBlogById(req: Request, res: Response) {
-        const blogId = await blogsRepository.getBlogById(req.params.id);
+        const blogId = await blogService.getBlogById(req.params.id);
         if (blogId) {
             res.status(200).json(blogId);
             return
@@ -31,7 +44,7 @@ export const blogController = {
     },
 
     async updateBlog(req: Request, res: Response) {
-        const updatedBlog = await blogsRepository.updateBlog(req.params.id, req.body);
+        const updatedBlog = await blogService.updateBlog(req.params.id, req.body);
         if (updatedBlog) {
             res.sendStatus(204);
             return;
@@ -41,7 +54,7 @@ export const blogController = {
     },
 
     async deleteBlog(req: Request, res: Response) {
-        const deletedBlog = await blogsRepository.deleteBlog(req.params.id);
+        const deletedBlog = await blogService.deleteBlog(req.params.id);
         if (deletedBlog) {
             res.sendStatus(204);
             return;
