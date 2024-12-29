@@ -5,19 +5,14 @@ import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {ObjectId, SortDirection} from "mongodb";
 import {BlogInputType} from "../types/db.types";
 import {blogService} from "../domains/blogsService";
+import {blogRepository} from "../repositories/blogRepository";
+import {paginationQueries} from "../helpers/paginationValues";
 
 export const blogRouter = Router();
 
 export const blogController = {
     async getAllBlogs(req: Request, res: Response) {
-        let searchNameTerm = req.query.searchNameTerm ? req.query.searchNameTerm.toString() : null;
-        let sortBy = req.query.sortBy ? req.query.sortBy.toString() : "createdAt";
-        let sortDirection: SortDirection =
-            req.query.sortDirection && req.query.sortDirection.toString() === 'asc'
-                ? 'asc'
-                : 'desc'
-        let pageNumber = req.query.pageNumber ? +req.query.pageNumber : 1;
-        let pageSize = req.query.pageSize ? +req.query.pageSize : 10;
+        const { searchNameTerm, sortBy, sortDirection, pageNumber, pageSize} = paginationQueries(req)
         const blogs = await blogService.getAllBlogs(
             searchNameTerm,
             sortBy,
@@ -32,6 +27,21 @@ export const blogController = {
         const blogId = await blogService.createBlog(req.body);
         const blog = await blogService.getBlogBy_Id(blogId)
         res.status(201).json(blog);
+    },
+
+    async getPostsByBlogId(req: Request, res: Response) {
+        const {pageNumber, pageSize, sortBy, sortDirection} = paginationQueries(req)
+        const posts = await postService.getPostsByBlogId(req.params.blogId)
+        if (posts){
+            res.status(200).json(posts);
+            return
+        }
+        res.sendStatus(404)
+
+    },
+
+    async createPostByBlogId(req: Request, res: Response) {
+
     },
 
     async getBlogById(req: Request, res: Response) {
@@ -71,6 +81,8 @@ blogRouter.post('/',
     websiteUrlValidator,
     errorsResultMiddleware,
     blogController.createBlog);
+blogRouter.get('/:blogId/posts', blogController.getPostsByBlogId,)
+blogRouter.post('/:blogId/posts', blogController.createPostByBlogId);
 blogRouter.get('/:id', blogController.getBlogById);
 blogRouter.put('/:id',
     authorizationMiddleware,

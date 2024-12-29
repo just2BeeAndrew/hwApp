@@ -34,6 +34,10 @@ export const postsRepository = {
         return await postsCollection.findOne({_id},{projection:{_id:0}});
     },
 
+    async getPostsByBlogId(blogId: string) {
+        return await postsCollection.findOne({blogId},{projection:{_id:0}});
+    },
+
     async updatePost(id: string, body: PostType): Promise<boolean> {
         const blogsIndex = await blogsCollection.findOne({id: body.blogId});
         if (!blogsIndex) throw new Error("blog index not found");
