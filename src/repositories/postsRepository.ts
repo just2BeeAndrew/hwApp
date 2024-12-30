@@ -1,7 +1,7 @@
 import {db} from "../db/db";
-import {PostType, BlogDbType} from "../types/db.types";
+import {PostInputType, PostDBType, BlogDbType, BlogInputType} from "../types/db.types";
 import {blogsCollection, postsCollection} from "../db/mongoDb";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
 
 export const postsRepository = {
@@ -9,20 +9,8 @@ export const postsRepository = {
         return await postsCollection.find({},{projection:{_id:0}}).toArray()
     },
 
-    async createPost(body: PostType): Promise<ObjectId> {
-        const blogsIndex = await blogsCollection.findOne({id: body.blogId});
-        if (!blogsIndex) throw new Error("blog index not found");
-
-        const post: PostType = {
-            id: Math.random().toString(),
-            title: body.title,
-            shortDescription: body.shortDescription,
-            content: body.content,
-            blogId: body.blogId,
-            blogName: blogsIndex.name,
-            createdAt: new Date().toISOString()
-        }
-        const res = await postsCollection.insertOne(post);
+    async createPost(createdPost: PostInputType): Promise<ObjectId> {
+        const res = await postsCollection.insertOne(createdPost);
         return res.insertedId
     },
 
@@ -38,7 +26,7 @@ export const postsRepository = {
         return await postsCollection.findOne({blogId},{projection:{_id:0}});
     },
 
-    async updatePost(id: string, body: PostType): Promise<boolean> {
+    async updatePost(id: string, body: PostInputType): Promise<boolean> {
         const blogsIndex = await blogsCollection.findOne({id: body.blogId});
         if (!blogsIndex) throw new Error("blog index not found");
 

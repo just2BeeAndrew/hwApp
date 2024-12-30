@@ -1,27 +1,28 @@
 import {Router, Request, Response} from 'express';
-import {postsRepository} from "../repositories/postsRepository";
+import {postsService} from "../repositories/postsService";
 import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {ObjectId} from "mongodb";
-import {blogRepository} from "../repositories/blogRepository";
+import {blogsRepository} from "../repositories/blogsRepository";
+import {PostInputType} from "../types/db.types";
 
 export const postRouter = Router();
 
 export const postController = {
     async getAllPosts(req: Request, res: Response) {
-        const posts = await postsRepository.getAllPosts();
+        const posts = await postsService.getAllPosts();
         res.status(200).send(posts);
     },
 
-    async createPost(req: Request, res: Response) {
-        const postId = await postsRepository.createPost(req.body);
-        const post = await postsRepository.getPostBy_Id(postId);
+    async createPost(req: Request<PostInputType>, res: Response) {
+        const postId = await postsService.createPost(req.body);
+        const post = await postsService.getPostBy_Id(postId);
         res.status(201).send(post);
     },
 
     async getPostById(req: Request, res: Response) {
-        const postId = await postsRepository.getPostById(req.params.id);
+        const postId = await postsService.getPostById(req.params.id);
         if (postId)
         {
             res.status(200).send(postId);
@@ -31,7 +32,7 @@ export const postController = {
     },
 
     async updatePost(req: Request, res: Response) {
-        const updatedPost = await postsRepository.updatePost(req.params.id, req.body);
+        const updatedPost = await postsService.updatePost(req.params.id, req.body);
         if (updatedPost) {
             res.status(204).json(updatedPost);
             return;
@@ -40,7 +41,7 @@ export const postController = {
     },
 
     async deletePost(req:Request, res: Response) {
-        const deletedPost = await postsRepository.deletePost(req.params.id);
+        const deletedPost = await postsService.deletePost(req.params.id);
         if (deletedPost){
             res.sendStatus(204);
             return

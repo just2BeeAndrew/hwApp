@@ -1,55 +1,41 @@
-import {blogRepository} from "../repositories/blogRepository";
-import {postsRepository} from "../repositories/postsRepository";
-import {BlogInputType, BlogDbType} from "../types/db.types";
+import {blogsRepository} from "../repositories/blogsRepository";
+import {postsService} from "../domains/postsService";
+import {BlogInputType, BlogDbType, BlogOutputType} from "../types/db.types";
 import {ObjectId} from "mongodb";
+import {SortType} from "../helpers/paginationValues";
 
-
-export const blogService = {
+export const blogsService = {
     async getAllBlogs(
-        searchNameTerm: string | null,
-        sortBy: string,
-        sortDirection: 'asc' | 'desc',
-        pageNumber: number,
-        pageSize: number
-    ){
-        const blogs = await blogRepository.getAllBlogs(
-            searchNameTerm,
-            sortBy,
-            sortDirection,
-            pageNumber,
-            pageSize
-        )
-        const blogsCount = await blogRepository.getBlogsCount(searchNameTerm)
+        sortData:SortType
+    ) {
+        const blogs = await blogsRepository.getAllBlogs(sortData)
+        const blogsCount = await blogsRepository.getBlogsCount(sortData.searchNameTerm)
         return {
-            pagesCount: Math.ceil(blogsCount / pageSize),
-            page: pageNumber,
-            pageSize,
+            pagesCount: Math.ceil(blogsCount / sortData.pageSize),
+            page: sortData.pageNumber,
+            pageSize:sortData.pageSize,
             totalCount: blogsCount,
             items: blogs,
         }
     },
 
     async createBlog(createData: BlogInputType): Promise<ObjectId> {
-        const blog:BlogDbType = {
+        const blog: BlogOutputType = {
             id: Math.random().toString(),
             name: createData.name,
             description: createData.description,
             websiteUrl: createData.websiteUrl,
             createdAt: new Date().toISOString(),
-            isMembership: false
+            isMembership: true
         }
-        const createdBlog = await blogRepository.createBlog(blog)
+        const createdBlog = await blogsRepository.createBlog(blog)
         return createdBlog
     },
 
     async getPostsByBlogId(
-        pageNumber: number,
-        pageSize: number,
-        sortBy: string,
-        sortDirection: 'asc' | 'desc',
-        blogId: string
+        sortData:SortType
     ) {
-        const posts = await postsRepository.getPostsByBlogId(blogId)
+        const posts = await postsService.getPostsByBlogId(blogId)
         return {
             pagesCount: Math.ceil(postsCount / pageSize),
             page: pageNumber,
@@ -61,12 +47,12 @@ export const blogService = {
     },
 
     async getBlogById(id: string) {
-        return await blogRepository.getBlogById(id);
+        return await blogsRepository.getBlogById(id);
 
     },
 
     async getBlogBy_Id(_id: ObjectId) {
-        return await blogRepository.getBlogBy_Id(_id);
+        return await blogsRepository.getBlogBy_Id(_id);
 
     },
 
@@ -76,5 +62,6 @@ export const blogService = {
 
     async deleteBlog(id: string) {
 
-    }
+    },
+
 }

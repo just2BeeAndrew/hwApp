@@ -1,27 +1,34 @@
 import {db} from "../db/db";
-import {BlogInputType, BlogDbType} from "../types/db.types";
+import {BlogInputType, BlogDbType, BlogOutputType} from "../types/db.types";
 import {blogsCollection, postsCollection} from "../db/mongoDb";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
+import {SortType} from "../helpers/paginationValues";
 
+const blogMapper = (blog: WithId<BlogDbType>): BlogOutputType => {
+    return {
+        id: blog.id,
+        name: blog.name,
+        description: blog.description,
+        websiteUrl: blog.websiteUrl,
+        createdAt: blog.createdAt,
+        isMembership: blog.isMembership
+    }
+}
 
-export const blogRepository = {
-    async getAllBlogs(
-        searchNameTerm: string | null,
-        sortBy: string,
-        sortDirection: 'asc' | 'desc',
-        pageNumber: number,
-        pageSize: number
-    ) {
+export const blogsRepository = {
+    async getAllBlogs(sortData:SortType) {
+        const {searchNameTerm,sortBy,sortDirection, pageSize,pageNumber } = sortData;
         const filter: any = {}//создаем пустой объект
         if (searchNameTerm) {//если searchNameTerm существует то...
             filter.name = {$regex: searchNameTerm, $options: "i"} //присваиваем найденые значения
         }
-        return blogsCollection //возвращает значения по заданым критериям
-            .find(filter, {projection: {_id: 0}})//поиск переменной filter и вывод без поля _id
+        const blogs = await blogsCollection //возвращает значения по заданым критериям
+            .find(filter)//поиск переменной filter и вывод без поля _id
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})//выполняет сортировку по уюыванию
             .skip((pageNumber - 1) * pageSize)//переход на нужную страницу пропуская указаное количество элементов
             .limit(pageSize)//устанавливает кол-во элементов на странице
-            .toArray()//преобразует в массив
+            .toArray()
+        return blogs.map(blogMapper)//преобразует в массив
     },
 
     async getBlogsCount(searchNameTerm: string | null): Promise<number> {
@@ -32,7 +39,7 @@ export const blogRepository = {
         return blogsCollection.countDocuments(filter)
     },
 
-    async createBlog(createdBlog: BlogDbType): Promise<ObjectId> {
+    async createBlog(createdBlog: BlogOutputType): Promise<ObjectId> {
         const res = await blogsCollection.insertOne(createdBlog)
         return res.insertedId
     },
@@ -55,11 +62,20 @@ export const blogRepository = {
     },
 
     async getBlogById(id: string) {
-        return await blogsCollection.findOne({id}, {projection: {_id: 0}});
+        const blog = await blogsCollection.findOne({id});
+        if (!blog) {
+            return null
+        }
+        return blogMapper(blog);
+
     },
 
     async getBlogBy_Id(_id: ObjectId) {
-        return await blogsCollection.findOne({_id}, {projection: {_id: 0}});
+        const blog = await blogsCollection.findOne({_id});
+        if (!blog) {
+            return null
+        }
+        return blogMapper(blog);
     },
 
     async updateBlog(id: string, body: BlogDbType): Promise<boolean> {

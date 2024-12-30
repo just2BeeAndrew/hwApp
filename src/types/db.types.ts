@@ -1,6 +1,8 @@
+import {ObjectId} from "mongodb";
+
 export type  DBType = {
     blogs: BlogDbType[],
-    posts: PostType[]
+    posts: PostDBType[]
 }
 
 export type BlogInputType = {
@@ -10,6 +12,15 @@ export type BlogInputType = {
 }
 
 export type BlogDbType = {
+    _id: ObjectId,
+    id: string,
+    name: string,
+    description: string,
+    websiteUrl: string,
+    createdAt: string
+    isMembership: boolean
+}
+export type BlogOutputType = {
     id: string,
     name: string,
     description: string,
@@ -18,7 +29,20 @@ export type BlogDbType = {
     isMembership: boolean
 }
 
-export type PostType = {
+export type PostInputType = {
+    title: string,
+    shortDescription: string,
+    content: string,
+    blogId: string,
+}
+
+export type BlogPostInputType = {
+    title: string,
+    shortDescription: string,
+    content: string
+}
+
+export type PostDBType = {
     id: string,
     title: string,
     shortDescription: string,

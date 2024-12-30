@@ -1,7 +1,15 @@
 import {Request} from "express";
 import {SortDirection} from "mongodb";
 
-export const paginationQueries = (req: Request) => {
+export type SortType = {
+    searchNameTerm: string | null
+    sortBy:string
+    sortDirection: SortDirection
+    pageNumber: number
+    pageSize: number
+}
+
+export const paginationQueries = (req: Request):SortType => {
     let searchNameTerm:string | null = req.query.searchNameTerm ? req.query.searchNameTerm.toString() : null;
     let sortBy:string = req.query.sortBy ? req.query.sortBy.toString() : "createdAt";
     let sortDirection: 'asc'|'desc' =
