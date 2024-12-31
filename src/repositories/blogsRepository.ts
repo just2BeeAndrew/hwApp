@@ -39,7 +39,7 @@ export const blogsRepository = {
         return blogsCollection.countDocuments(filter)
     },
 
-    async createBlog(createdBlog: BlogOutputType): Promise<ObjectId> {
+    async createBlog(createdBlog: BlogDbType): Promise<ObjectId> {
         const res = await blogsCollection.insertOne(createdBlog)
         return res.insertedId
     },

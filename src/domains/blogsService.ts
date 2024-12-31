@@ -32,19 +32,7 @@ export const blogsService = {
         return createdBlog
     },
 
-    async getPostsByBlogId(
-        sortData:SortType
-    ) {
-        const posts = await postsService.getPostsByBlogId(blogId)
-        return {
-            pagesCount: Math.ceil(postsCount / pageSize),
-            page: pageNumber,
-            pageSize,
-            totalCount: postsCount,
-            items: posts,
-        }
 
-    },
 
     async getBlogById(id: string) {
         return await blogsRepository.getBlogById(id);
