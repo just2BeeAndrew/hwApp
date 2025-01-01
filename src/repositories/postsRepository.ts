@@ -1,12 +1,33 @@
 import {db} from "../db/db";
-import {PostInputType, PostDBType, BlogDbType, BlogInputType} from "../types/db.types";
+import {PostInputType, PostDBType, PostOutputType, BlogDbType, BlogInputType} from "../types/db.types";
 import {blogsCollection, postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
+import {SortType} from "../helpers/paginationValues";
+
+const postMapper = (post: WithId<PostDBType>): PostOutputType => {
+    return {
+        id: post.id,
+        title: post.title,
+        shortDescription: post.shortDescription,
+        content: post.content,
+        blogId: post.blogId,
+        blogName: post.blogName,
+        createdAt: post.createdAt
+    }
+}
 
 
 export const postsRepository = {
     async getAllPosts() {
-        return await postsCollection.find({},{projection:{_id:0}}).toArray()
+        return await postsCollection.find({}, {projection: {_id: 0}}).toArray()
+    },
+
+    getPostsCount(blogId:string):Promise<number> {
+        const filter: any = {}
+        if (blogId){
+            filter.blogId = {$regex:blogId};
+        }
+        return postsCollection.countDocuments(filter)
     },
 
     async createPost(createdPost: PostInputType): Promise<ObjectId> {
@@ -15,16 +36,29 @@ export const postsRepository = {
     },
 
     async getPostById(id: string) {
-        return await postsCollection.findOne({id}, {projection:{_id:0}});
+        return await postsCollection.findOne({id}, {projection: {_id: 0}});
     },
 
     async getPostBy_Id(_id: ObjectId) {
-        return await postsCollection.findOne({_id},{projection:{_id:0}});
+        return await postsCollection.findOne({_id}, {projection: {_id: 0}});
     },
 
-    async getPostsByBlogId(blogId: string) {
-        return await postsCollection.findOne({blogId},{projection:{_id:0}});
+    async getPostsByBlogId(blogId: string, sortData: SortType) {
+        const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
+        const filteredPosts: any = {}
+        if (blogId) {
+            filteredPosts.blogId = {$regex: blogId};
+        }
+        const posts = await postsCollection
+            .find(filteredPosts)
+            .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .toArray()
+        return posts.map(postMapper)
+
     },
+
 
     async updatePost(id: string, body: PostInputType): Promise<boolean> {
         const blogsIndex = await blogsCollection.findOne({id: body.blogId});
@@ -45,11 +79,11 @@ export const postsRepository = {
         return res.matchedCount === 1
     },
 
-    async deletePost(id:string):Promise<boolean> {
+    async deletePost(id: string): Promise<boolean> {
         const post = await postsCollection.findOne({id});
-        if (post){
+        if (post) {
             const res = await postsCollection.deleteOne({_id: post._id});
-            if(res.deletedCount > 0) return true;
+            if (res.deletedCount > 0) return true;
         }
         return false
     }

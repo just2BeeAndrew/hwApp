@@ -2,6 +2,7 @@ import {PostDBType, PostInputType} from "../types/db.types";
 import {ObjectId} from "mongodb";
 import {blogsCollection} from "../db/mongoDb";
 import {postsRepository} from "../repositories/postsRepository";
+import {SortType} from "../helpers/paginationValues";
 
 
 export const postsService = {
@@ -22,5 +23,15 @@ export const postsService = {
         return createdPost
     },
 
-    async getPostsByBlogId() {}
+    async getPostsByBlogId(blogId: string, sortData:SortType) {
+        const posts = await postsRepository.getPostsByBlogId(blogId, sortData)
+        const postsCount = await postsRepository.getPostsCount(blogId)
+        return {
+            pagesCount: Math.ceil(postsCount / sortData.pageSize),
+            page: sortData.pageNumber,
+            pageSize:sortData.pageSize,
+            totalCount: postsCount,
+            items: posts,
+        }
+    }
 }

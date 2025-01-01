@@ -12,7 +12,7 @@ export type BlogInputType = {
 }
 
 export type BlogDbType = {
-    _id: ObjectId,
+    //_id: ObjectId,
     id: string,
     name: string,
     description: string,
@@ -43,6 +43,16 @@ export type BlogPostInputType = {
 }
 
 export type PostDBType = {
+    id: string,
+    title: string,
+    shortDescription: string,
+    content: string,
+    blogId: string,
+    blogName: string,
+    createdAt: string
+}
+
+export type PostOutputType = {
     id: string,
     title: string,
     shortDescription: string,
