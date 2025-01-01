@@ -3,7 +3,7 @@ import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {descriptionValidator, nameValidator, websiteUrlValidator} from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {ObjectId, SortDirection} from "mongodb";
-import {BlogInputType} from "../types/db.types";
+import {BlogInputType, PostInputType} from "../types/db.types";
 import {blogsService} from "../domains/blogsService";
 
 import {blogsRepository} from "../repositories/blogsRepository";
@@ -36,7 +36,8 @@ export const blogController = {
 
     },
 
-    async createPostByBlogId(req: Request, res: Response) {
+    async createPostByBlogId(req: Request<PostInputType>, res: Response) {
+        const postId = await postsService.createPostByBlogId(req.params.blogId,req.body)
 
     },
 

@@ -3,6 +3,7 @@ import {ObjectId} from "mongodb";
 import {blogsCollection} from "../db/mongoDb";
 import {postsRepository} from "../repositories/postsRepository";
 import {SortType} from "../helpers/paginationValues";
+import {blogsRepository} from "../repositories/blogsRepository";
 
 
 export const postsService = {
@@ -33,5 +34,23 @@ export const postsService = {
             totalCount: postsCount,
             items: posts,
         }
+    },
+
+    async createPostByBlogId(blogId: string,createData: PostInputType ): Promise<ObjectId> {
+        const blogsIndex = await blogsRepository.getBlogById(blogId);
+        if (!blogsIndex) throw new Error("blog index not found");
+
+        const post: PostDBType = {
+            id: Math.random().toString(),
+            title: createData.title,
+            shortDescription: createData.shortDescription,
+            content: createData.content,
+            blogId: blogId,
+            blogName: blogsIndex.name,
+            createdAt: new Date().toISOString()
+        }
+        const createdPost = await postsRepository.createPost(post);
+        return createdPost
+
     }
 }

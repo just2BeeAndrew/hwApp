@@ -30,7 +30,7 @@ export const postsRepository = {
         return postsCollection.countDocuments(filter)
     },
 
-    async createPost(createdPost: PostInputType): Promise<ObjectId> {
+    async createPost(createdPost: PostDBType): Promise<ObjectId> {
         const res = await postsCollection.insertOne(createdPost);
         return res.insertedId
     },

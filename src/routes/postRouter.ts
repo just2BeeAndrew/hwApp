@@ -1,11 +1,12 @@
 import {Router, Request, Response} from 'express';
-import {postsService} from "../repositories/postsService";
+
 import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {ObjectId} from "mongodb";
 import {blogsRepository} from "../repositories/blogsRepository";
 import {PostInputType} from "../types/db.types";
+import {postsService} from "../domains/postsService";
 
 export const postRouter = Router();
 
