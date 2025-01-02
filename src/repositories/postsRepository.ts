@@ -1,8 +1,9 @@
 import {db} from "../db/db";
-import {PostInputType, PostDBType, PostOutputType, BlogDbType, BlogInputType} from "../types/db.types";
+import {PostInputType, PostDBType, PostOutputType, BlogDbType, BlogInputType, BlogOutputType} from "../types/db.types";
 import {blogsCollection, postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {SortType} from "../helpers/paginationValues";
+import {blogsRepository} from "./blogsRepository";
 
 const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     return {
@@ -16,19 +17,31 @@ const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     }
 }
 
-
 export const postsRepository = {
-    async getAllPosts() {
-        return await postsCollection.find({}, {projection: {_id: 0}}).toArray()
+    async getAllPosts(sortData: SortType) {
+        const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
+        const posts = await postsCollection
+            .find()
+            .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .toArray()
+        return posts.map(postMapper)
     },
 
-    getPostsCount(blogId:string):Promise<number> {
+    getPostsCount(blogId: string): Promise<number> {
         const filter: any = {}
-        if (blogId){
-            filter.blogId = {$regex:blogId};
+        if (blogId) {
+            filter.blogId = {blogId};
         }
         return postsCollection.countDocuments(filter)
     },
+
+    getAllPostsCount(): Promise<number> {
+        return postsCollection.countDocuments({})
+    },
+
+
 
     async createPost(createdPost: PostDBType): Promise<ObjectId> {
         const res = await postsCollection.insertOne(createdPost);
@@ -36,18 +49,22 @@ export const postsRepository = {
     },
 
     async getPostById(id: string) {
-        return await postsCollection.findOne({id}, {projection: {_id: 0}});
+        const posts = await postsCollection.findOne({id:id});
+        if (!posts) {
+            return null
+        }
+        return postMapper(posts);
     },
 
     async getPostBy_Id(_id: ObjectId) {
-        return await postsCollection.findOne({_id}, {projection: {_id: 0}});
+        return await postsCollection.findOne({_id});
     },
 
     async getPostsByBlogId(blogId: string, sortData: SortType) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
         const filteredPosts: any = {}
         if (blogId) {
-            filteredPosts.blogId = {$regex: blogId};
+            filteredPosts.blogId = blogId;
         }
         const posts = await postsCollection
             .find(filteredPosts)
@@ -56,13 +73,10 @@ export const postsRepository = {
             .limit(pageSize)
             .toArray()
         return posts.map(postMapper)
-
     },
 
 
-    async updatePost(id: string, body: PostInputType): Promise<boolean> {
-        const blogsIndex = await blogsCollection.findOne({id: body.blogId});
-        if (!blogsIndex) throw new Error("blog index not found");
+    async updatePost(id: string, body: PostInputType, blogsIndex: BlogOutputType): Promise<boolean> {
 
         const res = await postsCollection.updateOne(
             {id},

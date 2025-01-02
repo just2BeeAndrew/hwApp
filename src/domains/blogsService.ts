@@ -26,17 +26,14 @@ export const blogsService = {
             description: createData.description,
             websiteUrl: createData.websiteUrl,
             createdAt: new Date().toISOString(),
-            isMembership: true
+            isMembership: false
         }
         const createdBlog = await blogsRepository.createBlog(blog)
         return createdBlog
     },
 
-
-
     async getBlogById(id: string) {
         return await blogsRepository.getBlogById(id);
-
     },
 
     async getBlogBy_Id(_id: ObjectId) {
@@ -45,11 +42,12 @@ export const blogsService = {
     },
 
     async updateBlog(id: string, updateBlogInput: BlogInputType): Promise<boolean> {
+        return await blogsRepository.updateBlog(id,updateBlogInput)
 
     },
 
     async deleteBlog(id: string) {
-
+        return await blogsRepository.deleteBlog(id);
     },
 
 }

@@ -1,4 +1,4 @@
-import {PostDBType, PostInputType} from "../types/db.types";
+import {BlogPostInputType, PostDBType, PostInputType} from "../types/db.types";
 import {ObjectId} from "mongodb";
 import {blogsCollection} from "../db/mongoDb";
 import {postsRepository} from "../repositories/postsRepository";
@@ -7,8 +7,24 @@ import {blogsRepository} from "../repositories/blogsRepository";
 
 
 export const postsService = {
-    async createPost(createData: PostInputType): Promise<ObjectId> {
-        const blogsIndex = await blogsCollection.findOne({id: createData.blogId});
+    async getAllPosts(
+        sortData: SortType
+    ) {
+        const posts = await postsRepository.getAllPosts(sortData)
+        const postsCount = await postsRepository.getAllPostsCount()//!!!Уточнить на саппорте
+        console.log(postsCount)
+        return {
+            pagesCount: Math.ceil(postsCount / sortData.pageSize),
+            page: sortData.pageNumber,
+            pageSize: sortData.pageSize,
+            totalCount: postsCount,
+            items: posts,
+        }
+    },
+
+    async createPost(createData: PostInputType):Promise<ObjectId> {
+        const blogsIndex = await blogsRepository.getBlogById(createData.blogId);
+        console.log(blogsIndex)
         if (!blogsIndex) throw new Error("blog index not found");
 
         const post: PostDBType = {
@@ -24,33 +40,37 @@ export const postsService = {
         return createdPost
     },
 
-    async getPostsByBlogId(blogId: string, sortData:SortType) {
+    async getPostsByBlogId(sortData: SortType, blogId: string) {
         const posts = await postsRepository.getPostsByBlogId(blogId, sortData)
         const postsCount = await postsRepository.getPostsCount(blogId)
         return {
             pagesCount: Math.ceil(postsCount / sortData.pageSize),
             page: sortData.pageNumber,
-            pageSize:sortData.pageSize,
+            pageSize: sortData.pageSize,
             totalCount: postsCount,
             items: posts,
         }
     },
 
-    async createPostByBlogId(blogId: string,createData: PostInputType ): Promise<ObjectId> {
-        const blogsIndex = await blogsRepository.getBlogById(blogId);
+    async getPostById(id: string) {
+        return await postsRepository.getPostById(id)
+    },
+
+
+    async getPostBy_Id(_id: ObjectId) {
+        return await postsRepository.getPostBy_Id(_id);
+    },
+
+    async updatePost(id:string, updateData: PostInputType) {
+        const blogsIndex = await blogsRepository.getBlogById(updateData.blogId);
         if (!blogsIndex) throw new Error("blog index not found");
 
-        const post: PostDBType = {
-            id: Math.random().toString(),
-            title: createData.title,
-            shortDescription: createData.shortDescription,
-            content: createData.content,
-            blogId: blogId,
-            blogName: blogsIndex.name,
-            createdAt: new Date().toISOString()
-        }
-        const createdPost = await postsRepository.createPost(post);
-        return createdPost
+        const updatedPost = await postsRepository.updatePost(id, updateData, blogsIndex);
+        return updatedPost
+    },
 
+    async deletePost(id: string): Promise<boolean> {
+        const deletedPost = await postsRepository.deletePost(id);
+        return deletedPost
     }
 }

@@ -29,17 +29,17 @@ export type BlogOutputType = {
     isMembership: boolean
 }
 
+export type BlogPostInputType = {
+    title: string,
+    shortDescription: string,
+    content: string
+}
+
 export type PostInputType = {
     title: string,
     shortDescription: string,
     content: string,
     blogId: string,
-}
-
-export type BlogPostInputType = {
-    title: string,
-    shortDescription: string,
-    content: string
 }
 
 export type PostDBType = {

@@ -1,7 +1,7 @@
 import {body} from "express-validator";
-import {postsService} from "../repositories/postsService";
+import {postsRepository} from "../repositories/postsRepository";
 import {blogsRepository} from "../repositories/blogsRepository";
-import {blogsCollection} from "../db/mongoDb";
+import {blogsCollection,postsCollection} from "../db/mongoDb";
 
 //blogs validation
 export const nameValidator = body("name")

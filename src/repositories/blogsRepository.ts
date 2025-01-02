@@ -44,30 +44,12 @@ export const blogsRepository = {
         return res.insertedId
     },
 
-    async getPostsByBlogId(
-        pageNumber: number,
-        pageSize: number,
-        sortBy: string,
-        sortDirection: 'asc' | 'desc',
-        blogId: string
-    ) {
-        const filter: any = {}
-        filter.blogId = {$regex: blogId};
-        return postsCollection
-            .find(filter, {projection: {_id: 0}})
-            .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .toArray()
-    },
-
     async getBlogById(id: string) {
         const blog = await blogsCollection.findOne({id});
         if (!blog) {
             return null
         }
         return blogMapper(blog);
-
     },
 
     async getBlogBy_Id(_id: ObjectId) {
@@ -80,7 +62,7 @@ export const blogsRepository = {
 
 
 
-    async updateBlog(id: string, body: BlogDbType): Promise<boolean> {
+    async updateBlog(id: string, body: BlogInputType): Promise<boolean> {
         const res = await blogsCollection.updateOne(
             {id},
             {

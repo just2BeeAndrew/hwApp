@@ -1,18 +1,17 @@
 import {Router, Request, Response} from 'express';
-
 import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
-import {ObjectId} from "mongodb";
-import {blogsRepository} from "../repositories/blogsRepository";
 import {PostInputType} from "../types/db.types";
 import {postsService} from "../domains/postsService";
+import {paginationQueries} from "../helpers/paginationValues";
 
 export const postRouter = Router();
 
 export const postController = {
     async getAllPosts(req: Request, res: Response) {
-        const posts = await postsService.getAllPosts();
+        const sortData = paginationQueries(req)
+        const posts = await postsService.getAllPosts(sortData);
         res.status(200).send(posts);
     },
 
@@ -32,7 +31,7 @@ export const postController = {
         res.sendStatus(404)
     },
 
-    async updatePost(req: Request, res: Response) {
+    async updatePost(req: Request<{id:string},{},PostInputType>, res: Response) {
         const updatedPost = await postsService.updatePost(req.params.id, req.body);
         if (updatedPost) {
             res.status(204).json(updatedPost);
