@@ -22,10 +22,11 @@ export const postsService = {
         }
     },
 
-    async createPost(createData: PostInputType):Promise<ObjectId> {
+    async createPost(createData: PostInputType) {
+        console.log(createData);
         const blogsIndex = await blogsRepository.getBlogById(createData.blogId);
         console.log(blogsIndex)
-        if (!blogsIndex) throw new Error("blog index not found");
+        if (!blogsIndex) return null
 
         const post: PostDBType = {
             id: Math.random().toString(),
@@ -41,6 +42,9 @@ export const postsService = {
     },
 
     async getPostsByBlogId(sortData: SortType, blogId: string) {
+        const blogsIndex = await blogsRepository.getBlogById(blogId);
+        if (!blogsIndex) return null
+
         const posts = await postsRepository.getPostsByBlogId(blogId, sortData)
         const postsCount = await postsRepository.getPostsCount(blogId)
         return {
@@ -55,7 +59,6 @@ export const postsService = {
     async getPostById(id: string) {
         return await postsRepository.getPostById(id)
     },
-
 
     async getPostBy_Id(_id: ObjectId) {
         return await postsRepository.getPostBy_Id(_id);

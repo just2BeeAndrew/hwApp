@@ -17,8 +17,14 @@ export const postController = {
 
     async createPost(req: Request<PostInputType>, res: Response) {
         const postId = await postsService.createPost(req.body);
+        if (!postId) {
+            res.sendStatus(404)
+            return
+        }
         const post = await postsService.getPostBy_Id(postId);
         res.status(201).send(post);
+
+
     },
 
     async getPostById(req: Request, res: Response) {

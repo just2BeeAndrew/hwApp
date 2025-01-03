@@ -32,7 +32,7 @@ export const postsRepository = {
     getPostsCount(blogId: string): Promise<number> {
         const filter: any = {}
         if (blogId) {
-            filter.blogId = {blogId};
+            filter.blogId = blogId;
         }
         return postsCollection.countDocuments(filter)
     },
@@ -57,15 +57,21 @@ export const postsRepository = {
     },
 
     async getPostBy_Id(_id: ObjectId) {
-        return await postsCollection.findOne({_id});
+        const posts = await postsCollection.findOne({_id});
+        if (!posts) {
+            return null
+        }
+        return postMapper(posts);
     },
 
     async getPostsByBlogId(blogId: string, sortData: SortType) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
         const filteredPosts: any = {}
-        if (blogId) {
-            filteredPosts.blogId = blogId;
+        if (!blogId) {
+            return null
         }
+        filteredPosts.blogId = blogId;
+
         const posts = await postsCollection
             .find(filteredPosts)
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
@@ -77,7 +83,6 @@ export const postsRepository = {
 
 
     async updatePost(id: string, body: PostInputType, blogsIndex: BlogOutputType): Promise<boolean> {
-
         const res = await postsCollection.updateOne(
             {id},
             {

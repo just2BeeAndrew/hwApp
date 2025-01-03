@@ -1,6 +1,12 @@
 import {Router, Request, Response} from 'express';
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
-import {descriptionValidator, nameValidator, websiteUrlValidator} from "../middlewares/expressValidationMiddleware";
+import {
+    contentValidator,
+    descriptionValidator,
+    nameValidator, shortDescriptionValidator, titleValidator,
+    websiteUrlValidator
+}
+    from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {BlogInputType, PostInputType,BlogPostInputType} from "../types/db.types";
 import {blogsService} from "../domains/blogsService";
@@ -24,6 +30,7 @@ export const blogController = {
 
     async getPostsByBlogId(req: Request<{blogId:string},{},{}>, res: Response) {
         const sortData = paginationQueries(req)
+        console.log(sortData)
         const posts = await postsService.getPostsByBlogId(sortData, req.params.blogId)
         if (posts){
             res.status(200).json(posts);
@@ -34,6 +41,10 @@ export const blogController = {
 
     async createPostByBlogId(req: Request<{blogId:string},{},BlogPostInputType>, res: Response) {
         const postsId = await postsService.createPost({...req.body, blogId:req.params.blogId})
+        if (!postsId){
+            res.sendStatus(404)
+            return
+        }
         const post = await postsService.getPostBy_Id(postsId)
         res.status(201).json(post);
     },
@@ -75,7 +86,13 @@ blogRouter.post('/',
     errorsResultMiddleware,
     blogController.createBlog);
 blogRouter.get('/:blogId/posts', blogController.getPostsByBlogId,)
-blogRouter.post('/:blogId/posts', blogController.createPostByBlogId);
+blogRouter.post('/:blogId/posts',
+    authorizationMiddleware,
+    titleValidator,
+    shortDescriptionValidator,
+    contentValidator,
+    errorsResultMiddleware,
+    blogController.createPostByBlogId);
 blogRouter.get('/:id', blogController.getBlogById);
 blogRouter.put('/:id',
     authorizationMiddleware,
