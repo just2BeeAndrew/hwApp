@@ -6,7 +6,7 @@ export const testingRouter = Router();
 
 export const testingController = {
     async deleteAll(req: Request, res: Response) {
-        const deleteAll = await testingRepository.deleteAllBlogs();
+        const deleteAll = await testingService.deleteAllBlogs();
         res.sendStatus(204)
     }
 }
