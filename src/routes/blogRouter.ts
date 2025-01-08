@@ -12,19 +12,20 @@ import {BlogInputType, PostInputType,BlogPostInputType} from "../types/db.types"
 import {blogsService} from "../domains/blogsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsService} from "../domains/postsService";
+import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
 
 export const blogRouter = Router();
 
 export const blogController = {
     async getAllBlogs(req: Request, res: Response) {
         const sortData = paginationQueries(req)
-        const blogs = await blogsService.getAllBlogs(sortData)
+        const blogs = await blogsQueryRepository.getAllBlogs(sortData)
         res.status(200).json(blogs);
     },
 
     async createBlog(req: Request<BlogInputType>, res: Response) {
         const blogId = await blogsService.createBlog(req.body);
-        const blog = await blogsService.getBlogBy_Id(blogId)
+        const blog = await blogsQueryRepository.getBlogBy_Id(blogId)
         res.status(201).json(blog);
     },
 
@@ -50,7 +51,7 @@ export const blogController = {
     },
 
     async getBlogById(req: Request<{id:string}>, res: Response) {
-        const blogId = await blogsService.getBlogById(req.params.id);
+        const blogId = await blogsQueryRepository.getBlogById(req.params.id);
         if (blogId) {
             res.status(200).json(blogId);
             return

@@ -28,5 +28,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
-  }
+  },
+  "repository": "https://github.com/just2BeeAndrew/hwApp.git",
+  "author": "just2BeeAndrew <andrew.dudal.1997@gmail.com>"
 }

@@ -1,5 +1,10 @@
 import {ObjectId} from "mongodb";
 
+export type LoginInputType = {
+    loginOrEmail: string;
+    password: string;
+}
+
 export type  DBType = {
     blogs: BlogDbType[],
     posts: PostDBType[]
@@ -12,7 +17,6 @@ export type BlogInputType = {
 }
 
 export type BlogDbType = {
-    //_id: ObjectId,
     id: string,
     name: string,
     description: string,
@@ -61,6 +65,8 @@ export type PostOutputType = {
     blogName: string,
     createdAt: string
 }
+
+
 
 
 

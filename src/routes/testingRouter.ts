@@ -1,12 +1,10 @@
 import { Router, Request, Response } from 'express';
-import {testingRepository} from "../repositories/testingRepository";
-import {body, validationResult } from "express-validator";
-
+import {testingService} from "../domains/testingService";
 export const testingRouter = Router();
 
 export const testingController = {
     async deleteAll(req: Request, res: Response) {
-        const deleteAll = await testingService.deleteAllBlogs();
+        const deleteAll = await testingService.deleteAll();
         res.sendStatus(204)
     }
 }
