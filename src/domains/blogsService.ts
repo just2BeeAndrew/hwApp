@@ -1,13 +1,11 @@
 import {blogsRepository} from "../repositories/blogsRepository";
 import {BlogInputType, BlogOutputType} from "../types/db.types";
 import {ObjectId} from "mongodb";
-import {SortType} from "../helpers/paginationValues";
 
 export const blogsService = {
-
     async createBlog(createData: BlogInputType): Promise<ObjectId> {
         const blog: BlogOutputType = {
-            id: Math.random().toString(),
+            id: _id.toString(),
             name: createData.name,
             description: createData.description,
             websiteUrl: createData.websiteUrl,

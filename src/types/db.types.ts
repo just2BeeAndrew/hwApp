@@ -1,13 +1,11 @@
-import {ObjectId} from "mongodb";
+export type  DBType = {
+    blogs: BlogDbType[],
+    posts: PostDBType[]
+}
 
 export type LoginInputType = {
     loginOrEmail: string;
     password: string;
-}
-
-export type  DBType = {
-    blogs: BlogDbType[],
-    posts: PostDBType[]
 }
 
 export type BlogInputType = {
@@ -64,6 +62,27 @@ export type PostOutputType = {
     blogId: string,
     blogName: string,
     createdAt: string
+}
+
+export type UserInputType = {
+    login: string,
+    password: string,
+    email: string,
+}
+
+export type UserDBType = {
+    id: string,
+    login: string,
+    password: string,
+    email: string,
+    createdAt: string
+}
+
+export type UserOutputType = {
+    id: string,
+    login: string,
+    email: string,
+    createdAt: string,
 }
 
 

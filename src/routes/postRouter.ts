@@ -22,7 +22,7 @@ export const postController = {
             res.sendStatus(404)
             return
         }
-        const post = await postsService.getPostBy_Id(postId);
+        const post = await postsQueryRepository.getPostBy_Id(postId);
         res.status(201).send(post);
 
 

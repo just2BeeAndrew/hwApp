@@ -13,6 +13,7 @@ export const SETTINGS = {
         BLOGS: '/blogs',
         POSTS: '/posts',
         TESTING: '/testing/all-data',
+        USERS: '/users',
     },
     MONGO_URL:process.env.MONGO_URL||"",
     DB_NAME:process.env.DB_NAME||"testing",
