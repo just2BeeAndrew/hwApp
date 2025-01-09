@@ -5,13 +5,14 @@ import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {PostInputType} from "../types/db.types";
 import {postsService} from "../domains/postsService";
 import {paginationQueries} from "../helpers/paginationValues";
+import {postsQueryRepository} from "../repositories/postsQueryRepository";
 
 export const postRouter = Router();
 
 export const postController = {
     async getAllPosts(req: Request, res: Response) {
         const sortData = paginationQueries(req)
-        const posts = await postsService.getAllPosts(sortData);
+        const posts = await postsQueryRepository.getAllPosts(sortData);
         res.status(200).send(posts);
     },
 
@@ -28,7 +29,7 @@ export const postController = {
     },
 
     async getPostById(req: Request, res: Response) {
-        const postId = await postsService.getPostById(req.params.id);
+        const postId = await postsQueryRepository.getPostById(req.params.id);
         if (postId)
         {
             res.status(200).send(postId);
@@ -46,7 +47,7 @@ export const postController = {
         res.sendStatus(404)
     },
 
-    async deletePost(req:Request, res: Response) {
+     async deletePost(req:Request, res: Response) {
         const deletedPost = await postsService.deletePost(req.params.id);
         if (deletedPost){
             res.sendStatus(204);

@@ -13,6 +13,7 @@ import {blogsService} from "../domains/blogsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsService} from "../domains/postsService";
 import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
+import {postsQueryRepository} from "../repositories/postsQueryRepository";
 
 export const blogRouter = Router();
 
@@ -32,7 +33,7 @@ export const blogController = {
     async getPostsByBlogId(req: Request<{blogId:string},{},{}>, res: Response) {
         const sortData = paginationQueries(req)
         console.log(sortData)
-        const posts = await postsService.getPostsByBlogId(sortData, req.params.blogId)
+        const posts = await postsQueryRepository.getPostsByBlogId(req.params.blogId, sortData)
         if (posts){
             res.status(200).json(posts);
             return
@@ -46,7 +47,7 @@ export const blogController = {
             res.sendStatus(404)
             return
         }
-        const post = await postsService.getPostBy_Id(postsId)
+        const post = await postsQueryRepository.getPostBy_Id(postsId)
         res.status(201).json(post);
     },
 

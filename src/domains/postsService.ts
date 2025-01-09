@@ -4,27 +4,13 @@ import {blogsCollection} from "../db/mongoDb";
 import {postsRepository} from "../repositories/postsRepository";
 import {SortType} from "../helpers/paginationValues";
 import {blogsRepository} from "../repositories/blogsRepository";
+import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
 
 
 export const postsService = {
-    async getAllPosts(
-        sortData: SortType
-    ) {
-        const posts = await postsRepository.getAllPosts(sortData)
-        const postsCount = await postsRepository.getAllPostsCount()//!!!Уточнить на саппорте
-        console.log(postsCount)
-        return {
-            pagesCount: Math.ceil(postsCount / sortData.pageSize),
-            page: sortData.pageNumber,
-            pageSize: sortData.pageSize,
-            totalCount: postsCount,
-            items: posts,
-        }
-    },
-
     async createPost(createData: PostInputType) {
         console.log(createData);
-        const blogsIndex = await blogsRepository.getBlogById(createData.blogId);
+        const blogsIndex = await blogsQueryRepository.getBlogById(createData.blogId);
         console.log(blogsIndex)
         if (!blogsIndex) return null
 
@@ -41,31 +27,8 @@ export const postsService = {
         return createdPost
     },
 
-    async getPostsByBlogId(sortData: SortType, blogId: string) {
-        const blogsIndex = await blogsRepository.getBlogById(blogId);
-        if (!blogsIndex) return null
-
-        const posts = await postsRepository.getPostsByBlogId(blogId, sortData)
-        const postsCount = await postsRepository.getPostsCount(blogId)
-        return {
-            pagesCount: Math.ceil(postsCount / sortData.pageSize),
-            page: sortData.pageNumber,
-            pageSize: sortData.pageSize,
-            totalCount: postsCount,
-            items: posts,
-        }
-    },
-
-    async getPostById(id: string) {
-        return await postsRepository.getPostById(id)
-    },
-
-    async getPostBy_Id(_id: ObjectId) {
-        return await postsRepository.getPostBy_Id(_id);
-    },
-
     async updatePost(id:string, updateData: PostInputType) {
-        const blogsIndex = await blogsRepository.getBlogById(updateData.blogId);
+        const blogsIndex = await blogsQueryRepository.getBlogById(updateData.blogId);
         if (!blogsIndex) throw new Error("blog index not found");
 
         const updatedPost = await postsRepository.updatePost(id, updateData, blogsIndex);
