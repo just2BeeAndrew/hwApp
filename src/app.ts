@@ -4,13 +4,13 @@ import {blogRouter} from "./routes/blogRouter";
 import {postRouter} from "./routes/postRouter";
 import {testingRouter} from "./routes/testingRouter";
 import {SETTINGS} from "./settings";
-import {authorizationRouter} from "./routes/authorizationRouter";
+import {authRouter} from "./routes/authRouter";
 import {userRouter} from "./routes/userRouter";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
 app.use(cors()) // разрешить любым фронтам делать запросы на наш бэк
-app.use(SETTINGS.PATH.AUTH, authorizationRouter)
+app.use(SETTINGS.PATH.AUTH, authRouter)
 app.use(SETTINGS.PATH.BLOGS, blogRouter)
 app.use(SETTINGS.PATH.POSTS, postRouter)
 app.use(SETTINGS.PATH.TESTING, testingRouter)

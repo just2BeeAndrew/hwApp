@@ -6,7 +6,7 @@ export const authorizationMiddleware = (
     res: Response,
     next: NextFunction) => {
 
-    const data = `${SETTINGS.AUTH.LOGIN}:${SETTINGS.AUTH.PASSWORD}`
+    const data = `${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`
 
     let base64data = Buffer.from(data).toString('base64');
     const validAuthValue = `Basic ${base64data}`;

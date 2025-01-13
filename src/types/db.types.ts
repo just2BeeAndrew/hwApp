@@ -3,11 +3,15 @@ export type  DBType = {
     posts: PostDBType[]
 }
 
+
+//AUTH
 export type LoginInputType = {
     loginOrEmail: string;
     password: string;
 }
 
+
+//BLOG
 export type BlogInputType = {
     name: string,
     description: string,
@@ -37,6 +41,8 @@ export type BlogPostInputType = {
     content: string
 }
 
+
+//POST
 export type PostInputType = {
     title: string,
     shortDescription: string,
@@ -64,6 +70,8 @@ export type PostOutputType = {
     createdAt: string
 }
 
+
+//USER
 export type UserInputType = {
     login: string,
     password: string,
@@ -71,9 +79,9 @@ export type UserInputType = {
 }
 
 export type UserDBType = {
-    id: string,
     login: string,
-    password: string,
+    passwordHash: string,
+    passwordSalt: string,
     email: string,
     createdAt: string
 }

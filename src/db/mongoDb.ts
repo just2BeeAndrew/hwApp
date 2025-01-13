@@ -1,11 +1,12 @@
 import {MongoClient,Db, Collection} from "mongodb";
-import {BlogDbType, PostDBType} from "../types/db.types";
+import {BlogDbType, PostDBType, UserDBType} from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 export let blogsCollection: Collection<BlogDbType>
 export let postsCollection: Collection<PostDBType>
+export let usersCollection: Collection<UserDBType>
 
 export async function runDb(url: string):Promise<boolean>{
     let client = new MongoClient(url)

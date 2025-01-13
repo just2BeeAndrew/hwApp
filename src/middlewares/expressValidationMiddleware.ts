@@ -1,7 +1,7 @@
 import {body} from "express-validator";
 import {postsRepository} from "../repositories/postsRepository";
 import {blogsRepository} from "../repositories/blogsRepository";
-import {blogsCollection,postsCollection} from "../db/mongoDb";
+import {blogsCollection, postsCollection, usersCollection} from "../db/mongoDb";
 
 //blogs validation
 export const nameValidator = body("name")
@@ -68,11 +68,53 @@ export const blogIdValidator = body("blogId")
     .notEmpty()
     .withMessage("content is required")
     .custom(async (blogId) => {
-        const blog = await blogsCollection.findOne({id:blogId});
+        const blog = await blogsCollection.findOne({id: blogId});
         if (!blog) throw new Error("blog index not found");
         return !!blog
     })
     .withMessage("blog isn't exists")
 
+export const loginValidator = body("login")
+    .isString()
+    .withMessage("login should be a string")
+    .trim()
+    .notEmpty()
+    .withMessage("login is required")
+    .isLength({min: 3, max: 10})
+    .withMessage("content should contain 3 - 10 symbols")
+    .matches(/^[a-zA-Z0-9_-]*$/)
+    .withMessage("incorrect symbols")
+    .custom(async (login) => {
+        const unique = await usersCollection.findOne(login);
+        if (!unique) throw new Error("blog index not found");
+        return !!unique
+    })
+    .withMessage("Login isn't exists")
+
+export const passwordValidator = body("password")
+    .isString()
+    .withMessage("passwords should be a string")
+    .trim()
+    .notEmpty()
+    .withMessage("password is required")
+    .isLength({min: 6, max: 20})
+    .withMessage("password should contain 6 - 20 symbols")
+
+export const emailValidator = body("email")
+    .isString()
+    .withMessage("email should be a string")
+    .trim()
+    .notEmpty()
+    .withMessage("email is required")
+    .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+    .withMessage("incorrect email should be a valid email address")
+    .custom(async (email) => {
+        const unique = await usersCollection.findOne(email);
+        if (!unique) throw new Error("blog index not found");
+        return !!unique
+    })
+
+
 export const blogsMwArr = [nameValidator, descriptionValidator, websiteUrlValidator]
 export const postsMwArr = [titleValidator, shortDescriptionValidator, contentValidator, blogIdValidator]
+export const usersMwArr = [loginValidator, passwordValidator, emailValidator]
