@@ -33,4 +33,8 @@ export const usersService = {
         const hash = await bcrypt.hash(password, salt);
         return hash;
     },
+
+    async deleteUser(id: string){
+        return await usersRepository.deleteUser(id)
+    }
 }

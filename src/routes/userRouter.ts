@@ -19,8 +19,13 @@ export const userController = {
         res.status(201).json(newUserId);
     },
 
-    async deleteUser(){
-
+    async deleteUser(req: Request, res: Response){
+        const deleteUser = await usersService.deleteUser(req.params.id);
+        if(deleteUser){
+            res.sendStatus(204)
+            return;
+        }
+        res.sendStatus(404)
     },
 }
 
