@@ -3,6 +3,8 @@ import {usersService} from "../domains/usersService";
 import {UserInputType} from "../types/db.types";
 import {paginationQueries} from "../helpers/paginationValues";
 import {usersQueryRepository} from "../repositories/usersQueryRepository";
+import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
+import {loginValidator, passwordValidator, emailValidator} from "../middlewares/expressValidationMiddleware";
 
 export const userRouter = Router();
 
@@ -30,5 +32,12 @@ export const userController = {
 }
 
 userRouter.get('/',userController.getAllUsers);
-userRouter.post('/',userController.createUser);
-userRouter.delete('/:id',userController.deleteUser);
+userRouter.post('/',
+    authorizationMiddleware,
+    loginValidator,
+    passwordValidator,
+    emailValidator,
+    userController.createUser);
+userRouter.delete('/:id',
+    authorizationMiddleware,
+    userController.deleteUser);

@@ -84,12 +84,6 @@ export const loginValidator = body("login")
     .withMessage("content should contain 3 - 10 symbols")
     .matches(/^[a-zA-Z0-9_-]*$/)
     .withMessage("incorrect symbols")
-    .custom(async (login) => {
-        const unique = await usersCollection.findOne(login);
-        if (!unique) throw new Error("blog index not found");
-        return !!unique
-    })
-    .withMessage("Login isn't exists")
 
 export const passwordValidator = body("password")
     .isString()
@@ -108,12 +102,6 @@ export const emailValidator = body("email")
     .withMessage("email is required")
     .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
     .withMessage("incorrect email should be a valid email address")
-    .custom(async (email) => {
-        const unique = await usersCollection.findOne(email);
-        if (!unique) throw new Error("blog index not found");
-        return !!unique
-    })
-
 
 export const blogsMwArr = [nameValidator, descriptionValidator, websiteUrlValidator]
 export const postsMwArr = [titleValidator, shortDescriptionValidator, contentValidator, blogIdValidator]

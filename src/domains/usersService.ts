@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt'
 import {usersRepository} from "../repositories/usersRepository";
 
 export const usersService = {
-    async createUser(createData:UserInputType) {
+    async createUser(createData:UserInputType):Promise<string> {
         const passwordSalt = await bcrypt.genSalt(10);
         const passwordHash = await this._generateHash(createData.password,passwordSalt);
         const _id = new ObjectId()

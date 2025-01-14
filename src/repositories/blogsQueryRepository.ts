@@ -1,11 +1,11 @@
 import {SortType} from "../helpers/paginationValues";
 import {blogsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
-import {BlogDbType, BlogOutputType} from "../types/db.types";
+import {BlogDBType, BlogOutputType} from "../types/db.types";
 
-const blogMapper = (blog: WithId<BlogDbType>): BlogOutputType => {
+const blogMapper = (blog: WithId<BlogDBType>): BlogOutputType => {
     return {
-        id: blog.id,
+        id: blog._id.toString(),
         name: blog.name,
         description: blog.description,
         websiteUrl: blog.websiteUrl,
@@ -45,8 +45,9 @@ export const blogsQueryRepository = {
         return blogMapper(blog);
     },
 
-    async getBlogBy_Id(_id: ObjectId) {
-        const blog = await blogsCollection.findOne({_id});
+    async getBlogBy_Id(_id: string) {
+        const object_Id = new ObjectId(_id)
+        const blog = await blogsCollection.findOne({_id: object_Id});
         if (!blog) {
             return null
         }

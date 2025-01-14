@@ -1,13 +1,10 @@
-import {BlogInputType, BlogDbType, BlogOutputType} from "../types/db.types";
-import {blogsCollection, postsCollection} from "../db/mongoDb";
-import {ObjectId, WithId} from "mongodb";
-
-
+import {BlogInputType, BlogDBType} from "../types/db.types";
+import {blogsCollection} from "../db/mongoDb";
 
 export const blogsRepository = {
-    async createBlog(createdBlog: BlogDbType): Promise<ObjectId> {
+    async createBlog(createdBlog: BlogDBType): Promise<string> {
         const res = await blogsCollection.insertOne(createdBlog)
-        return res.insertedId
+        return res.insertedId.toString()
     },
 
     async updateBlog(id: string, body: BlogInputType): Promise<boolean> {
