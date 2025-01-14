@@ -35,16 +35,7 @@ export const blogsQueryRepository = {
             totalCount: blogsCount,
             items: blogs.map(blogMapper),
         }
-
     },
-
-    // async getBlogsCount(searchNameTerm: string | null): Promise<number> {
-    //     const filter: any = {}
-    //     if (searchNameTerm) {
-    //         filter.name = {$regex: searchNameTerm, $options: "i"};
-    //     }
-    //     return blogsCollection.countDocuments(filter)
-    // },
 
     async getBlogById(id: string) {
         const blog = await blogsCollection.findOne({id});

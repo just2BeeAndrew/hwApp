@@ -1,21 +1,11 @@
-import {UserDBType, UserOutputType} from "../types/db.types";
+import {UserDBType} from "../types/db.types";
 import {usersCollection} from "../db/mongoDb";
-import {WithId} from "mongodb";
-
-const userMapper = (user:WithId<UserDBType>):UserOutputType =>{
-    return {
-        id: user._id.toString(),
-        login: user.login,
-        email: user.email,
-        createdAt: user.createdAt,
-    }
-}
+import {ObjectId} from "mongodb";
 
 export const  usersRepository = {
-    async createUser(newUser: UserDBType){
+    async createUser(newUser: UserDBType): Promise<string> {
         const user = await usersCollection.insertOne(newUser)
-        const userOutput: UserOutputType = userMapper({...newUser, _id: user.insertedId});
-        return userOutput;
+        return user.insertedId.toString();
     },
 
     async findByLoginOrEmail(loginOrEmail:string){

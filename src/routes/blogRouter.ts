@@ -5,8 +5,7 @@ import {
     descriptionValidator,
     nameValidator, shortDescriptionValidator, titleValidator,
     websiteUrlValidator
-}
-    from "../middlewares/expressValidationMiddleware";
+} from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {BlogInputType, PostInputType,BlogPostInputType} from "../types/db.types";
 import {blogsService} from "../domains/blogsService";
