@@ -17,7 +17,7 @@ export const usersService = {
         const isEmailTaken = await usersRepository.checkEmailUser(createData.email);
         if (isEmailTaken) {
             return {
-                errorsMessages: [{ field: 'email', message: 'email should be unique' }],
+
             };
         }
 

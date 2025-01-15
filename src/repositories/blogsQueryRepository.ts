@@ -37,14 +37,6 @@ export const blogsQueryRepository = {
         }
     },
 
-    async getBlogById(id: string) {
-        const blog = await blogsCollection.findOne({id});
-        if (!blog) {
-            return null
-        }
-        return blogMapper(blog);
-    },
-
     async getBlogBy_Id(_id: string) {
         const object_Id = new ObjectId(_id)
         const blog = await blogsCollection.findOne({_id: object_Id});

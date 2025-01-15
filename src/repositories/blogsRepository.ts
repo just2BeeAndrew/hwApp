@@ -1,5 +1,6 @@
 import {BlogInputType, BlogDBType} from "../types/db.types";
 import {blogsCollection} from "../db/mongoDb";
+import {ObjectId} from "mongodb";
 
 export const blogsRepository = {
     async createBlog(createdBlog: BlogDBType): Promise<string> {
@@ -8,8 +9,9 @@ export const blogsRepository = {
     },
 
     async updateBlog(id: string, body: BlogInputType): Promise<boolean> {
+        const object_Id = new ObjectId(id)
         const res = await blogsCollection.updateOne(
-            {id},
+            {_id:object_Id},
             {
                 $set: {
                     name: body.name,
@@ -22,7 +24,8 @@ export const blogsRepository = {
     },
 
     async deleteBlog(id: string): Promise<boolean> {
-        const blog = await blogsCollection.findOne({id});
+        const object_Id = new ObjectId(id)
+        const blog = await blogsCollection.findOne({_id:object_Id});
         if (blog) {
             const res = await blogsCollection.deleteOne({_id: blog._id});
             if (res.deletedCount > 0) return true;

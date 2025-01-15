@@ -51,7 +51,7 @@ export const blogController = {
     },
 
     async getBlogById(req: Request<{id:string}>, res: Response) {
-        const blogId = await blogsQueryRepository.getBlogById(req.params.id);
+        const blogId = await blogsQueryRepository.getBlogBy_Id(req.params.id);
         if (blogId) {
             res.status(200).json(blogId);
             return

@@ -9,7 +9,7 @@ import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
 
 export const postsService = {
     async createPost(createData: PostInputType) {
-        const blogsIndex = await blogsQueryRepository.getBlogById(createData.blogId);
+        const blogsIndex = await blogsQueryRepository.getBlogBy_Id(createData.blogId);
         if (!blogsIndex) return null
 
         const post: PostDBType = {
@@ -26,7 +26,7 @@ export const postsService = {
     },
 
     async updatePost(id:string, updateData: PostInputType) {
-        const blogsIndex = await blogsQueryRepository.getBlogById(updateData.blogId);
+        const blogsIndex = await blogsQueryRepository.getBlogBy_Id(updateData.blogId);
         if (!blogsIndex) throw new Error("blog index not found");
 
         const updatedPost = await postsRepository.updatePost(id, updateData, blogsIndex);

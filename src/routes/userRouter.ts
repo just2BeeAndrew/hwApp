@@ -5,6 +5,7 @@ import {paginationQueries} from "../helpers/paginationValues";
 import {usersQueryRepository} from "../repositories/usersQueryRepository";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {loginValidator, passwordValidator, emailValidator} from "../middlewares/expressValidationMiddleware";
+import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 
 export const userRouter = Router();
 
@@ -15,9 +16,13 @@ export const userController = {
         res.status(200).json(users)
     },
 
-    async createUser(req: Request<UserInputType>, res: Response){
+    async createUser(req: Request<UserInputType>, res: Response) {
         const newUserId = await usersService.createUser(req.body);
-        const user = await usersQueryRepository.getUserBy_Id(newUserId);
+        if (typeof newUserId === "object" && "errorsMessages" in newUserId) {
+             res.status(400).json(newUserId);
+             return
+         }
+        const user = await usersQueryRepository.getUserBy_Id(newUserId as string);
         res.status(201).json(newUserId);
     },
 
@@ -37,7 +42,9 @@ userRouter.post('/',
     loginValidator,
     passwordValidator,
     emailValidator,
+    errorsResultMiddleware,
     userController.createUser);
 userRouter.delete('/:id',
     authorizationMiddleware,
+    errorsResultMiddleware,
     userController.deleteUser);

@@ -61,7 +61,7 @@ export const postsQueryRepository = {
     },
 
     async getPostsByBlogId(blogId: string, sortData: SortType) {
-        const blogsIndex = await blogsQueryRepository.getBlogById(blogId);
+        const blogsIndex = await blogsQueryRepository.getBlogBy_Id(blogId);
         if (!blogsIndex) return null
 
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
