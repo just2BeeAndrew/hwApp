@@ -9,9 +9,7 @@ import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
 
 export const postsService = {
     async createPost(createData: PostInputType) {
-        console.log(createData);
         const blogsIndex = await blogsQueryRepository.getBlogById(createData.blogId);
-        console.log(blogsIndex)
         if (!blogsIndex) return null
 
         const post: PostDBType = {

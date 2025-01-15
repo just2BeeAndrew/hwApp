@@ -3,9 +3,24 @@ import {WithId} from "mongodb";
 import {ObjectId} from "mongodb";
 import bcrypt from 'bcrypt'
 import {usersRepository} from "../repositories/usersRepository";
+import {usersCollection} from "../db/mongoDb";
 
 export const usersService = {
-    async createUser(createData:UserInputType):Promise<string> {
+    async createUser(createData:UserInputType)/*:Promise<string | { errorsMessages: { field: string; message: string }[] } >*/ {
+        const isLoginTaken = await usersRepository.checkLoginUser(createData.login);
+        if (isLoginTaken) {
+            return {
+                errorsMessages: [{ field: 'login', message: 'login should be unique' }],
+            };
+        }
+
+        const isEmailTaken = await usersRepository.checkEmailUser(createData.email);
+        if (isEmailTaken) {
+            return {
+                errorsMessages: [{ field: 'email', message: 'email should be unique' }],
+            };
+        }
+
         const passwordSalt = await bcrypt.genSalt(10);
         const passwordHash = await this._generateHash(createData.password,passwordSalt);
         const _id = new ObjectId()
