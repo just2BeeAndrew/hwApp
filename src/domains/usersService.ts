@@ -13,17 +13,14 @@ export const usersService = {
                 errorsMessages: [{ field: 'login', message: 'login should be unique' }],
             };
         }
-
         const isEmailTaken = await usersRepository.checkEmailUser(createData.email);
         if (isEmailTaken) {
             return {
-
+                errorsMessages: [{ field: 'email', message: 'email should be unique' }],
             };
         }
-
-        const passwordSalt = await bcrypt.genSalt(10);
+        const passwordSalt = await bcrypt.genSalt(5);
         const passwordHash = await this._generateHash(createData.password,passwordSalt);
-        const _id = new ObjectId()
 
         const newUser: UserDBType = {
             login: createData.login,
@@ -38,7 +35,9 @@ export const usersService = {
 
     async checkCredentials(checkData:LoginInputType){
         const user = await usersRepository.findByLoginOrEmail(checkData.loginOrEmail);
-        if (!user) return false
+        if (!user) {
+            return false
+        }
         const passwordHash = await this._generateHash(checkData.password, user.passwordSalt);
         if (user.passwordHash !== passwordHash) return false
         return true

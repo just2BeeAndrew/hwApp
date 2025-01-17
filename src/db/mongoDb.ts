@@ -14,6 +14,7 @@ export async function runDb(url: string):Promise<boolean>{
 
     blogsCollection = db.collection<BlogDBType>(SETTINGS.PATH.BLOGS)
     postsCollection = db.collection<PostDBType>(SETTINGS.PATH.POSTS)
+    usersCollection = db.collection<UserDBType>(SETTINGS.PATH.USERS)
 
     try {
         await client.connect();

@@ -20,10 +20,10 @@ export const userController = {
         const newUserId = await usersService.createUser(req.body);
         if (typeof newUserId === "object" && "errorsMessages" in newUserId) {
              res.status(400).json(newUserId);
-             return
+             return;
          }
         const user = await usersQueryRepository.getUserBy_Id(newUserId as string);
-        res.status(201).json(newUserId);
+        res.status(201).json(user);
     },
 
     async deleteUser(req: Request, res: Response){

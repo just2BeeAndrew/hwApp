@@ -20,7 +20,7 @@ export const paginationQueries = (req: Request):SortType => {
             : 'desc'
     let pageNumber: number = req.query.pageNumber ? +req.query.pageNumber : 1;
     let pageSize:number = req.query.pageSize ? +req.query.pageSize : 10;
-    let searchLoginTerm: string | null = req.query.searchNameTerm ? req.query.searchNameTerm.toString() : null;
+    let searchLoginTerm: string | null = req.query.searchLoginTerm ? req.query.searchLoginTerm.toString() : null;
     let searchEmailTerm: string | null = req.query.searchEmailTerm ? req.query.searchEmailTerm.toString() : null;
     return {searchNameTerm, sortBy, sortDirection, pageNumber, pageSize, searchLoginTerm, searchEmailTerm};
 }

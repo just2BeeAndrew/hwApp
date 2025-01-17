@@ -20,7 +20,7 @@ export const postController = {
         const postId = await postsService.createPost(req.body);
         if (!postId) {
             res.sendStatus(404)
-            return
+            return;
         }
         const post = await postsQueryRepository.getPostBy_Id(postId);
         res.status(201).send(post);
@@ -33,7 +33,7 @@ export const postController = {
         if (postId)
         {
             res.status(200).send(postId);
-            return
+            return;
         }
         res.sendStatus(404)
     },
@@ -77,4 +77,5 @@ postRouter.put('/:id',
     postController.updatePost);
 postRouter.delete('/:id',
     authorizationMiddleware,
+    errorsResultMiddleware,
     postController.deletePost);

@@ -16,11 +16,16 @@ export const usersQueryRepository = {
     async getAllUsers(sortData: SortType) {
         const {sortBy, sortDirection, pageNumber, pageSize, searchLoginTerm, searchEmailTerm} = sortData;
         const filter: any = {}
-        if (searchLoginTerm) {
-            filter.login = {$regex: searchLoginTerm, $options: "i"};
-        }
-        if (searchEmailTerm) {
-            filter.email = {$regex: searchEmailTerm, $options: "i"};
+
+        if (searchLoginTerm && searchEmailTerm) {
+            filter.$or = [
+                { login: { $regex: searchLoginTerm, $options: "i" } },
+                { email: { $regex: searchEmailTerm, $options: "i" } }
+            ];
+        } else if (searchLoginTerm) {
+            filter.login = { $regex: searchLoginTerm, $options: "i" };
+        } else if (searchEmailTerm) {
+            filter.email = { $regex: searchEmailTerm, $options: "i" };
         }
         const users = await usersCollection
             .find(filter)
