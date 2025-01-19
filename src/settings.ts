@@ -17,4 +17,5 @@ export const SETTINGS = {
     },
     MONGO_URL:process.env.MONGO_URL||"",
     DB_NAME:process.env.DB_NAME||"testing",
+    JWT_SECRET: process.env.JWT_SECRET||"123",
 }

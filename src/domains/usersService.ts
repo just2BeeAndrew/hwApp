@@ -39,7 +39,9 @@ export const usersService = {
             return false
         }
         const passwordHash = await this._generateHash(checkData.password, user.passwordSalt);
-        if (user.passwordHash !== passwordHash) return false
+        if (user.passwordHash !== passwordHash) {
+            return false
+        }
         return true
     },
 
