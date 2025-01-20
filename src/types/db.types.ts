@@ -10,6 +10,12 @@ export type LoginInputType = {
     password: string;
 }
 
+export type MeType = {
+    email: string,
+    login: string,
+    userId: string,
+}
+
 
 //BLOG
 export type BlogInputType = {

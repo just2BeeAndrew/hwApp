@@ -3,20 +3,28 @@ import {WithId} from "mongodb";
 import {LoginInputType} from "../types/db.types";
 import {usersService} from "../domains/usersService";
 import {jwtService} from "../application/jwtService";
+import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
+import {usersQueryRepository} from "../repositories/usersQueryRepository";
 
 export const authRouter = Router();
 
 export const authController = {
-    async auth (req: Request<LoginInputType>, res: Response) {
+    async loginUser (req: Request<LoginInputType>, res: Response) {
         const user = await usersService.checkCredentials(req.body);
         if (!user) {
             res.sendStatus(401);
             return
         }
-        const token = await jwtService.createJWT(req.body);
-        res.status(204).json(token)
+        const accessToken = await jwtService.createJWT(req.body);
+        res.status(204).json(accessToken)
     },
+
+    async infoUser (req: Request, res: Response) {
+        const info = await usersQueryRepository.getUserBy_Id(req.user!.id);
+        res.status(200).json(info)
+    }
 }
 
-authRouter.post('/',authController.auth)
+authRouter.post('/login',authController.loginUser)
+authRouter.get('/me',authorizationMiddleware, authController.infoUser)
 

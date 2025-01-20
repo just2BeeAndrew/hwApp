@@ -1,11 +1,8 @@
 import {NextFunction, Request, Response} from "express";
-import {usersService} from "../domains/usersService";
 import {jwtService} from "../application/jwtService";
-import {SETTINGS} from "../settings";
 import {usersQueryRepository} from "../repositories/usersQueryRepository";
 
 export const authorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-
     if (!req.headers.authorization) {
         res.sendStatus(401);
         return;
@@ -14,12 +11,12 @@ export const authorizationMiddleware = async (req: Request, res: Response, next:
     const token = req.headers.authorization.split(" ")[1];
 
     const userId = await jwtService.getUserIdByToken(token);
-    if (!userId) {
-        res.sendStatus(401);
+    if (userId) {
+        req.user = await usersQueryRepository.getUserBy_Id(userId)
         next()
     }
-    req.login  = await usersQueryRepository.getUserBy_Id(userId)
-    next()
+    res.sendStatus(401);
+
 
     // const data = `${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`
     //

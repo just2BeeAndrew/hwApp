@@ -9,7 +9,7 @@ export const SETTINGS = {
         PASSWORD: 'qwerty',
     },
     PATH: {
-        AUTH: '/auth/login',
+        AUTH: '/auth',
         BLOGS: '/blogs',
         POSTS: '/posts',
         TESTING: '/testing/all-data',
