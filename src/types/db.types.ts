@@ -47,6 +47,30 @@ export type BlogPostInputType = {
 }
 
 
+//COMMENT
+export type CommentInputType = {
+    content: string,
+}
+
+export type CommentDBType = {
+    content: string,
+    commentatorInfo: CommentatorInfoType,
+    createdAt: string,
+}
+
+export type CommentatorInfoType = {
+    userId: string,
+    userLogin: string,
+}
+
+export type CommentatorOutputType = {
+    id: string,
+    content: string,
+    commentatorInfo: CommentatorInfoType,
+    createdAt: string,
+}
+
+
 //POST
 export type PostInputType = {
     title: string,

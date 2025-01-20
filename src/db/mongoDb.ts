@@ -1,10 +1,11 @@
 import {MongoClient,Db, Collection} from "mongodb";
-import {BlogDBType, PostDBType, UserDBType} from "../types/db.types";
+import {BlogDBType, CommentDBType, PostDBType, UserDBType} from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 export let blogsCollection: Collection<BlogDBType>
+export let commentsCollection: Collection<CommentDBType>
 export let postsCollection: Collection<PostDBType>
 export let usersCollection: Collection<UserDBType>
 
@@ -14,6 +15,7 @@ export async function runDb(url: string):Promise<boolean>{
 
     blogsCollection = db.collection<BlogDBType>(SETTINGS.PATH.BLOGS)
     postsCollection = db.collection<PostDBType>(SETTINGS.PATH.POSTS)
+    commentsCollection = db.collection<CommentDBType>(SETTINGS.PATH.COMMENTS)
     usersCollection = db.collection<UserDBType>(SETTINGS.PATH.USERS)
 
     try {

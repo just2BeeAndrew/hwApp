@@ -1,7 +1,7 @@
 import {SortType} from "../helpers/paginationValues";
-import {blogsCollection, usersCollection} from "../db/mongoDb";
+import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
-import {UserDBType, UserOutputType} from "../types/db.types";
+import {MeType, UserDBType, UserOutputType} from "../types/db.types";
 
 export const userMapper = (user:WithId<UserDBType>):UserOutputType =>{
     return {
@@ -9,6 +9,14 @@ export const userMapper = (user:WithId<UserDBType>):UserOutputType =>{
         login: user.login,
         email: user.email,
         createdAt: user.createdAt,
+    }
+}
+
+export const meMapper = (user: WithId<UserDBType>):MeType =>{
+    return {
+        email: user.email,
+        login: user.login,
+        userId: user._id.toString(),
     }
 }
 
@@ -50,5 +58,14 @@ export const usersQueryRepository = {
             return null
         }
         return userMapper(user);
+    },
+
+    async getInfoBy_Id(_id: string) {
+        const object_Id = new ObjectId(_id)
+        const user = await usersCollection.findOne({_id: object_Id});
+        if (!user) {
+            return null
+        }
+        return meMapper(user);
     },
 }

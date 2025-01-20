@@ -1,6 +1,6 @@
 import {UserDBType} from "../types/db.types";
-import {ObjectId, WithId} from "mongodb";
-import jwt, {JwtPayload} from 'jsonwebtoken';
+import {WithId} from "mongodb";
+import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
 
 export const jwtService = {
