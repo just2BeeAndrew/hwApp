@@ -1,10 +1,10 @@
 import {Router, Request, Response} from 'express';
 import {WithId} from "mongodb";
 import {LoginInputType} from "../types/db.types";
-import {usersService} from "../domains/usersService";
+import {usersService} from "../users/usersService";
 import {jwtService} from "../application/jwtService";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
-import {usersQueryRepository} from "../repositories/usersQueryRepository";
+import {usersQueryRepository} from "../users/usersQueryRepository";
 
 export const authRouter = Router();
 

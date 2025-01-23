@@ -1,10 +1,10 @@
 import {BlogPostInputType, PostDBType, PostInputType} from "../types/db.types";
 import {ObjectId} from "mongodb";
 import {blogsCollection} from "../db/mongoDb";
-import {postsRepository} from "../repositories/postsRepository";
+import {postsRepository} from "./postsRepository";
 import {SortType} from "../helpers/paginationValues";
-import {blogsRepository} from "../repositories/blogsRepository";
-import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
+import {blogsRepository} from "../blogs/blogsRepository";
+import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
 
 
 export const postsService = {

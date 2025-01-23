@@ -8,11 +8,11 @@ import {
 } from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {BlogInputType, PostInputType,BlogPostInputType} from "../types/db.types";
-import {blogsService} from "../domains/blogsService";
+import {blogsService} from "./blogsService";
 import {paginationQueries} from "../helpers/paginationValues";
-import {postsService} from "../domains/postsService";
-import {blogsQueryRepository} from "../repositories/blogsQueryRepository";
-import {postsQueryRepository} from "../repositories/postsQueryRepository";
+import {postsService} from "../posts/postsService";
+import {blogsQueryRepository} from "./blogsQueryRepository";
+import {postsQueryRepository} from "../posts/postsQueryRepository";
 
 export const blogRouter = Router();
 

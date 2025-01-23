@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import {testingService} from "../domains/testingService";
+import {testingService} from "./testingService";
 export const testingRouter = Router();
 
 export const testingController = {

@@ -1,4 +1,4 @@
-import {testingRepository} from "../repositories/testingRepository";
+import {testingRepository} from "./testingRepository";
 
 export const testingService = {
     async deleteAll(){

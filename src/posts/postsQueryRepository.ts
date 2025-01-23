@@ -2,7 +2,7 @@ import {SortType} from "../helpers/paginationValues";
 import {postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {PostDBType, PostOutputType} from "../types/db.types";
-import {blogsQueryRepository} from "./blogsQueryRepository";
+import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
 
 const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     return {

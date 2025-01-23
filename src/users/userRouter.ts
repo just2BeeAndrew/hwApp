@@ -1,8 +1,8 @@
 import {Router,Request,Response} from "express";
-import {usersService} from "../domains/usersService";
+import {usersService} from "./usersService";
 import {UserInputType} from "../types/db.types";
 import {paginationQueries} from "../helpers/paginationValues";
-import {usersQueryRepository} from "../repositories/usersQueryRepository";
+import {usersQueryRepository} from "./usersQueryRepository";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {loginValidator, passwordValidator, emailValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";

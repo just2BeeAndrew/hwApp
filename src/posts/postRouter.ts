@@ -3,9 +3,9 @@ import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValid
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {PostInputType} from "../types/db.types";
-import {postsService} from "../domains/postsService";
+import {postsService} from "./postsService";
 import {paginationQueries} from "../helpers/paginationValues";
-import {postsQueryRepository} from "../repositories/postsQueryRepository";
+import {postsQueryRepository} from "./postsQueryRepository";
 
 export const postRouter = Router();
 

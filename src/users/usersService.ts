@@ -2,7 +2,7 @@ import {UserInputType, UserDBType, UserOutputType, LoginInputType} from "../type
 import {WithId} from "mongodb";
 import {ObjectId} from "mongodb";
 import bcrypt from 'bcrypt'
-import {usersRepository} from "../repositories/usersRepository";
+import {usersRepository} from "./usersRepository";
 import {usersCollection} from "../db/mongoDb";
 
 export const usersService = {

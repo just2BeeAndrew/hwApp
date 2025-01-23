@@ -1,12 +1,12 @@
 import express from 'express'
 import cors from 'cors'
-import {blogRouter} from "./routes/blogRouter";
-import {postRouter} from "./routes/postRouter";
-import {testingRouter} from "./routes/testingRouter";
+import {blogRouter} from "./blogs/blogRouter";
+import {postRouter} from "./posts/postRouter";
+import {testingRouter} from "./testing/testingRouter";
 import {SETTINGS} from "./settings";
-import {authRouter} from "./routes/authRouter";
-import {userRouter} from "./routes/userRouter";
-import {commentRouter} from "./routes/comments";
+import {authRouter} from "./auth/authRouter";
+import {userRouter} from "./users/userRouter";
+import {commentRouter} from "./comments/commentRouter";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
