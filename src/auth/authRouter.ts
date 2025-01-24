@@ -5,6 +5,7 @@ import {usersService} from "../users/usersService";
 import {jwtService} from "../application/jwtService";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {usersQueryRepository} from "../users/usersQueryRepository";
+import {Result} from "../result/result.type";
 
 export const authRouter = Router();
 
