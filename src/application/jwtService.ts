@@ -4,9 +4,8 @@ import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
 
 export const jwtService = {
-    async createJWT(user: WithId<UserDBType>) {
-        const token = jwt.sign({id: user._id}, SETTINGS.JWT_SECRET, {expiresIn: "1h"});
-        return {accessToken: token};
+    async createJWT(userId: string ) {
+        return jwt.sign({userId}, SETTINGS.JWT_SECRET, {expiresIn: "1h"});
     },
 
     async getUserIdByToken(token: string):Promise<string | null> {

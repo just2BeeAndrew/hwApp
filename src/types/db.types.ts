@@ -110,7 +110,6 @@ export type UserInputType = {
 export type UserDBType = {
     login: string,
     passwordHash: string,
-    passwordSalt: string,
     email: string,
     createdAt: string
 }

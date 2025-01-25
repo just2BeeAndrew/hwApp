@@ -6,18 +6,25 @@ import {jwtService} from "../application/jwtService";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {usersQueryRepository} from "../users/usersQueryRepository";
 import {Result} from "../result/result.type";
+import {ResultStatus} from "../result/resultCode";
+import {authService} from "./authService";
+import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
+import {HttpStatuses} from "../types/httpStatuses";
 
 export const authRouter = Router();
 
 export const authController = {
     async loginUser (req: Request<LoginInputType>, res: Response) {
-        const user = await usersService.checkCredentials(req.body);
-        if (!user) {
-            res.sendStatus(401);
-            return
+        const user = await authService.loginUser(req.body);
+        if (user.status !== ResultStatus.Success) {
+            return res
+                .status(resultCodeToHttpException(user.status))
+                .send(user.extensions)
         }
-        const accessToken = await jwtService.createJWT(req.body);
-        res.status(204).json(accessToken)
+
+        return res
+            .status(HttpStatuses.SUCCESS)
+            .json({accessToken:user.data!.accessToken})
     },
 
     async infoUser (req: Request, res: Response) {
