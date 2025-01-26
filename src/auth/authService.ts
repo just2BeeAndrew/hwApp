@@ -15,7 +15,7 @@ export const authService = {
                 errorMessage: "Unauthorized",
                 extensions: [{field: "loginOrEmail", message: "Wrong credentials"}],
                 data: null
-            }
+            };
 
         const accessToken = await jwtService.createJWT(result.data!._id.toString())
 
@@ -24,7 +24,6 @@ export const authService = {
             data: {accessToken},
             extensions: []
         }
-
     },
 
     async checkCredentials(checkData: LoginInputType): Promise<Result<WithId<UserDBType> | null>> {

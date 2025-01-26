@@ -1,4 +1,4 @@
-import {Router, Request, Response} from 'express';
+import {Router, Request, Response, Application} from 'express';
 import {WithId} from "mongodb";
 import {LoginInputType} from "../types/db.types";
 import {usersService} from "../users/usersService";
@@ -14,25 +14,26 @@ import {HttpStatuses} from "../types/httpStatuses";
 export const authRouter = Router();
 
 export const authController = {
-    async loginUser (req: Request<LoginInputType>, res: Response) {
+    async loginUser(req: Request<{}, {}, LoginInputType>, res: Response) {
         const user = await authService.loginUser(req.body);
         if (user.status !== ResultStatus.Success) {
-            return res
+            res
                 .status(resultCodeToHttpException(user.status))
                 .send(user.extensions)
+            return
         }
 
-        return res
+        res
             .status(HttpStatuses.SUCCESS)
-            .json({accessToken:user.data!.accessToken})
+            .json({accessToken: user.data!.accessToken})
     },
 
-    async infoUser (req: Request, res: Response) {
+    async infoUser(req: Request, res: Response) {
         const info = await usersQueryRepository.getUserBy_Id(req.user!.id);
         res.status(200).json(info)
     }
 }
 
-authRouter.post('/login',authController.loginUser)
-authRouter.get('/me',authorizationMiddleware, authController.infoUser)
+authRouter.post('/login', authController.loginUser)
+authRouter.get('/me', authorizationMiddleware, authController.infoUser)
 
