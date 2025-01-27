@@ -29,8 +29,8 @@ export const authController = {
     },
 
     async infoUser(req: Request, res: Response) {
-        const info = await usersQueryRepository.getUserBy_Id(req.user!.id);
-        res.status(200).json(info)
+        const info = await usersQueryRepository.getInfoBy_Id(req.user!.id);
+        res.status(HttpStatuses.SUCCESS).json(info)
     }
 }
 

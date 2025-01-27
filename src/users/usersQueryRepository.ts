@@ -12,7 +12,7 @@ export const userMapper = (user:WithId<UserDBType>):UserOutputType =>{
     }
 }
 
-export const meMapper = (user: WithId<UserDBType>):MeType =>{
+export const infoMapper = (user: WithId<UserDBType>):MeType =>{
     return {
         email: user.email,
         login: user.login,
@@ -51,21 +51,42 @@ export const usersQueryRepository = {
         }
     },
 
-    async getUserBy_Id(_id: string) {
-        const object_Id = new ObjectId(_id)
-        const user = await usersCollection.findOne({_id: object_Id});
-        if (!user) {
-            return null
+    async getBy_Id(_id:string){
+        const object_id = new ObjectId(_id);
+        const res = await usersCollection.findOne({_id: object_id});
+        return res;
+    },
+
+    async getUserBy_Id(_id:string){
+        const user = await this.getBy_Id(_id)
+        if(!user){
+            return null;
         }
         return userMapper(user);
     },
 
-    async getInfoBy_Id(_id: string) {
-        const object_Id = new ObjectId(_id)
-        const user = await usersCollection.findOne({_id: object_Id});
-        if (!user) {
-            return null
+    async getInfoBy_Id(_id:string){
+        const info = await this.getBy_Id(_id)
+        if(!info){
+            return null;
         }
-        return meMapper(user);
-    },
+        return infoMapper(info);
+    }
+    // async getUserBy_Id(_id: string) {
+    //     const object_Id = new ObjectId(_id)
+    //     const user = await usersCollection.findOne({_id: object_Id});
+    //     if (!user) {
+    //         return null
+    //     }
+    //     return userMapper(user);
+    // },
+    //
+    // async getInfoBy_Id(_id: string) {
+    //     const object_Id = new ObjectId(_id)
+    //     const user = await usersCollection.findOne({_id: object_Id});
+    //     if (!user) {
+    //         return null
+    //     }
+    //     return meMapper(user);
+    // },
 }
