@@ -1,4 +1,5 @@
 import {Request, Response, Router} from 'express';
+import {commentContentValidator} from "../middlewares/expressValidationMiddleware";
 
 export const commentRouter = Router();
 
@@ -17,6 +18,6 @@ export const commentController = {
 
 }
 
-commentRouter.put('/:commentId',commentController.updateComment)
+commentRouter.put('/:commentId',commentContentValidator,commentController.updateComment)
 commentRouter.delete('/:commentId', commentController.deleteComment)
 commentRouter.get('/:id', commentController.getCommentById)

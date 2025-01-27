@@ -1,5 +1,5 @@
 import {Router, Request, Response} from 'express';
-import {blogIdValidator, contentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
+import {blogIdValidator, postContentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {PostInputType} from "../types/db.types";
@@ -62,7 +62,7 @@ postRouter.post('/',
     authorizationMiddleware,
     titleValidator,
     shortDescriptionValidator,
-    contentValidator,
+    postContentValidator,
     blogIdValidator,
     errorsResultMiddleware,
     postController.createPost);
@@ -71,7 +71,7 @@ postRouter.put('/:id',
     authorizationMiddleware,
     titleValidator,
     shortDescriptionValidator,
-    contentValidator,
+    postContentValidator,
     blogIdValidator,
     errorsResultMiddleware,
     postController.updatePost);

@@ -53,7 +53,7 @@ export const shortDescriptionValidator = body("shortDescription")
     .isLength({min: 1, max: 100})
     .withMessage("shortDescription should contain 1 - 100 symbols")
 
-export const contentValidator = body("content")
+export const postContentValidator = body("content")
     .isString()
     .withMessage("content should be a string")
     .trim()
@@ -76,6 +76,7 @@ export const blogIdValidator = body("blogId")
     })
     .withMessage("blog isn't exists")
 
+//users validator
 export const loginValidator = body("login")
     .isString()
     .withMessage("login should be a string")
@@ -105,6 +106,17 @@ export const emailValidator = body("email")
     .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
     .withMessage("incorrect email should be a valid email address")
 
+//comments validator
+export const commentContentValidator = body("content")
+    .isString()
+    .withMessage("content shoud be a string")
+    .trim()
+    .notEmpty()
+    .withMessage("content is required")
+    .isLength({min: 20, max: 300})
+    .withMessage("content should be a 20 - 300 symbols")
+
 export const blogsMwArr = [nameValidator, descriptionValidator, websiteUrlValidator]
-export const postsMwArr = [titleValidator, shortDescriptionValidator, contentValidator, blogIdValidator]
+export const postsMwArr = [titleValidator, shortDescriptionValidator, postContentValidator, blogIdValidator]
 export const usersMwArr = [loginValidator, passwordValidator, emailValidator]
+export const commentsMwArr = [commentContentValidator]

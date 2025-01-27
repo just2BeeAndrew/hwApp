@@ -1,7 +1,7 @@
 import {Router, Request, Response} from 'express';
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {
-    contentValidator,
+    postContentValidator,
     descriptionValidator,
     nameValidator, shortDescriptionValidator, titleValidator,
     websiteUrlValidator
@@ -91,7 +91,7 @@ blogRouter.post('/:blogId/posts',
     authorizationMiddleware,
     titleValidator,
     shortDescriptionValidator,
-    contentValidator,
+    postContentValidator,
     errorsResultMiddleware,
     blogController.createPostByBlogId);
 blogRouter.get('/:id', blogController.getBlogById);
