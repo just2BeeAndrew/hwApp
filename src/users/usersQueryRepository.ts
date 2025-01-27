@@ -3,7 +3,7 @@ import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {MeType, UserDBType, UserOutputType} from "../types/db.types";
 
-export const userMapper = (user:WithId<UserDBType>):UserOutputType =>{
+export const userMapper = (user: WithId<UserDBType>): UserOutputType => {
     return {
         id: user._id.toString(),
         login: user.login,
@@ -12,7 +12,7 @@ export const userMapper = (user:WithId<UserDBType>):UserOutputType =>{
     }
 }
 
-export const infoMapper = (user: WithId<UserDBType>):MeType =>{
+export const infoMapper = (user: WithId<UserDBType>): MeType => {
     return {
         email: user.email,
         login: user.login,
@@ -27,13 +27,13 @@ export const usersQueryRepository = {
 
         if (searchLoginTerm && searchEmailTerm) {
             filter.$or = [
-                { login: { $regex: searchLoginTerm, $options: "i" } },
-                { email: { $regex: searchEmailTerm, $options: "i" } }
+                {login: {$regex: searchLoginTerm, $options: "i"}},
+                {email: {$regex: searchEmailTerm, $options: "i"}}
             ];
         } else if (searchLoginTerm) {
-            filter.login = { $regex: searchLoginTerm, $options: "i" };
+            filter.login = {$regex: searchLoginTerm, $options: "i"};
         } else if (searchEmailTerm) {
-            filter.email = { $regex: searchEmailTerm, $options: "i" };
+            filter.email = {$regex: searchEmailTerm, $options: "i"};
         }
         const users = await usersCollection
             .find(filter)
@@ -50,43 +50,42 @@ export const usersQueryRepository = {
             items: users.map(userMapper)
         }
     },
-
-    async getBy_Id(_id:string){
-        const object_id = new ObjectId(_id);
-        const res = await usersCollection.findOne({_id: object_id});
-        return res;
-    },
-
-    async getUserBy_Id(_id:string){
-        const user = await this.getBy_Id(_id)
-        if(!user){
-            return null;
-        }
-        return userMapper(user);
-    },
-
-    async getInfoBy_Id(_id:string){
-        const info = await this.getBy_Id(_id)
-        if(!info){
-            return null;
-        }
-        return infoMapper(info);
-    }
-    // async getUserBy_Id(_id: string) {
-    //     const object_Id = new ObjectId(_id)
-    //     const user = await usersCollection.findOne({_id: object_Id});
-    //     if (!user) {
-    //         return null
+    // async getBy_Id(_id:string){
+    //     const object_id = new ObjectId(_id);
+    //     const res = await usersCollection.findOne({_id: object_id});
+    //     return res;
+    // },
+    //
+    // async getUserBy_Id(_id:string){
+    //     const user = await this.getBy_Id(_id)
+    //     if(!user){
+    //         return null;
     //     }
     //     return userMapper(user);
     // },
     //
-    // async getInfoBy_Id(_id: string) {
-    //     const object_Id = new ObjectId(_id)
-    //     const user = await usersCollection.findOne({_id: object_Id});
-    //     if (!user) {
-    //         return null
+    // async getInfoBy_Id(_id:string){
+    //     const info = await this.getBy_Id(_id)
+    //     if(!info){
+    //         return null;
     //     }
-    //     return meMapper(user);
+    //     return infoMapper(info);
     // },
+    async getUserBy_Id(_id: string) {
+        const object_Id = new ObjectId(_id)
+        const user = await usersCollection.findOne({_id: object_Id});
+        if (!user) {
+            return null
+        }
+        return userMapper(user);
+    },
+
+    async getInfoBy_Id(_id: string) {
+        const object_Id = new ObjectId(_id)
+        const user = await usersCollection.findOne({_id: object_Id});
+        if (!user) {
+            return null
+        }
+        return infoMapper(user);
+    },
 }
