@@ -1,9 +1,10 @@
 import {UserDBType, UserOutputType} from "./db.types";
+import {IdType} from "./id";
 
 declare global {
     declare namespace Express {
         export interface Request {
-            user: UserOutputType | null;
+            user: IdType | null;
         }
     }
 }

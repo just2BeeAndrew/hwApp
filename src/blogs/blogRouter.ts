@@ -31,7 +31,6 @@ export const blogController = {
 
     async getPostsByBlogId(req: Request<{blogId:string},{},{}>, res: Response) {
         const sortData = paginationQueries(req)
-        console.log(sortData)
         const posts = await postsQueryRepository.getPostsByBlogId(req.params.blogId, sortData)
         if (posts){
             res.status(200).json(posts);

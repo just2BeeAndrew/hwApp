@@ -12,6 +12,10 @@ export const commentsRepository = {
         return comment;
     },
 
+    async createComment(createData: CommentInputType) {
+
+    },
+
     async updateComment(_id: string, commentInput: CommentInputType) {
         const object_Id = new ObjectId(_id);
         const res = await commentsCollection.updateOne(

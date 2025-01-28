@@ -1,9 +1,20 @@
 import {ResultStatus} from "../result/resultCode";
 import {Result} from "../result/result.type";
-import {CommentInputType} from "../types/db.types";
+import {CommentatorInfoType, CommentDBType, CommentInputType} from "../types/db.types";
 import {commentsRepository} from "./commentsRepository";
+import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
+import {postsRepository} from "../posts/postsRepository";
+import {usersRepository} from "../users/usersRepository";
 
 export const commentsService = {
+    async createComment(createData: CommentInputType, postId:string) {
+       //const userInfo = await usersRepository.getUserBy_Id();
+
+       // const commentatorInfo: CommentatorInfoType = {
+       //     userId: postInfo.
+       // }
+    },
+
     async updateComment (commentId: string, updateComment: CommentInputType):Promise<Result> {
         const isExists = await commentsRepository.getCommentBy_Id(commentId);
         if (!isExists) {

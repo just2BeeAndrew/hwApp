@@ -3,6 +3,15 @@ import {postsCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
 export const postsRepository = {
+    async getPostBy_Id(_id: string) {
+        const object_Id = new ObjectId(_id);
+        const post = await postsCollection.findOne({_id:object_Id});
+        if (!post) {
+            return null
+        }
+        return post;
+    },
+
     async createPost(createdPost: PostDBType): Promise<ObjectId> {
         const res = await postsCollection.insertOne(createdPost);
         return res.insertedId

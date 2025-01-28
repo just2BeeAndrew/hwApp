@@ -2,14 +2,25 @@ import {Router, Request, Response} from 'express';
 import {blogIdValidator, postContentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
-import {PostInputType} from "../types/db.types";
+import {CommentInputType, PostInputType} from "../types/db.types";
 import {postsService} from "./postsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsQueryRepository} from "./postsQueryRepository";
+import {commentsRepository} from "../comments/commentsRepository";
+import {commentsService} from "../comments/commentsService";
 
 export const postRouter = Router();
 
 export const postController = {
+    async getCommentsbyPostId(req: Request, res: Response) {
+
+    },
+
+    async createComment(req: Request<{postId: string},{},CommentInputType>, res: Response) {
+        const createdComment = await commentsService.createComment(req.body, req.params.postId);
+
+
+    },
     async getAllPosts(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const posts = await postsQueryRepository.getAllPosts(sortData);
@@ -56,6 +67,8 @@ export const postController = {
         res.sendStatus(404)
     }
 }
+
+
 
 postRouter.get('/', postController.getAllPosts);
 postRouter.post('/',

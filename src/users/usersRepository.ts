@@ -3,6 +3,15 @@ import {usersCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
 export const  usersRepository = {
+    async getUserBy_Id(_id: string){
+      const  object_id = new ObjectId(_id);
+      const user = await usersCollection.findOne(object_id);
+      if(!user){
+          return null;
+      }
+      return user;
+    },
+
     async createUser(newUser: UserDBType): Promise<string> {
         const user = await usersCollection.insertOne(newUser)
         return user.insertedId.toString();
@@ -37,5 +46,15 @@ export const  usersRepository = {
             if (res.deletedCount > 0) return true;
         }
         return false;
+    },
+
+    async doesExistById(userId:string):Promise<boolean>{
+        if(!this.checkObjectId(userId)) return false;
+        const isUser = await usersCollection.findOne({_id: new ObjectId(userId)});
+        return !!isUser;
+    },
+
+    checkObjectId(userId:string):boolean{
+        return ObjectId.isValid(userId)
     }
 }
