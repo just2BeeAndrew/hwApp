@@ -5,23 +5,28 @@ import {IdType} from "../types/id";
 import {HttpStatuses} from "../types/httpStatuses";
 
 export const accessTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.headers.authorization) return res.sendStatus(HttpStatuses.UNAUTHORIZED);
+    if (!req.headers.authorization) {
+        res.sendStatus(HttpStatuses.UNAUTHORIZED);
+        return
+    }
 
     const token = req.headers.authorization.split(" ")[1];
 
     const payload = await jwtService.verifyToken(token);
     if (payload) {
         const {userId} = payload;
+
         const user = await usersRepository.doesExistById(userId);
-        if (!user) return res.sendStatus(HttpStatuses.UNAUTHORIZED);
+
+        if (!user) {
+            res.sendStatus(HttpStatuses.UNAUTHORIZED);
+            return
+        }
+
         req.user = {id:userId} as IdType;
-        return next()
+        next()
     }
-    return  res.sendStatus(HttpStatuses.UNAUTHORIZED);
-
-
-
-
+    res.sendStatus(HttpStatuses.UNAUTHORIZED);
     // if (!req.headers.authorization) {
     //     res.sendStatus(401);
     //     return;

@@ -10,6 +10,7 @@ import {ResultStatus} from "../result/resultCode";
 import {authService} from "./authService";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
+import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 
 export const authRouter = Router();
 
@@ -35,5 +36,5 @@ export const authController = {
 }
 
 authRouter.post('/login', authController.loginUser)
-authRouter.get('/me', authorizationMiddleware, authController.infoUser)
+authRouter.get('/me',accessTokenMiddleware, authController.infoUser)
 
