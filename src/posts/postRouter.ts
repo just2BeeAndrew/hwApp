@@ -8,16 +8,19 @@ import {paginationQueries} from "../helpers/paginationValues";
 import {postsQueryRepository} from "./postsQueryRepository";
 import {commentsRepository} from "../comments/commentsRepository";
 import {commentsService} from "../comments/commentsService";
+import {RequestWithParamsAndBody} from "../types/requests";
 
 export const postRouter = Router();
 
 export const postController = {
+
     async getCommentsbyPostId(req: Request, res: Response) {
 
     },
 
-    async createComment(req: Request<{postId: string},{},CommentInputType>, res: Response) {
-        const createdComment = await commentsService.createComment(req.body, req.params.postId);
+    async createComment(req: RequestWithParamsAndBody<{postId: string}, CommentInputType>, res: Response) {
+        const {content} = req.body;
+        const createdComment = await commentsService.createComment(req.params.postId,content, req.user!.id);
 
 
     },
@@ -69,7 +72,8 @@ export const postController = {
 }
 
 
-
+postRouter.get('/:postId/comments', postController.getPostById);
+postRouter.post('/:postId/comments', postController.createComment);
 postRouter.get('/', postController.getAllPosts);
 postRouter.post('/',
     authorizationMiddleware,

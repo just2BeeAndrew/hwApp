@@ -7,7 +7,7 @@ import {postsRepository} from "../posts/postsRepository";
 import {usersRepository} from "../users/usersRepository";
 
 export const commentsService = {
-    async createComment(createData: CommentInputType, postId:string) {
+    async createComment( postId:string, createData: string, userId:string ) {
        //const userInfo = await usersRepository.getUserBy_Id();
 
        // const commentatorInfo: CommentatorInfoType = {
