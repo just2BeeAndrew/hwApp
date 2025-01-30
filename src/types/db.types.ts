@@ -53,6 +53,7 @@ export type CommentInputType = {
 }
 
 export type CommentDBType = {
+    postId: string,
     content: string,
     commentatorInfo: CommentatorInfoType,
     createdAt: string,
@@ -63,7 +64,7 @@ export type CommentatorInfoType = {
     userLogin: string,
 }
 
-export type CommentatorOutputType = {
+export type CommentOutputType = {
     id: string,
     content: string,
     commentatorInfo: CommentatorInfoType,

@@ -1,15 +1,10 @@
 import {UserDBType, UserInputType} from "../types/db.types";
 import {usersCollection} from "../db/mongoDb";
-import {ObjectId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 
-export const  usersRepository = {
-    async getUserBy_Id(_id: string){
-      const  object_id = new ObjectId(_id);
-      const user = await usersCollection.findOne(object_id);
-      if(!user){
-          return null;
-      }
-      return user;
+export const usersRepository = {
+    async getUserBy_Id(_id: string): Promise<WithId<UserDBType> | null> {
+        return await usersCollection.findOne({_id: new ObjectId(_id)}) || null;
     },
 
     async createUser(newUser: UserDBType): Promise<string> {
@@ -33,14 +28,13 @@ export const  usersRepository = {
         return false;
     },
 
-    async findByLoginOrEmail(loginOrEmail:string){
-        const user = await usersCollection.findOne({$or:[{email:loginOrEmail}, {login:loginOrEmail}]});
-        return user;
+    async findByLoginOrEmail(loginOrEmail: string) {
+        return await usersCollection.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]});
     },
 
-    async deleteUser(id:string):Promise<boolean>{
+    async deleteUser(id: string): Promise<boolean> {
         const object_Id = new ObjectId(id)
-        const user = await usersCollection.findOne({_id:object_Id});
+        const user = await usersCollection.findOne({_id: object_Id});
         if (user) {
             const res = await usersCollection.deleteOne({_id: user._id});
             if (res.deletedCount > 0) return true;
@@ -48,13 +42,13 @@ export const  usersRepository = {
         return false;
     },
 
-    async doesExistById(userId:string):Promise<boolean>{
-        if(!this.checkObjectId(userId)) return false;
+    async doesExistById(userId: string): Promise<boolean> {
+        if (!this.checkObjectId(userId)) return false;
         const isUser = await usersCollection.findOne({_id: new ObjectId(userId)});
         return !!isUser;
     },
 
-    checkObjectId(userId:string):boolean{
+    checkObjectId(userId: string): boolean {
         return ObjectId.isValid(userId)
     }
 }

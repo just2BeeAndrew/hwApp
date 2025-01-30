@@ -7,8 +7,14 @@ import {postsService} from "./postsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsQueryRepository} from "./postsQueryRepository";
 import {commentsRepository} from "../comments/commentsRepository";
+import {commentsQueryRepository} from "../comments/commentsQueryRepository";
 import {commentsService} from "../comments/commentsService";
 import {RequestWithParamsAndBody} from "../types/requests";
+import {Result} from "../result/result.type";
+import {ResultStatus} from "../result/resultCode";
+import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
+import {HttpStatuses} from "../types/httpStatuses";
+
 
 export const postRouter = Router();
 
@@ -18,12 +24,25 @@ export const postController = {
 
     },
 
-    async createComment(req: RequestWithParamsAndBody<{postId: string}, CommentInputType>, res: Response) {
+    async createComment(req: RequestWithParamsAndBody<{ postId: string }, CommentInputType>, res: Response) {
+        const {postId} = req.params;
         const {content} = req.body;
-        const createdComment = await commentsService.createComment(req.params.postId,content, req.user!.id);
+        const userId = req.user?.id as string;
 
+        const createdComment = await commentsService.createComment(postId, content, userId);
+        if (createdComment.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(createdComment.status))
+                .json(createdComment.extensions)
+            return
+        }
 
+        const newComment = await commentsQueryRepository.getCommentBy_Id(createdComment.data!);
+        res
+            .status(HttpStatuses.SUCCESS)
+            .json(newComment);
     },
+
     async getAllPosts(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const posts = await postsQueryRepository.getAllPosts(sortData);
@@ -44,15 +63,14 @@ export const postController = {
 
     async getPostById(req: Request, res: Response) {
         const postId = await postsQueryRepository.getPostById(req.params.id);
-        if (postId)
-        {
+        if (postId) {
             res.status(200).send(postId);
             return;
         }
         res.sendStatus(404)
     },
 
-    async updatePost(req: Request<{id:string},{},PostInputType>, res: Response) {
+    async updatePost(req: Request<{ id: string }, {}, PostInputType>, res: Response) {
         const updatedPost = await postsService.updatePost(req.params.id, req.body);
         if (updatedPost) {
             res.status(204).json(updatedPost);
@@ -61,9 +79,9 @@ export const postController = {
         res.sendStatus(404)
     },
 
-     async deletePost(req:Request, res: Response) {
+    async deletePost(req: Request, res: Response) {
         const deletedPost = await postsService.deletePost(req.params.id);
-        if (deletedPost){
+        if (deletedPost) {
             res.sendStatus(204);
             return
         }

@@ -1,4 +1,3 @@
-import {UserDBType, UserOutputType} from "./db.types";
 import {IdType} from "./id";
 
 declare global {

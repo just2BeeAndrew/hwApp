@@ -4,22 +4,21 @@ import {ObjectId, WithId} from "mongodb";
 
 export const commentsRepository = {
     async getCommentBy_Id(_id: string) {
-        const object_Id = new ObjectId(_id);
-        const comment = await commentsCollection.findOne(object_Id);
+        const comment = await commentsCollection.findOne({_id:new ObjectId(_id)});
         if (!comment) {
             return null;
         }
         return comment;
     },
 
-    async createComment(createData: CommentInputType) {
-
+    async createComment(newComment: CommentDBType ):Promise<string> {
+        const res = await commentsCollection.insertOne(newComment);
+        return res.insertedId.toString();
     },
 
     async updateComment(_id: string, commentInput: CommentInputType) {
-        const object_Id = new ObjectId(_id);
         const res = await commentsCollection.updateOne(
-            {_id: object_Id},
+            {_id: new ObjectId(_id)},
             {
                 $set: {
                     content: commentInput.content,
