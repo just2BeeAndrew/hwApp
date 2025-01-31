@@ -1,5 +1,10 @@
 import {Router, Request, Response} from 'express';
-import {blogIdValidator, postContentValidator, shortDescriptionValidator, titleValidator} from "../middlewares/expressValidationMiddleware";
+import {
+    blogIdValidator,
+    postContentValidator,
+    shortDescriptionValidator,
+    titleValidator
+} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {CommentInputType, PostInputType} from "../types/db.types";
@@ -9,7 +14,7 @@ import {postsQueryRepository} from "./postsQueryRepository";
 import {commentsRepository} from "../comments/commentsRepository";
 import {commentsQueryRepository} from "../comments/commentsQueryRepository";
 import {commentsService} from "../comments/commentsService";
-import {RequestWithParamsAndBody} from "../types/requests";
+import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
 import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
@@ -20,8 +25,18 @@ export const postRouter = Router();
 
 export const postController = {
 
-    async getCommentsbyPostId(req: Request, res: Response) {
-
+    async getCommentsByPostId(req: RequestWithParams<{ postId: string }>, res: Response) {
+        const sortData = paginationQueries(req)
+        const {postId} = req.params;
+        const comments = await commentsQueryRepository.getCommentsByPostId(postId, sortData);
+        if (comments.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(comments.status))
+                .json(comments.extensions)
+        }
+        res
+            .status(HttpStatuses.SUCCESS)
+            .json(comments.data)
     },
 
     async createComment(req: RequestWithParamsAndBody<{ postId: string }, CommentInputType>, res: Response) {
@@ -90,7 +105,7 @@ export const postController = {
 }
 
 
-postRouter.get('/:postId/comments', postController.getPostById);
+postRouter.get('/:postId/comments', postController.getCommentsByPostId);
 postRouter.post('/:postId/comments', postController.createComment);
 postRouter.get('/', postController.getAllPosts);
 postRouter.post('/',

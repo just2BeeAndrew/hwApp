@@ -7,12 +7,13 @@ import {
     websiteUrlValidator
 } from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
-import {BlogInputType, PostInputType,BlogPostInputType} from "../types/db.types";
+import {BlogInputType, PostInputType, BlogPostInputType} from "../types/db.types";
 import {blogsService} from "./blogsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsService} from "../posts/postsService";
 import {blogsQueryRepository} from "./blogsQueryRepository";
 import {postsQueryRepository} from "../posts/postsQueryRepository";
+import {RequestWithParams} from "../types/requests";
 
 export const blogRouter = Router();
 
@@ -29,19 +30,19 @@ export const blogController = {
         res.status(201).json(blog);
     },
 
-    async getPostsByBlogId(req: Request<{blogId:string},{},{}>, res: Response) {
+    async getPostsByBlogId(req: RequestWithParams<{ blogId: string }>, res: Response) {
         const sortData = paginationQueries(req)
         const posts = await postsQueryRepository.getPostsByBlogId(req.params.blogId, sortData)
-        if (posts){
+        if (posts) {
             res.status(200).json(posts);
             return
         }
         res.sendStatus(404)
     },
 
-    async createPostByBlogId(req: Request<{blogId:string},{},BlogPostInputType>, res: Response) {
-        const postsId = await postsService.createPost({...req.body, blogId:req.params.blogId})
-        if (!postsId){
+    async createPostByBlogId(req: Request<{ blogId: string }, {}, BlogPostInputType>, res: Response) {
+        const postsId = await postsService.createPost({...req.body, blogId: req.params.blogId})
+        if (!postsId) {
             res.sendStatus(404)
             return
         }
@@ -49,7 +50,7 @@ export const blogController = {
         res.status(201).json(post);
     },
 
-    async getBlogById(req: Request<{id:string}>, res: Response) {
+    async getBlogById(req: Request<{ id: string }>, res: Response) {
         const blogId = await blogsQueryRepository.getBlogBy_Id(req.params.id);
         if (blogId) {
             res.status(200).json(blogId);
@@ -58,7 +59,7 @@ export const blogController = {
         res.sendStatus(404);
     },
 
-    async updateBlog(req: Request<{id:string}>, res: Response) {
+    async updateBlog(req: Request<{ id: string }>, res: Response) {
         const updatedBlog = await blogsService.updateBlog(req.params.id, req.body);
         if (updatedBlog) {
             res.sendStatus(204);

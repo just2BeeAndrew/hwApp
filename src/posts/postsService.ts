@@ -13,7 +13,6 @@ export const postsService = {
         if (!blogsIndex) return null
 
         const post: PostDBType = {
-            id: Math.random().toString(),
             title: createData.title,
             shortDescription: createData.shortDescription,
             content: createData.content,

@@ -33,8 +33,8 @@ export const usersRepository = {
     },
 
     async deleteUser(id: string): Promise<boolean> {
-        const object_Id = new ObjectId(id)
-        const user = await usersCollection.findOne({_id: object_Id});
+
+        const user = await usersCollection.findOne({_id: new ObjectId(id)});
         if (user) {
             const res = await usersCollection.deleteOne({_id: user._id});
             if (res.deletedCount > 0) return true;

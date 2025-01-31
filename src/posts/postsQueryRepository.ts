@@ -6,7 +6,7 @@ import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
 
 const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     return {
-        id: post.id,
+        id: post._id.toString(),
         title: post.title,
         shortDescription: post.shortDescription,
         content: post.content,
@@ -77,7 +77,7 @@ export const postsQueryRepository = {
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .toArray()
-        const postsCount = await this.getPostsCount(blogId) //await postsCollection.countDocuments(filteredPosts)
+        const postsCount = await this.getPostsCount(blogId)
         return {
             pagesCount: Math.ceil(postsCount / sortData.pageSize),
             page: sortData.pageNumber,

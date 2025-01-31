@@ -11,11 +11,12 @@ import {authService} from "./authService";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
+import {RequestWithBody} from "../types/requests";
 
 export const authRouter = Router();
 
 export const authController = {
-    async loginUser(req: Request<{}, {}, LoginInputType>, res: Response) {
+    async loginUser(req: RequestWithBody<LoginInputType>, res: Response) {
         const user = await authService.loginUser(req.body);
         if (user.status !== ResultStatus.Success) {
             res

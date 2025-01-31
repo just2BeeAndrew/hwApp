@@ -1,6 +1,9 @@
-import {commentsCollection} from "../db/mongoDb";
+import {commentsCollection, postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {CommentOutputType, CommentDBType} from "../types/db.types";
+import {SortType} from "../helpers/paginationValues";
+import {ResultStatus} from "../result/resultCode";
+import {Result} from "../result/result.type";
 
 
 const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
@@ -21,5 +24,62 @@ export const commentsQueryRepository = {
         const comment = await commentsCollection.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
         return commentsMapper(comment);
+    },
+
+    async getCommentsByPostId(postId: string, sortData: SortType):Promise<Result<{
+        pageCount: number;
+        page: number;
+        pageSize: number;
+        totalCount: number;
+        items: CommentOutputType[];
+    }|null>> {
+        if (!ObjectId.isValid(postId)) {
+            return {
+                status: ResultStatus.BadRequest,
+                data: null,
+                errorMessage: "Invalid postId",
+                extensions: [{field: "postId", message: "Invalid ObjectId"}],
+            };
+        }
+
+        const isExistingPost = await postsCollection.findOne({_id: new ObjectId(postId)});
+        if (!isExistingPost) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Post not found",
+                extensions: [{field: "postId", message: "Not Found"}],
+            };
+        }
+
+        const {pageNumber, pageSize, sortBy, sortDirection} = sortData;
+
+        const [comments, commentsCount] = await Promise.all([
+            commentsCollection
+                .find({postId})
+                .sort({[sortBy]: sortDirection === "asc" ? 1 : -1})
+                .skip((pageNumber - 1) * pageSize)
+                .limit(pageSize)
+                .toArray(),
+            this.getCommentsCount(postId),
+        ]);
+
+        return {
+            status: ResultStatus.Success,
+            data: {
+                pageCount: Math.ceil(commentsCount / pageSize),
+                page: pageNumber,
+                pageSize: pageSize,
+                totalCount: commentsCount,
+                items: comments.map(commentsMapper),
+            },
+            extensions: [],
+        };
+    },
+
+
+    getCommentsCount(postId?: string): Promise<number> {
+        return postsCollection.countDocuments(postId ? {postId} : {})
     }
+
 }
