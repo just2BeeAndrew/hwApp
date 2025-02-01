@@ -8,35 +8,96 @@ import {usersRepository} from "../users/usersRepository";
 import {WithId} from "mongodb";
 
 export const commentsService = {
-    async createComment( postId:string, createData: string, userId:string ) {
-       const userInfo: WithId<UserDBType> | null = await usersRepository.getUserBy_Id(userId);
-       if (!userInfo) return {
-           status: ResultStatus.NotFound,
-           data: null,
-           errorMessage: "User not found",
-           extensions: [{field: 'User', message: 'Not Found'}],
-       };
+    async createComment(postId: string, createData: string, userId: string) {
+        const userInfo: WithId<UserDBType> | null = await usersRepository.getUserBy_Id(userId);
+        if (!userInfo) return {
+            status: ResultStatus.NotFound,
+            data: null,
+            errorMessage: "User not found",
+            extensions: [{field: 'User', message: 'Not Found'}],
+        };
 
-       const newComment:CommentDBType = {
-           postId: postId,
-           content: createData,
-           commentatorInfo: {
-               userId: userInfo._id.toString(),
-               userLogin: userInfo.login,
-           },
-           createdAt: new Date().toISOString(),
-       }
-       const res = await commentsRepository.createComment(newComment);
-       return {
-           status: ResultStatus.Success,
-           data: res,
-           extensions: [],
-       };
+        const newComment: CommentDBType = {
+            postId: postId,
+            content: createData,
+            commentatorInfo: {
+                userId: userInfo._id.toString(),
+                userLogin: userInfo.login,
+            },
+            createdAt: new Date().toISOString(),
+        }
+        const res = await commentsRepository.createComment(newComment);
+        return {
+            status: ResultStatus.Success,
+            data: res,
+            extensions: [],
+        };
     },
 
-    async updateComment (commentId: string, updateComment: CommentInputType):Promise<Result> {
-        const isExists = await commentsRepository.getCommentBy_Id(commentId);
-        if (!isExists) {
+    async updateComment(commentId: string, updateComment: string, userId: string) {
+        const isExist = await this.checkIsExistingComment(commentId);
+        if (isExist.status !== ResultStatus.Success) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Comment not found",
+                extensions: [{field: 'comment', message: 'Not Found'}],
+            }
+        }
+        const commentatorId = isExist.data!.commentatorInfo.userId
+
+        const isOwner = await this.checkIsOwnerComment(commentatorId, userId)
+        if (isOwner.status !== ResultStatus.Success) {
+            return {
+                status: ResultStatus.Forbidden,
+                data: null,
+                errorMessage: "User isn't owner",
+                extensions: [{field: 'user', message: "Isn't owner"}],
+            }
+        }
+
+        await commentsRepository.updateComment(commentId, updateComment);
+        return {
+            status: ResultStatus.NoContent,
+            data: null,
+            extensions: []
+        }
+    },
+
+    async deleteComment(commentId: string, userId: string) {
+        const isExist = await this.checkIsExistingComment(commentId);
+        if (isExist.status !== ResultStatus.Success) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Comment not found",
+                extensions: [{field: 'comment', message: 'Not Found'}],
+            }
+        }
+        const commentatorId = isExist.data!.commentatorInfo.userId
+
+        const isOwner = await this.checkIsOwnerComment(commentatorId, userId)
+        if (isOwner.status !== ResultStatus.Success) {
+            return {
+                status: ResultStatus.Forbidden,
+                data: null,
+                errorMessage: "User isn't owner",
+                extensions: [{field: 'user', message: "Isn't owner"}],
+            }
+        }
+
+        await commentsRepository.deleteComment(commentId);
+        return {
+            status: ResultStatus.NoContent,
+            data: null,
+            extensions: [],
+
+        }
+    },
+
+    async checkIsExistingComment(commentId: string) {
+        const  comment = await commentsRepository.getCommentBy_Id(commentId);
+        if (!comment) {
             return {
                 status: ResultStatus.NotFound,
                 data: null,
@@ -44,22 +105,28 @@ export const commentsService = {
                 extensions: [{field: "commentId", message: "NotFound"}]
             }
         }
-
-        const updatedComment = await  commentsRepository.updateComment(commentId, updateComment);
         return {
-            status: ResultStatus.NoContent,
-            data: null,
-            extensions: []
+            status: ResultStatus.Success,
+            data: comment,
+            extensions: [],
         }
-
-
     },
 
-    async deleteComment () {
-
-    },
-
-    async getCommentById () {
-
+    async checkIsOwnerComment(commentatorId: string, userId: string) {
+        if (commentatorId !== userId) {
+            return {
+                status: ResultStatus.Forbidden,
+                data: null,
+                errorMessage: "User isn't owner",
+                extensions: [{field: " user", message: "Isn't owner"}],
+            }
+        }
+        return {
+            status: ResultStatus.Success,
+            data: null,
+            extensions: [],
+        }
     }
+
+
 }

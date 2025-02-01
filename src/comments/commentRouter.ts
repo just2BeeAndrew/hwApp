@@ -8,12 +8,16 @@ import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
+import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
 
 export const commentRouter = Router();
 
 export const commentController = {
-    async updateComment(req: Request<{commentId: string}, {}, CommentInputType>, res: Response) {
-        const updatedComment = await commentsService.updateComment(req.params.commentId, req.body);
+    async updateComment(req: RequestWithParamsAndBody<{ commentId: string }, CommentInputType>, res: Response) {
+        const {commentId} = req.params;
+        const {content} = req.body;
+        const userId = req.user!.id as string;
+        const updatedComment = await commentsService.updateComment(commentId, content, userId);
         if (updatedComment.status !== ResultStatus.NoContent) {
             res
                 .status(resultCodeToHttpException(updatedComment.status))
@@ -23,7 +27,10 @@ export const commentController = {
         res.sendStatus(HttpStatuses.NOCONTENT)
     },
 
-    async deleteComment(req: Request, res: Response) {
+    async deleteComment(req: RequestWithParams<{ commentId: string }>, res: Response) {
+        const {commentId} = req.params;
+        const userId = req.user!.id as string;
+        const deleteComment = await commentsService.deleteComment(commentId, userId)
 
     },
 

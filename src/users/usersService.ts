@@ -7,7 +7,7 @@ import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
 
 export const usersService = {
-    async createUser(createData: UserInputType)/*:Promise<string | { errorsMessages: { field: string; message: string }[] } >*/ {
+    async createUser(createData: UserInputType) {
         const isLoginTaken = await usersRepository.checkLoginUser(createData.login);
         if (isLoginTaken) {
             return {
@@ -31,7 +31,6 @@ export const usersService = {
         const createdUser = await usersRepository.createUser(newUser)
         return createdUser;
     },
-
 
 
     async deleteUser(id: string) {

@@ -27,17 +27,4 @@ export const accessTokenMiddleware = async (req: Request, res: Response, next: N
         next()
     }
     res.sendStatus(HttpStatuses.UNAUTHORIZED);
-    // if (!req.headers.authorization) {
-    //     res.sendStatus(401);
-    //     return;
-    // }
-    //
-    // const token = req.headers.authorization.split(" ")[1];
-    //
-    // const userId = await jwtService.getUserIdByToken(token);
-    // if (userId) {
-    //     req.user = await usersRepository.getUserBy_Id(userId)
-    //     next()
-    // }
-    // res.sendStatus(401);
 }
