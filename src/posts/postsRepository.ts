@@ -4,8 +4,7 @@ import {ObjectId} from "mongodb";
 
 export const postsRepository = {
     async getPostBy_Id(_id: string) {
-        const object_Id = new ObjectId(_id);
-        const post = await postsCollection.findOne({_id:object_Id});
+        const post = await postsCollection.findOne({_id:new ObjectId(_id)});
         if (!post) {
             return null
         }

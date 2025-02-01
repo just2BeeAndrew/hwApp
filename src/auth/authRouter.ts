@@ -12,6 +12,7 @@ import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {RequestWithBody} from "../types/requests";
+import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 
 export const authRouter = Router();
 
@@ -37,5 +38,8 @@ export const authController = {
 }
 
 authRouter.post('/login', authController.loginUser)
-authRouter.get('/me',accessTokenMiddleware, authController.infoUser)
+authRouter.get('/me',
+    accessTokenMiddleware,
+    errorsResultMiddleware,
+    authController.infoUser)
 

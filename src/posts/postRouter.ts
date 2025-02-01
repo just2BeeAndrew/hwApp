@@ -1,6 +1,6 @@
 import {Router, Request, Response} from 'express';
 import {
-    blogIdValidator,
+    blogIdValidator, commentContentValidator,
     postContentValidator,
     shortDescriptionValidator,
     titleValidator
@@ -19,6 +19,7 @@ import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
+import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 
 
 export const postRouter = Router();
@@ -106,7 +107,12 @@ export const postController = {
 
 
 postRouter.get('/:postId/comments', postController.getCommentsByPostId);
-postRouter.post('/:postId/comments', postController.createComment);
+postRouter.post('/:postId/comments',
+    authorizationMiddleware,
+    commentContentValidator,
+    accessTokenMiddleware,
+    errorsResultMiddleware,
+    postController.createComment);
 postRouter.get('/', postController.getAllPosts);
 postRouter.post('/',
     authorizationMiddleware,

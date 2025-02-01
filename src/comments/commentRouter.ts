@@ -9,6 +9,8 @@ import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
+import {commentsQueryRepository} from "./commentsQueryRepository";
+import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 
 export const commentRouter = Router();
 
@@ -35,15 +37,20 @@ export const commentController = {
     },
 
     async getCommentById(req: Request, res: Response) {
-
+        const {commentId} = req.params;
+        const comment = await commentsQueryRepository.getCommentBy_Id(commentId);
+        res.status(HttpStatuses.SUCCESS).json(comment);
     }
 
 }
 
 commentRouter.put('/:commentId',
+    accessTokenMiddleware,
     commentContentValidator,
-    authorizationMiddleware,
     errorsResultMiddleware,
     commentController.updateComment)
-commentRouter.delete('/:commentId', commentController.deleteComment)
+commentRouter.delete('/:commentId',
+    accessTokenMiddleware,
+    errorsResultMiddleware,
+    commentController.deleteComment)
 commentRouter.get('/:id', commentController.getCommentById)

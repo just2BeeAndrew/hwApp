@@ -38,8 +38,7 @@ export const blogsQueryRepository = {
     },
 
     async getBlogBy_Id(_id: string) {
-        const object_Id = new ObjectId(_id)
-        const blog = await blogsCollection.findOne({_id: object_Id});
+        const blog = await blogsCollection.findOne({_id: new ObjectId(_id)});
         if (!blog) {
             return null
         }

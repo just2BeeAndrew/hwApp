@@ -21,11 +21,11 @@ export async function runDb(url: string):Promise<boolean>{
     try {
         await client.connect();
         await db.command({ ping: 1 });
-        console.log('OK')
+        console.log('Не упал @_@')
         return true
     } catch (error) {
         console.log(error);
-        console.log("сервер не встал")
+        console.log("Упал *0*")
         await client.close();
         return false;
     }
