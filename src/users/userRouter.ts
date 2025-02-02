@@ -36,7 +36,10 @@ export const userController = {
     },
 }
 
-userRouter.get('/',userController.getAllUsers);
+userRouter.get('/',
+    authorizationMiddleware,
+    errorsResultMiddleware,
+    userController.getAllUsers);
 userRouter.post('/',
     authorizationMiddleware,
     loginValidator,

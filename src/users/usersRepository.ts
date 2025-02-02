@@ -33,7 +33,6 @@ export const usersRepository = {
     },
 
     async deleteUser(id: string): Promise<boolean> {
-
         const user = await usersCollection.findOne({_id: new ObjectId(id)});
         if (user) {
             const res = await usersCollection.deleteOne({_id: user._id});

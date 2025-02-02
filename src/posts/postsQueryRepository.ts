@@ -45,7 +45,7 @@ export const postsQueryRepository = {
     },
 
     async getPostById(id: string) {
-        const posts = await postsCollection.findOne({id:id});
+        const posts = await postsCollection.findOne({_id:new ObjectId(id)});
         if (!posts) {
             return null
         }

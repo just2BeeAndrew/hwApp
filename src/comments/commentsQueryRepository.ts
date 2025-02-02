@@ -21,13 +21,14 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
 
 export const commentsQueryRepository = {
     async getCommentBy_Id(_id: string) {
+        console.log("getCommentBy_Id", _id);
         const comment = await commentsCollection.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
         return commentsMapper(comment);
     },
 
     async getCommentsByPostId(postId: string, sortData: SortType):Promise<Result<{
-        pageCount: number;
+        pagesCount: number;
         page: number;
         pageSize: number;
         totalCount: number;
@@ -53,7 +54,6 @@ export const commentsQueryRepository = {
         }
 
         const {pageNumber, pageSize, sortBy, sortDirection} = sortData;
-
         const [comments, commentsCount] = await Promise.all([
             commentsCollection
                 .find({postId})
@@ -67,7 +67,7 @@ export const commentsQueryRepository = {
         return {
             status: ResultStatus.Success,
             data: {
-                pageCount: Math.ceil(commentsCount / pageSize),
+                pagesCount: Math.ceil(commentsCount / pageSize),
                 page: pageNumber,
                 pageSize: pageSize,
                 totalCount: commentsCount,
@@ -79,7 +79,11 @@ export const commentsQueryRepository = {
 
 
     getCommentsCount(postId?: string): Promise<number> {
-        return postsCollection.countDocuments(postId ? {postId} : {})
+        const filter: any = {}
+        if (postId) {
+            filter.postId = postId;
+        }
+        return commentsCollection.countDocuments(filter)
     }
 
 }

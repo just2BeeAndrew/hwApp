@@ -7,8 +7,9 @@ import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
 
 export const authService = {
-    async loginUser(user: LoginInputType): Promise<Result<{ accessToken: string } | null>> {
-        const result = await this.checkCredentials(user);
+    async loginUser(loginOrEmail:string, password: string): Promise<Result<{ accessToken: string } | null>> {
+        const result = await this.checkCredentials(loginOrEmail, password);
+
         if (result.status !== ResultStatus.Success)
             return {
                 status: ResultStatus.Unauthorized,
@@ -26,8 +27,8 @@ export const authService = {
         }
     },
 
-    async checkCredentials(checkData: LoginInputType): Promise<Result<WithId<UserDBType> | null>> {
-        const user = await usersRepository.findByLoginOrEmail(checkData.loginOrEmail);
+    async checkCredentials(loginOrEmail:string, password:string): Promise<Result<WithId<UserDBType> | null>> {
+        const user = await usersRepository.findByLoginOrEmail(loginOrEmail);
         if (!user) {
             return {
                 status: ResultStatus.NotFound,
@@ -36,8 +37,8 @@ export const authService = {
                 extensions: [{field: 'loginOrEmail', message: 'Not Found'}],
             }
         }
-        const passwordHash = await bcryptService.generateHash(checkData.password);
-        if (user.passwordHash !== passwordHash) {
+        const passwordHash = await bcryptService.checkPassword(password, user.passwordHash)
+        if (!passwordHash) {
             return {
                 status: ResultStatus.BadRequest,
                 data: null,

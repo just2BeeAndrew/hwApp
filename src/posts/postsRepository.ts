@@ -18,7 +18,7 @@ export const postsRepository = {
 
     async updatePost(id: string, body: PostInputType, blogsIndex: BlogOutputType): Promise<boolean> {
         const res = await postsCollection.updateOne(
-            {id},
+            {_id: new ObjectId(id)},
             {
                 $set: {
                     title: body.title,
@@ -33,7 +33,7 @@ export const postsRepository = {
     },
 
     async deletePost(id: string): Promise<boolean> {
-        const post = await postsCollection.findOne({id});
+        const post = await postsCollection.findOne({_id: new ObjectId(id)});
         if (post) {
             const res = await postsCollection.deleteOne({_id: post._id});
             if (res.deletedCount > 0) return true;

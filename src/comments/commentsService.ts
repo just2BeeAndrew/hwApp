@@ -10,12 +10,24 @@ import {WithId} from "mongodb";
 export const commentsService = {
     async createComment(postId: string, createData: string, userId: string) {
         const userInfo: WithId<UserDBType> | null = await usersRepository.getUserBy_Id(userId);
-        if (!userInfo) return {
-            status: ResultStatus.NotFound,
-            data: null,
-            errorMessage: "User not found",
-            extensions: [{field: 'User', message: 'Not Found'}],
-        };
+        if (!userInfo) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "User not found",
+                extensions: [{field: 'User', message: 'Not Found'}],
+            };
+        }
+
+        const post = await postsRepository.getPostBy_Id(postId);
+        if (!post) {
+            return {
+                status : ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Post not found",
+                extensions: [{field: 'Post', message: 'Not Found'}],
+            };
+        }
 
         const newComment: CommentDBType = {
             postId: postId,
@@ -35,8 +47,10 @@ export const commentsService = {
     },
 
     async updateComment(commentId: string, updateComment: string, userId: string) {
-        const isExist = await this.checkIsExistingComment(commentId);
-        if (isExist.status !== ResultStatus.Success) {
+        const checkerResult = await this.checkIsExistingComment(commentId);
+
+        console.log("###",checkerResult);
+        if (checkerResult.status !== ResultStatus.Success) {
             return {
                 status: ResultStatus.NotFound,
                 data: null,
@@ -44,7 +58,7 @@ export const commentsService = {
                 extensions: [{field: 'comment', message: 'Not Found'}],
             }
         }
-        const commentatorId = isExist.data!.commentatorInfo.userId
+        const commentatorId = checkerResult.data!.commentatorInfo.userId
 
         const isOwner = await this.checkIsOwnerComment(commentatorId, userId)
         if (isOwner.status !== ResultStatus.Success) {
@@ -90,7 +104,7 @@ export const commentsService = {
         return {
             status: ResultStatus.NoContent,
             data: null,
-            extensions: [],
+            extensions: []
 
         }
     },

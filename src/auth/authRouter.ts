@@ -18,7 +18,8 @@ export const authRouter = Router();
 
 export const authController = {
     async loginUser(req: RequestWithBody<LoginInputType>, res: Response) {
-        const user = await authService.loginUser(req.body);
+        const {loginOrEmail, password} = req.body
+        const user = await authService.loginUser(loginOrEmail, password);
         if (user.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(user.status))

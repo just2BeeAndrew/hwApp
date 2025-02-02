@@ -45,17 +45,20 @@ export const postController = {
         const {content} = req.body;
         const userId = req.user?.id as string;
 
-        const createdComment = await commentsService.createComment(postId, content, userId);
-        if (createdComment.status !== ResultStatus.Success) {
-            res
-                .status(resultCodeToHttpException(createdComment.status))
-                .json(createdComment.extensions)
+        if(!postId){
+            res.status(HttpStatuses.NOT_FOUND);
             return
         }
 
+        const createdComment = await commentsService.createComment(postId, content, userId);
+        if (createdComment.status !== ResultStatus.Success) {
+            res
+                .sendStatus(404)
+            return
+        }
         const newComment = await commentsQueryRepository.getCommentBy_Id(createdComment.data!);
         res
-            .status(HttpStatuses.SUCCESS)
+            .status(HttpStatuses.CREATED)
             .json(newComment);
     },
 
@@ -86,8 +89,9 @@ export const postController = {
         res.sendStatus(404)
     },
 
-    async updatePost(req: Request<{ id: string }, {}, PostInputType>, res: Response) {
-        const updatedPost = await postsService.updatePost(req.params.id, req.body);
+    async updatePost(req: RequestWithParamsAndBody<{ id: string }, PostInputType>, res: Response) {
+        const {id} = req.params;
+        const updatedPost = await postsService.updatePost(id, req.body);
         if (updatedPost) {
             res.status(204).json(updatedPost);
             return;
@@ -108,9 +112,8 @@ export const postController = {
 
 postRouter.get('/:postId/comments', postController.getCommentsByPostId);
 postRouter.post('/:postId/comments',
-    authorizationMiddleware,
-    commentContentValidator,
     accessTokenMiddleware,
+    commentContentValidator,
     errorsResultMiddleware,
     postController.createComment);
 postRouter.get('/', postController.getAllPosts);
