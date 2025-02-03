@@ -11,11 +11,9 @@ import {CommentInputType, PostInputType} from "../types/db.types";
 import {postsService} from "./postsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsQueryRepository} from "./postsQueryRepository";
-import {commentsRepository} from "../comments/commentsRepository";
 import {commentsQueryRepository} from "../comments/commentsQueryRepository";
 import {commentsService} from "../comments/commentsService";
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
-import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
@@ -34,6 +32,7 @@ export const postController = {
             res
                 .status(resultCodeToHttpException(comments.status))
                 .json(comments.extensions)
+            return
         }
         res
             .status(HttpStatuses.SUCCESS)
