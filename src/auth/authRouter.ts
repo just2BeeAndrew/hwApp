@@ -29,12 +29,28 @@ export const authController = {
     },
 
     async confirmReg(req: Request, res: Response) {
-        let transporter = nodemailer.createTransport({})
+
 
     },
 
     async sendConfirmEmail(req: Request, res: Response) {
+        let transport = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: "andrew.dudal.1997@gmail.com",
+                pass: "bwxyzxbcfadxrmml",//bwxy zxbc fadx rmml
+            },
+        });
 
+// Отправка письма
+        let info = await transport.sendMail({
+            from: 'andrew.dudal.1997@gmail.com',
+            to: req.body.email,
+            subject: 'Тестовое письмо через Gmail',
+            text: 'Привет, это тестовое письмо, отправленное через Nodemailer'
+        });
+        console.log(info);
+        res.sendStatus(HttpStatuses.SUCCESS);
     },
 
     async resendConfirmEmail(req: Request, res: Response) {
