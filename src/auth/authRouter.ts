@@ -1,5 +1,5 @@
 import {Router, Request, Response} from 'express';
-import {LoginInputType} from "../types/db.types";
+import {LoginInputType, UserInputType} from "../types/db.types";
 import {usersQueryRepository} from "../users/usersQueryRepository";
 import {ResultStatus} from "../result/resultCode";
 import {authService} from "./authService";
@@ -8,7 +8,8 @@ import {HttpStatuses} from "../types/httpStatuses";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
-import nodemailer from 'nodemailer'
+import {emailAdapter} from "../email/emailAdapter";
+import {emailService} from "../email/emailSevice";
 
 export const authRouter = Router();
 
@@ -28,32 +29,19 @@ export const authController = {
             .json({accessToken: user.data!.accessToken})
     },
 
-    async confirmReg(req: Request, res: Response) {
+    async registrationConfirmation(req: Request, res: Response) {
 
 
     },
 
-    async sendConfirmEmail(req: Request, res: Response) {
-        let transport = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: "andrew.dudal.1997@gmail.com",
-                pass: "bwxyzxbcfadxrmml",//bwxy zxbc fadx rmml
-            },
-        });
+    async registration(req: RequestWithBody<UserInputType>, res: Response) {
+        const {login, password, email} = req.body
+        await emailService.doOperation()
+        res.sendStatus(HttpStatuses.SUCCESS)
 
-// Отправка письма
-        let info = await transport.sendMail({
-            from: 'andrew.dudal.1997@gmail.com',
-            to: req.body.email,
-            subject: 'Тестовое письмо через Gmail',
-            text: 'Привет, это тестовое письмо, отправленное через Nodemailer'
-        });
-        console.log(info);
-        res.sendStatus(HttpStatuses.SUCCESS);
     },
 
-    async resendConfirmEmail(req: Request, res: Response) {
+    async registrationEmailResending(req: Request, res: Response) {
 
     },
 
@@ -64,9 +52,9 @@ export const authController = {
 }
 
 authRouter.post('/login', authController.loginUser)
-authRouter.post('/registration-confirmation', authController.confirmReg)
-authRouter.post('/registration', authController.sendConfirmEmail)
-authRouter.post('/registration-email-resending', authController.resendConfirmEmail)
+authRouter.post('/registration-confirmation', authController.registrationConfirmation)
+authRouter.post('/registration', authController.registration)
+authRouter.post('/registration-email-resending', authController.registrationEmailResending)
 authRouter.get('/me',
     accessTokenMiddleware,
     errorsResultMiddleware,
