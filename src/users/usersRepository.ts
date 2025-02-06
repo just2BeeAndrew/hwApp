@@ -1,4 +1,4 @@
-import {UserAccountDBType, UserDBType, UserInputType} from "../types/db.types";
+import {UserAccountDBType} from "../types/db.types";
 import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 
@@ -13,23 +13,33 @@ export const usersRepository = {
     },
 
     async checkLoginUser(login: string) {
-        const isLoginTaken = await usersCollection.findOne({login: login});
-        if (isLoginTaken) {
-            return true
-        }
-        return false;
+        return !!(await usersCollection.findOne({login}))
+        // const isLoginTaken = await usersCollection.findOne({login: login});
+        // if (isLoginTaken) {
+        //     return true
+        // }
+        // return false;
     },
 
     async checkEmailUser(email: string) {
-        const isLoginTaken = await usersCollection.findOne({email: email});
-        if (isLoginTaken) {
-            return true
-        }
-        return false;
+        return !!(await usersCollection.findOne({email}))
+        // const isLoginTaken = await usersCollection.findOne({email: email});
+        // if (isLoginTaken) {
+        //     return true
+        // }
+        // return false;
     },
 
     async findByLoginOrEmail(loginOrEmail: string) {
         return await usersCollection.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]});
+    },
+    async findUserByConfirmationCode(confirmCode: string) {
+        return await usersCollection.findOne({"emailConfirmation.confirmationCode": confirmCode });
+    },
+
+    async updateConfirmation(_id: ObjectId):Promise<boolean>{
+        let result = await usersCollection.updateOne({_id}, {$set: {'emailConfirmation.isConfirmed': true}});
+        return result.modifiedCount === 1
     },
 
     async deleteUser(id: string): Promise<boolean> {

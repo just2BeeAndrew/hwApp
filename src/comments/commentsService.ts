@@ -1,15 +1,13 @@
 import {ResultStatus} from "../result/resultCode";
-import {Result} from "../result/result.type";
-import {CommentatorInfoType, CommentDBType, CommentInputType, UserDBType} from "../types/db.types";
+import {CommentDBType, UserAccountDBType} from "../types/db.types";
 import {commentsRepository} from "./commentsRepository";
-import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
 import {postsRepository} from "../posts/postsRepository";
 import {usersRepository} from "../users/usersRepository";
 import {WithId} from "mongodb";
 
 export const commentsService = {
     async createComment(postId: string, createData: string, userId: string) {
-        const userInfo: WithId<UserDBType> | null = await usersRepository.getUserBy_Id(userId);
+        const userInfo: WithId<UserAccountDBType> | null = await usersRepository.getUserBy_Id(userId);
         if (!userInfo) {
             return {
                 status: ResultStatus.NotFound,
@@ -34,7 +32,7 @@ export const commentsService = {
             content: createData,
             commentatorInfo: {
                 userId: userInfo._id.toString(),
-                userLogin: userInfo.login,
+                userLogin: userInfo.accountData.login,
             },
             createdAt: new Date().toISOString(),
         }

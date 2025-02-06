@@ -10,6 +10,10 @@ export type LoginInputType = {
     password: string;
 }
 
+export type RegistrationConfirmationCode = {
+    code: string;
+}
+
 export type MeType = {
     email: string,
     login: string,

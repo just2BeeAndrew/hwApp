@@ -1,5 +1,5 @@
 import {Router, Request, Response} from 'express';
-import {LoginInputType, UserInputType} from "../types/db.types";
+import {LoginInputType, RegistrationConfirmationCode, UserInputType} from "../types/db.types";
 import {usersQueryRepository} from "../users/usersQueryRepository";
 import {ResultStatus} from "../result/resultCode";
 import {authService} from "./authService";
@@ -8,8 +8,6 @@ import {HttpStatuses} from "../types/httpStatuses";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
-import {emailAdapter} from "../email/emailAdapter";
-import {emailService} from "../email/emailSevice";
 import {usersService} from "../users/usersService";
 
 export const authRouter = Router();
@@ -30,9 +28,16 @@ export const authController = {
             .json({accessToken: user.data!.accessToken})
     },
 
-    async registrationConfirmation(req: Request, res: Response) {
-
-
+    async registrationConfirmation(req: RequestWithBody<RegistrationConfirmationCode>, res: Response) {
+        const {code} = req.body
+        const result = await usersService.registrationConfirmation(code);
+        if (result.status !== ResultStatus.NoContent) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .send(result.extensions)
+            return
+        }
+        res.sendStatus(HttpStatuses.NOCONTENT)
     },
 
     async registration(req: RequestWithBody<UserInputType>, res: Response) {

@@ -7,13 +7,13 @@ import {
     websiteUrlValidator
 } from "../middlewares/expressValidationMiddleware";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
-import {BlogInputType, PostInputType, BlogPostInputType} from "../types/db.types";
+import {BlogInputType, BlogPostInputType} from "../types/db.types";
 import {blogsService} from "./blogsService";
 import {paginationQueries} from "../helpers/paginationValues";
 import {postsService} from "../posts/postsService";
 import {blogsQueryRepository} from "./blogsQueryRepository";
 import {postsQueryRepository} from "../posts/postsQueryRepository";
-import {RequestWithParams} from "../types/requests";
+import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
 
 export const blogRouter = Router();
 
@@ -40,7 +40,7 @@ export const blogController = {
         res.sendStatus(404)
     },
 
-    async createPostByBlogId(req: Request<{ blogId: string }, {}, BlogPostInputType>, res: Response) {
+    async createPostByBlogId(req: RequestWithParamsAndBody<{ blogId: string }, BlogPostInputType>, res: Response) {
         const postsId = await postsService.createPost({...req.body, blogId: req.params.blogId})
         if (!postsId) {
             res.sendStatus(404)
@@ -59,7 +59,7 @@ export const blogController = {
         res.sendStatus(404);
     },
 
-    async updateBlog(req: Request<{ id: string }>, res: Response) {
+    async updateBlog(req: RequestWithParams<{ id: string }>, res: Response) {
         const updatedBlog = await blogsService.updateBlog(req.params.id, req.body);
         if (updatedBlog) {
             res.sendStatus(204);

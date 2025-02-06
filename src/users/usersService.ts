@@ -65,5 +65,47 @@ export const usersService = {
 
     async deleteUser(id: string) {
         return await usersRepository.deleteUser(id)
+    },
+
+    async registrationConfirmation(confirmCode: string):Promise<Result<{result:boolean} | false>> {
+        let user = await usersRepository.findUserByConfirmationCode(confirmCode);
+        if (!user) {
+            return {
+                status: ResultStatus.NotFound,
+                errorMessage: "Not Found",
+                extensions: [{field: 'user', message: 'Not found'}],
+                data: false
+            }
+        }
+        if (user.emailConfirmation.isConfirm) {
+            return {
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'confirmCode', message: 'confirmCode confirm already'}],
+                data: false
+            }
+        }
+        if (user.emailConfirmation.confirmationCode !== confirmCode) {
+            return {
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'confirmCode', message: "Isn't equal"}],
+                data: false
+            }
+        }
+        if (user.emailConfirmation.expirationDate < new Date()) {
+            return {
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'confirmationCode', message: 'invalid code'}],
+                data: false
+            }
+        }
+        let result = await usersRepository.updateConfirmation(user._id)
+        return {
+            status: ResultStatus.NoContent,
+            extensions: [],
+            data: {result}
+        }
     }
 }
