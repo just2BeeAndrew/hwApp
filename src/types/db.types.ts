@@ -114,6 +114,17 @@ export type UserDBType = {
     createdAt: string
 }
 
+export type ConfirmationType = {
+    confirmationCode: string,
+    expirationDate: Date,
+    isConfirm: boolean,
+}
+
+export type UserAccountDBType = {
+    accountData: UserDBType,
+    emailConfirmation: ConfirmationType
+}
+
 export type UserOutputType = {
     id: string,
     login: string,

@@ -1,35 +1,65 @@
-import {LoginInputType, UserDBType, UserInputType} from "../types/db.types";
-import {WithId} from "mongodb";
-import bcrypt from 'bcrypt'
+import {UserAccountDBType} from "../types/db.types";
 import {usersRepository} from "./usersRepository";
 import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
+import {v4 as uuidv4} from "uuid";
+import {add} from "date-fns"
+import {emailManagers} from "../email/manager/emailManager";
 
 export const usersService = {
-    async createUser(createData: UserInputType) {
-        const isLoginTaken = await usersRepository.checkLoginUser(createData.login);
+    async createUser(login: string, password: string, email: string): Promise<Result<{createdUser:string} | null>>
+    {
+        const isLoginTaken = await usersRepository.checkLoginUser(login);
         if (isLoginTaken) {
             return {
-                errorsMessages: [{field: 'login', message: 'login should be unique'}],
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'login', message: 'login should be unique'}],
+                data: null
             };
         }
-        const isEmailTaken = await usersRepository.checkEmailUser(createData.email);
+        const isEmailTaken = await usersRepository.checkEmailUser(email);
         if (isEmailTaken) {
             return {
-                errorsMessages: [{field: 'email', message: 'email should be unique'}],
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'email', message: 'email should be unique'}],
+                data: null
             };
         }
-        const passwordHash = await bcryptService.generateHash(createData.password);
+        const passwordHash = await bcryptService.generateHash(password);
 
-        const newUser: UserDBType = {
-            login: createData.login,
-            passwordHash,
-            email: createData.email,
-            createdAt: new Date().toISOString()
+        const newUser: UserAccountDBType = {
+            accountData: {
+                login: login,
+                passwordHash,
+                email: email,
+                createdAt: new Date().toISOString()
+            },
+            emailConfirmation: {
+                confirmationCode: uuidv4(),
+                expirationDate: add(new Date(), {hours: 1}),
+                isConfirm: false,
+            }
         }
         const createdUser = await usersRepository.createUser(newUser)
-        return createdUser;
+        try {
+            await emailManagers.sendEmailRegistration(newUser.accountData.email)
+        } catch (error) {
+            await this.deleteUser(createdUser)
+            return {
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'email', message: "email isn't send"}],
+                data: null
+            }
+        }
+        return {
+            status: ResultStatus.Success,
+            extensions: [],
+            data: {createdUser}
+        }
     },
 
 

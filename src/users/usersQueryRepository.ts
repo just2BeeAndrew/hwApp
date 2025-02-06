@@ -1,21 +1,21 @@
 import {SortType} from "../helpers/paginationValues";
 import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
-import {MeType, UserDBType, UserOutputType} from "../types/db.types";
+import {MeType, UserAccountDBType, UserDBType, UserOutputType} from "../types/db.types";
 
-export const userMapper = (user: WithId<UserDBType>): UserOutputType => {
+export const userMapper = (user: WithId<UserAccountDBType>): UserOutputType => {
     return {
         id: user._id.toString(),
-        login: user.login,
-        email: user.email,
-        createdAt: user.createdAt,
+        login: user.accountData.login,
+        email: user.accountData.email,
+        createdAt: user.accountData.createdAt,
     }
 }
 
-export const infoMapper = (user: WithId<UserDBType>): MeType => {
+export const infoMapper = (user: WithId<UserAccountDBType>): MeType => {
     return {
-        email: user.email,
-        login: user.login,
+        email: user.accountData.email,
+        login: user.accountData.login,
         userId: user._id.toString(),
     }
 }
@@ -50,27 +50,7 @@ export const usersQueryRepository = {
             items: users.map(userMapper)
         }
     },
-    // async getBy_Id(_id:string){
-    //     const object_id = new ObjectId(_id);
-    //     const res = await usersCollection.findOne({_id: object_id});
-    //     return res;
-    // },
-    //
-    // async getUserBy_Id(_id:string){
-    //     const user = await this.getBy_Id(_id)
-    //     if(!user){
-    //         return null;
-    //     }
-    //     return userMapper(user);
-    // },
-    //
-    // async getInfoBy_Id(_id:string){
-    //     const info = await this.getBy_Id(_id)
-    //     if(!info){
-    //         return null;
-    //     }
-    //     return infoMapper(info);
-    // },
+
     async getUserBy_Id(_id: string) {
         const object_Id = new ObjectId(_id)
         const user = await usersCollection.findOne({_id: object_Id});

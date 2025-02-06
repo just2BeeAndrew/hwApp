@@ -6,6 +6,8 @@ import {usersQueryRepository} from "./usersQueryRepository";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {loginValidator, passwordValidator, emailValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
+import {HttpStatuses} from "../types/httpStatuses";
+import {ResultStatus} from "../result/resultCode";
 
 export const userRouter = Router();
 
@@ -17,12 +19,13 @@ export const userController = {
     },
 
     async createUser(req: Request<UserInputType>, res: Response) {
-        const newUserId = await usersService.createUser(req.body);
-        if (typeof newUserId === "object" && "errorsMessages" in newUserId) {
-             res.status(400).json(newUserId);
+        const {login, password, email} = req.body
+        const newUserId = await usersService.createUser(login, password, email);
+        if (newUserId.status !== ResultStatus.Success) {
+             res.status(HttpStatuses.BAD_REQUEST).json(newUserId);
              return;
          }
-        const user = await usersQueryRepository.getUserBy_Id(newUserId as string);
+        const user = await usersQueryRepository.getUserBy_Id(newUserId.data!.createdUser);
         res.status(201).json(user);
     },
 

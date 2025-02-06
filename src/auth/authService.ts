@@ -1,4 +1,4 @@
-import {LoginInputType, UserDBType} from "../types/db.types";
+import {LoginInputType, UserAccountDBType, UserDBType} from "../types/db.types";
 import {WithId} from "mongodb";
 import {usersRepository} from "../users/usersRepository";
 import {Result} from "../result/result.type";
@@ -27,7 +27,7 @@ export const authService = {
         }
     },
 
-    async checkCredentials(loginOrEmail:string, password:string): Promise<Result<WithId<UserDBType> | null>> {
+    async checkCredentials(loginOrEmail:string, password:string): Promise<Result<WithId<UserAccountDBType> | null>> {
         const user = await usersRepository.findByLoginOrEmail(loginOrEmail);
         if (!user) {
             return {
@@ -37,7 +37,7 @@ export const authService = {
                 extensions: [{field: 'loginOrEmail', message: 'Not Found'}],
             }
         }
-        const passwordHash = await bcryptService.checkPassword(password, user.passwordHash)
+        const passwordHash = await bcryptService.checkPassword(password, user.accountData.passwordHash)
         if (!passwordHash) {
             return {
                 status: ResultStatus.BadRequest,

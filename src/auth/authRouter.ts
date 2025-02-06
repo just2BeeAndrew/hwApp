@@ -10,6 +10,7 @@ import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {emailAdapter} from "../email/emailAdapter";
 import {emailService} from "../email/emailSevice";
+import {usersService} from "../users/usersService";
 
 export const authRouter = Router();
 
@@ -36,7 +37,11 @@ export const authController = {
 
     async registration(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        await emailService.doOperation()
+        const user = await usersService.createUser(login, password, email);
+        if (user.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(user.status))
+        }
         res.sendStatus(HttpStatuses.SUCCESS)
 
     },

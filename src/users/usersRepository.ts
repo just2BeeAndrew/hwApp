@@ -1,13 +1,13 @@
-import {UserDBType, UserInputType} from "../types/db.types";
+import {UserAccountDBType, UserDBType, UserInputType} from "../types/db.types";
 import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 
 export const usersRepository = {
-    async getUserBy_Id(_id: string): Promise<WithId<UserDBType> | null> {
+    async getUserBy_Id(_id: string): Promise<WithId<UserAccountDBType> | null> {
         return await usersCollection.findOne({_id: new ObjectId(_id)}) || null;
     },
 
-    async createUser(newUser: UserDBType): Promise<string> {
+    async createUser(newUser: UserAccountDBType): Promise<string> {
         const user = await usersCollection.insertOne(newUser)
         return user.insertedId.toString();
     },
