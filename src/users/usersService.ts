@@ -1,4 +1,4 @@
-import {UserAccountDBType} from "../types/db.types";
+import {UserDBType} from "../types/db.types";
 import {usersRepository} from "./usersRepository";
 import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
@@ -30,7 +30,7 @@ export const usersService = {
         }
         const passwordHash = await bcryptService.generateHash(password);
 
-        const newUser: UserAccountDBType = {
+        const newUser: UserDBType = {
             accountData: {
                 login: login,
                 passwordHash,
@@ -45,7 +45,7 @@ export const usersService = {
         }
         const createdUser = await usersRepository.createUser(newUser)
         try {
-            await emailManagers.sendEmailRegistration(newUser.accountData.email)
+            await emailManagers.sendEmailRegistration(newUser.accountData.email, newUser.emailConfirmation.confirmationCode )
         } catch (error) {
             await this.deleteUser(createdUser)
             return {
@@ -81,7 +81,7 @@ export const usersService = {
             return {
                 status: ResultStatus.BadRequest,
                 errorMessage: "Bad Request",
-                extensions: [{field: 'confirmCode', message: 'confirmCode confirm already'}],
+                extensions: [{field: 'user', message: 'user already confirm'}],
                 data: false
             }
         }
@@ -89,7 +89,7 @@ export const usersService = {
             return {
                 status: ResultStatus.BadRequest,
                 errorMessage: "Bad Request",
-                extensions: [{field: 'confirmCode', message: "Isn't equal"}],
+                extensions: [{field: 'confirmCode', message: "Invalid code"}],
                 data: false
             }
         }

@@ -1,4 +1,4 @@
-import {UserAccountDBType} from "../types/db.types";
+import {UserDBType} from "../types/db.types";
 import {WithId} from "mongodb";
 import {usersRepository} from "../users/usersRepository";
 import {Result} from "../result/result.type";
@@ -27,7 +27,7 @@ export const authService = {
         }
     },
 
-    async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserAccountDBType> | null>> {
+    async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserDBType> | null>> {
         const user = await usersRepository.findByLoginOrEmail(loginOrEmail);
 
         if (!user) {

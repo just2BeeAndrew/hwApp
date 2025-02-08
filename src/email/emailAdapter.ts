@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import {HttpStatuses} from "../types/httpStatuses";
 
 export const emailAdapter = {
-    async sendEmail(email: string){
+    async sendEmail(email: string, code: string) {
         let transport = nodemailer.createTransport({
             service: 'gmail',
             auth: {

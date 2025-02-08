@@ -1,4 +1,4 @@
-import {UserDBType} from "../types/db.types";
+import {accountDataType} from "../types/db.types";
 import {WithId} from "mongodb";
 import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";

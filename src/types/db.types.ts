@@ -111,7 +111,7 @@ export type UserInputType = {
     email: string,
 }
 
-export type UserDBType = {
+export type accountDataType = {
     login: string,
     passwordHash: string,
     email: string,
@@ -124,8 +124,8 @@ export type ConfirmationType = {
     isConfirm: boolean,
 }
 
-export type UserAccountDBType = {
-    accountData: UserDBType,
+export type UserDBType = {
+    accountData: accountDataType,
     emailConfirmation: ConfirmationType
 }
 

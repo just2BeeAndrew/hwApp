@@ -1,9 +1,9 @@
 import {SortType} from "../helpers/paginationValues";
 import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
-import {MeType, UserAccountDBType, UserDBType, UserOutputType} from "../types/db.types";
+import {MeType, UserDBType, accountDataType, UserOutputType} from "../types/db.types";
 
-export const userMapper = (user: WithId<UserAccountDBType>): UserOutputType => {
+export const userMapper = (user: WithId<UserDBType>): UserOutputType => {
     return {
         id: user._id.toString(),
         login: user.accountData.login,
@@ -12,7 +12,7 @@ export const userMapper = (user: WithId<UserAccountDBType>): UserOutputType => {
     }
 }
 
-export const infoMapper = (user: WithId<UserAccountDBType>): MeType => {
+export const infoMapper = (user: WithId<UserDBType>): MeType => {
     return {
         email: user.accountData.email,
         login: user.accountData.login,
