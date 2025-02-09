@@ -107,5 +107,9 @@ export const usersService = {
             extensions: [],
             data: {result}
         }
+    },
+
+    async registrationEmailResending (){
+
     }
 }

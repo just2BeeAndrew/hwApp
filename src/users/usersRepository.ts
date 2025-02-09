@@ -14,20 +14,10 @@ export const usersRepository = {
 
     async checkLoginUser(login: string) {
         return !!(await usersCollection.findOne({login}))
-        // const isLoginTaken = await usersCollection.findOne({login: login});
-        // if (isLoginTaken) {
-        //     return true
-        // }
-        // return false;
     },
 
     async checkEmailUser(email: string) {
         return !!(await usersCollection.findOne({email}))
-        // const isLoginTaken = await usersCollection.findOne({email: email});
-        // if (isLoginTaken) {
-        //     return true
-        // }
-        // return false;
     },
 
     async findByLoginOrEmail(loginOrEmail: string) {

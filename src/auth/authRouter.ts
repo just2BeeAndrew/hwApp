@@ -51,7 +51,9 @@ export const authController = {
 
     },
 
-    async registrationEmailResending(req: Request, res: Response) {
+    async registrationEmailResending(req: RequestWithBody<UserInputType>, res: Response) {
+        const {email} = req.body
+        const user = await usersService.registrationEmailResending()
 
     },
 
