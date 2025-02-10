@@ -110,7 +110,7 @@ export const usersService = {
     },
 
     async registrationEmailResending (email: string, ip: string){
-        const ipRequestCount = {}
+
 
 
     }

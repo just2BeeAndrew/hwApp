@@ -9,6 +9,7 @@ import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {usersService} from "../users/usersService";
+import {ipTrackerMiddleware} from "../middlewares/ipTrackerMiddleware";
 
 export const authRouter = Router();
 
@@ -67,7 +68,10 @@ export const authController = {
 authRouter.post('/login', authController.loginUser)
 authRouter.post('/registration-confirmation', authController.registrationConfirmation)
 authRouter.post('/registration', authController.registration)
-authRouter.post('/registration-email-resending', authController.registrationEmailResending)
+authRouter.post('/registration-email-resending',
+    ipTrackerMiddleware,
+    errorsResultMiddleware,
+    authController.registrationEmailResending)
 authRouter.get('/me',
     accessTokenMiddleware,
     errorsResultMiddleware,
