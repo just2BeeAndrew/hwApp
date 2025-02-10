@@ -52,8 +52,9 @@ export const authController = {
     },
 
     async registrationEmailResending(req: RequestWithBody<UserInputType>, res: Response) {
+        const  ip = req.ip as string
         const {email} = req.body
-        const user = await usersService.registrationEmailResending()
+        const user = await usersService.registrationEmailResending(email,ip)
 
     },
 

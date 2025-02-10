@@ -5,7 +5,6 @@ import {IdType} from "../types/id";
 import {HttpStatuses} from "../types/httpStatuses";
 
 export const accessTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    console.log("Access Token");
     if (!req.headers.authorization) {
         console.log("Тут упал точка 1");
         res.sendStatus(HttpStatuses.UNAUTHORIZED);
