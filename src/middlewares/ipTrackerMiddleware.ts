@@ -15,7 +15,7 @@ export const ipTrackerMiddleware = (req: Request, res: Response, next: NextFunct
     if (!ipRequestCount [ip]) {
         ipRequestCount[ip] = {count:0, lastRequestTime: currentTime};
     } else {
-        if (currentTime - ipRequestCount[ip].lastRequestTime > 3600) {
+        if (currentTime - ipRequestCount[ip].lastRequestTime > 120) {
             ipRequestCount[ip].count = 0;
         }
         ipRequestCount[ip].lastRequestTime = currentTime;

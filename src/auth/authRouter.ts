@@ -36,7 +36,7 @@ export const authController = {
         if (result.status !== ResultStatus.NoContent) {
             res
                 .status(resultCodeToHttpException(result.status))
-                .send(result.extensions)
+                .send({errorsMessages: result.extensions})
             return
         }
         res.sendStatus(HttpStatuses.NOCONTENT)
@@ -46,20 +46,27 @@ export const authController = {
         const {login, password, email} = req.body
         const isConfirm = false
         const user = await usersService.createUser(login, password, email, isConfirm);
+
         if (user.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(user.status))
-                .send(user.extensions)
+                .send({errorsMessages: user.extensions})
             return
         }
+
         res.sendStatus(HttpStatuses.NOCONTENT)
 
     },
 
     async registrationEmailResending(req: RequestWithBody<UserInputType>, res: Response) {
-        const  ip = req.ip as string
         const {email} = req.body
-        const user = await usersService.registrationEmailResending(email,ip)
+        const user = await usersService.registrationEmailResending(email)
+        if (user.status !== ResultStatus.NoContent) {
+            res
+                .status(resultCodeToHttpException(user.status))
+                .send({errorsMessages: user.extensions})
+            return
+        }
         res.sendStatus(HttpStatuses.NOCONTENT)
     },
 

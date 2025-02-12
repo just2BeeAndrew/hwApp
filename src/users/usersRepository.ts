@@ -21,27 +21,27 @@ export const usersRepository = {
     },
 
     async checkEmailUser(email: string) {
-        const isLoginTaken = await usersCollection.findOne({"accountData.email": email});
-        if (isLoginTaken) {
+        const isEmailTaken = await usersCollection.findOne({"accountData.email": email});
+        if (isEmailTaken) {
             return true
         }
         return false;
     },
 
     async findByLoginOrEmail(loginOrEmail: string) {
-        return await usersCollection.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]});
+        return await usersCollection.findOne({$or: [{'accountData.email': loginOrEmail}, {'accountData.login': loginOrEmail}]});
     },
     async findUserByConfirmationCode(confirmCode: string) {
         return await usersCollection.findOne({"emailConfirmation.confirmationCode": confirmCode});
     },
 
     async updateConfirmation(_id: ObjectId): Promise<boolean> {
-        let result = await usersCollection.updateOne({_id}, {$set: {'emailConfirmation.isConfirmed': true}});
+        let result = await usersCollection.updateOne({_id}, {$set: {'emailConfirmation.isConfirm': true}});
         return result.modifiedCount === 1
     },
 
     async updateConfirmCode(email: string, confirmCode: string): Promise<boolean> {
-        let result = await usersCollection.updateOne({email: email}, {$set: {'emailConfirmation.confirmationCode': confirmCode}});
+        let result = await usersCollection.updateOne({'accountData.email': email}, {$set: {'emailConfirmation.confirmationCode': confirmCode}});
         return result.modifiedCount === 1
     },
 

@@ -8,20 +8,26 @@ import {add} from "date-fns"
 import {emailManagers} from "../email/manager/emailManager";
 
 export const usersService = {
-    async createUser(login: string, password: string, email: string, isConfirm: boolean)//: Promise<Result<{createdUser:string} | null>>
+    async createUser(login: string, password: string, email: string, isConfirm: boolean): Promise<Result<{createdUser:string} | null>>
     {
         const isLoginTaken = await usersRepository.checkLoginUser(login);
-        console.log(isLoginTaken);
+
         if (isLoginTaken) {
             return {
-                errorsMessages: [{field: 'login', message: 'login should be unique'}],
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'login', message: "email isn't send"}],
+                data: null
             };
         }
         const isEmailTaken = await usersRepository.checkEmailUser(email);
-        console.log(isEmailTaken);
+
         if (isEmailTaken) {
             return {
-                errorsMessages: [{field: 'email', message: 'email should be unique'}],
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'email', message: "email isn't send"}],
+                data: null
             };
         }
         const passwordHash = await bcryptService.generateHash(password);
@@ -40,17 +46,20 @@ export const usersService = {
             }
         }
         const createdUser = await usersRepository.createUser(newUser)
-        try {
-            emailManagers.sendEmail(newUser.accountData.email, newUser.emailConfirmation.confirmationCode)
-        } catch (error) {
-            await this.deleteUser(createdUser)
-            return {
-                status: ResultStatus.BadRequest,
-                errorMessage: "Bad Request",
-                extensions: [{field: 'email', message: "email isn't send"}],
-                data: null
+        if (!isConfirm){
+            try {
+                emailManagers.sendEmail(newUser.accountData.email, newUser.emailConfirmation.confirmationCode)
+            } catch (error) {
+                await this.deleteUser(createdUser)
+                return {
+                    status: ResultStatus.BadRequest,
+                    errorMessage: "Bad Request",
+                    extensions: [{field: 'email', message: "email isn't send"}],
+                    data: null
+                }
             }
         }
+
         return {
             status: ResultStatus.Success,
             extensions: [],
@@ -67,9 +76,9 @@ export const usersService = {
         let user = await usersRepository.findUserByConfirmationCode(confirmCode);
         if (!user) {
             return {
-                status: ResultStatus.NotFound,
+                status: ResultStatus.BadRequest,
                 errorMessage: "Not Found",
-                extensions: [{field: 'user', message: 'Not found'}],
+                extensions: [{field: 'code', message: 'Not found'}],
                 data: false
             }
         }
@@ -77,7 +86,7 @@ export const usersService = {
             return {
                 status: ResultStatus.BadRequest,
                 errorMessage: "Bad Request",
-                extensions: [{field: 'user', message: 'user already confirm'}],
+                extensions: [{field: 'code', message: 'code already confirm'}],
                 data: false
             }
         }
@@ -85,7 +94,7 @@ export const usersService = {
             return {
                 status: ResultStatus.BadRequest,
                 errorMessage: "Bad Request",
-                extensions: [{field: 'confirmCode', message: "Invalid code"}],
+                extensions: [{field: 'code', message: "Invalid code"}],
                 data: false
             }
         }
@@ -93,7 +102,7 @@ export const usersService = {
             return {
                 status: ResultStatus.BadRequest,
                 errorMessage: "Bad Request",
-                extensions: [{field: 'confirmationCode', message: 'invalid code'}],
+                extensions: [{field: 'code', message: 'invalid code'}],
                 data: false
             }
         }
@@ -105,24 +114,31 @@ export const usersService = {
         }
     },
 
-    async registrationEmailResending(email: string, ip: string) {
-        const isEmailTaken = await usersRepository.checkEmailUser(email);
-
-        if (!isEmailTaken) {
+    async registrationEmailResending(email: string) {
+        const user = await usersRepository.findByLoginOrEmail(email);
+        if (!user) {
             return {
-                status: ResultStatus.NotFound,
-                errorMessage: "Not Found",
+                status: ResultStatus.BadRequest,
+                errorMessage: "Not Exist",
                 extensions: [{field: 'email', message: 'Email not found'}],
                 data: null
             };
         }
+        if (user.emailConfirmation.isConfirm) {
+            return {
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'email', message: 'email already confirm'}],
+                data: null
+            }
+        }
 
-        const newUuid = uuidv4();
+        const code = uuidv4();
 
-        await usersRepository.updateConfirmCode(email, newUuid)
+        await usersRepository.updateConfirmCode(email, code)
 
         try {
-            emailManagers.sendEmail(email, newUuid)
+            emailManagers.sendEmail(email, code)
         } catch (error) {
             return {
                 status: ResultStatus.BadRequest,
@@ -131,7 +147,6 @@ export const usersService = {
                 data: null
             }
         }
-
         return {
             status: ResultStatus.NoContent,
             extensions: [],
