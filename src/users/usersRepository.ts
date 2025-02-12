@@ -13,22 +13,35 @@ export const usersRepository = {
     },
 
     async checkLoginUser(login: string) {
-        return !!(await usersCollection.findOne({login}))
+        const isLoginTaken = await usersCollection.findOne({'accountData.login': login});
+        if (isLoginTaken) {
+            return true
+        }
+        return false;
     },
 
     async checkEmailUser(email: string) {
-        return !!(await usersCollection.findOne({email}))
+        const isLoginTaken = await usersCollection.findOne({"accountData.email": email});
+        if (isLoginTaken) {
+            return true
+        }
+        return false;
     },
 
     async findByLoginOrEmail(loginOrEmail: string) {
         return await usersCollection.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]});
     },
     async findUserByConfirmationCode(confirmCode: string) {
-        return await usersCollection.findOne({"emailConfirmation.confirmationCode": confirmCode });
+        return await usersCollection.findOne({"emailConfirmation.confirmationCode": confirmCode});
     },
 
-    async updateConfirmation(_id: ObjectId):Promise<boolean>{
+    async updateConfirmation(_id: ObjectId): Promise<boolean> {
         let result = await usersCollection.updateOne({_id}, {$set: {'emailConfirmation.isConfirmed': true}});
+        return result.modifiedCount === 1
+    },
+
+    async updateConfirmCode(email: string, confirmCode: string): Promise<boolean> {
+        let result = await usersCollection.updateOne({email: email}, {$set: {'emailConfirmation.confirmationCode': confirmCode}});
         return result.modifiedCount === 1
     },
 

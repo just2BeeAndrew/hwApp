@@ -10,6 +10,7 @@ import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {usersService} from "../users/usersService";
 import {ipTrackerMiddleware} from "../middlewares/ipTrackerMiddleware";
+import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
 
 export const authRouter = Router();
 
@@ -43,12 +44,15 @@ export const authController = {
 
     async registration(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        const user = await usersService.createUser(login, password, email);
+        const isConfirm = false
+        const user = await usersService.createUser(login, password, email, isConfirm);
         if (user.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(user.status))
+                .send(user.extensions)
+            return
         }
-        res.sendStatus(HttpStatuses.SUCCESS)
+        res.sendStatus(HttpStatuses.NOCONTENT)
 
     },
 
@@ -56,7 +60,7 @@ export const authController = {
         const  ip = req.ip as string
         const {email} = req.body
         const user = await usersService.registrationEmailResending(email,ip)
-
+        res.sendStatus(HttpStatuses.NOCONTENT)
     },
 
     async infoUser(req: Request, res: Response) {
@@ -67,9 +71,15 @@ export const authController = {
 
 authRouter.post('/login', authController.loginUser)
 authRouter.post('/registration-confirmation', authController.registrationConfirmation)
-authRouter.post('/registration', authController.registration)
+authRouter.post('/registration',
+    loginValidator,
+    passwordValidator,
+    emailValidator,
+    errorsResultMiddleware,
+    authController.registration)
 authRouter.post('/registration-email-resending',
     ipTrackerMiddleware,
+    emailValidator,
     errorsResultMiddleware,
     authController.registrationEmailResending)
 authRouter.get('/me',

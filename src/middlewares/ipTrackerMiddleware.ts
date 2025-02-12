@@ -23,7 +23,7 @@ export const ipTrackerMiddleware = (req: Request, res: Response, next: NextFunct
     ipRequestCount[ip].count++;
 
     if (ipRequestCount[ip].count > 5) {
-        res.sendStatus(429)
+        res.sendStatus(HttpStatuses.TOO_MANY_REQUEST)
     }
     next()
 }

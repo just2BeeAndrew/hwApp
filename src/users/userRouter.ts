@@ -20,7 +20,8 @@ export const userController = {
 
     async createUser(req: Request<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        const newUserId = await usersService.createUser(login, password, email);
+        const isConfirm = true
+        const newUserId = await usersService.createUser(login, password, email, isConfirm);
         if (newUserId.status !== ResultStatus.Success) {
              res.status(HttpStatuses.BAD_REQUEST).json(newUserId);
              return;
