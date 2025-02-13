@@ -7,10 +7,12 @@ import {SETTINGS} from "./settings";
 import {authRouter} from "./auth/authRouter";
 import {userRouter} from "./users/userRouter";
 import {commentRouter} from "./comments/commentRouter";
+import cookieParser from "cookie-parser";
 
 export const app = express() // создать приложение
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
 app.use(cors()) // разрешить любым фронтам делать запросы на наш бэк
+app.use(cookieParser())
 app.use(SETTINGS.PATH.AUTH, authRouter)
 app.use(SETTINGS.PATH.BLOGS, blogRouter)
 app.use(SETTINGS.PATH.COMMENTS, commentRouter)

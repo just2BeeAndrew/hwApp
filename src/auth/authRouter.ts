@@ -30,6 +30,10 @@ export const authController = {
             .json({accessToken: user.data!.accessToken})
     },
 
+    async refreshToken (req: Request, res: Response) {
+
+    },
+
     async registrationConfirmation(req: RequestWithBody<RegistrationConfirmationCode>, res: Response) {
         const {code} = req.body
         const result = await usersService.registrationConfirmation(code);
@@ -70,6 +74,10 @@ export const authController = {
         res.sendStatus(HttpStatuses.NOCONTENT)
     },
 
+    async logout(req: Request, res: Response) {
+
+    },
+
     async infoUser(req: Request, res: Response) {
         const info = await usersQueryRepository.getInfoBy_Id(req.user!.id);
         res.status(HttpStatuses.SUCCESS).json(info)
@@ -77,6 +85,7 @@ export const authController = {
 }
 
 authRouter.post('/login', authController.loginUser)
+authRouter.post('/refresh-token', authController.refreshToken)
 authRouter.post('/registration-confirmation', authController.registrationConfirmation)
 authRouter.post('/registration',
     loginValidator,
@@ -89,6 +98,7 @@ authRouter.post('/registration-email-resending',
     emailValidator,
     errorsResultMiddleware,
     authController.registrationEmailResending)
+authRouter.post('/logout', authController.logout)
 authRouter.get('/me',
     accessTokenMiddleware,
     errorsResultMiddleware,
