@@ -18,5 +18,7 @@ export const SETTINGS = {
     },
     MONGO_URL:process.env.MONGO_URL||"",
     DB_NAME:process.env.DB_NAME||"testing",
-    JWT_SECRET: process.env.JWT_SECRET||"123",
+    ACCESS_TOKEN_SECRET: process.env.ACCESS_TIKEN_SECRET||"7831",
+    REFRESH_TOKEN_SECRET:process.env.REFRESH_TOKEN_SECRET||"3691",
+
 }

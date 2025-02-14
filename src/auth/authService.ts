@@ -7,7 +7,7 @@ import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
 
 export const authService = {
-    async loginUser(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string } | null>> {
+    async login(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
         const result = await this.checkCredentials(loginOrEmail, password);
 
         if (result.status !== ResultStatus.Success)
@@ -18,11 +18,14 @@ export const authService = {
                 data: null
             };
 
-        const accessToken = await jwtService.createJWT(result.data!._id.toString())
+        const token = await jwtService.createJWT(result.data!._id.toString())
 
         return {
             status: ResultStatus.Success,
-            data: {accessToken},
+            data: {
+                accessToken: token.accessToken,
+                refreshToken: token.refreshToken
+            },
             extensions: []
         }
     },

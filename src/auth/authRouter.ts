@@ -15,22 +15,27 @@ import {emailValidator, loginValidator, passwordValidator} from "../middlewares/
 export const authRouter = Router();
 
 export const authController = {
-    async loginUser(req: RequestWithBody<LoginInputType>, res: Response) {
+    async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
-        const user = await authService.loginUser(loginOrEmail, password);
-        if (user.status !== ResultStatus.Success) {
-            res
-                .status(resultCodeToHttpException(user.status))
-                .send(user.extensions)
+        const result = await authService.login(loginOrEmail, password);
+        if (!result.data) {
+            res.sendStatus(HttpStatuses.SERVER_ERROR);
             return
         }
-
+        if (result.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .send(result.extensions)
+            return
+        }
+        const {accessToken, refreshToken} = result.data!
         res
+            .cookie('jwt', refreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)
-            .json({accessToken: user.data!.accessToken})
+            .json({accessToken: accessToken})
     },
 
-    async refreshToken (req: Request, res: Response) {
+    async refreshToken(req: Request, res: Response) {
 
     },
 
@@ -84,7 +89,7 @@ export const authController = {
     }
 }
 
-authRouter.post('/login', authController.loginUser)
+authRouter.post('/login', authController.login)
 authRouter.post('/refresh-token', authController.refreshToken)
 authRouter.post('/registration-confirmation', authController.registrationConfirmation)
 authRouter.post('/registration',
