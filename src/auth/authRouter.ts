@@ -11,6 +11,9 @@ import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {usersService} from "../users/usersService";
 import {ipTrackerMiddleware} from "../middlewares/ipTrackerMiddleware";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
+import {jwtService} from "../application/jwtService";
+import {SETTINGS} from "../settings";
+import jwt from "jsonwebtoken";
 
 export const authRouter = Router();
 
@@ -36,7 +39,8 @@ export const authController = {
     },
 
     async refreshToken(req: Request, res: Response) {
-
+        const refreshToken = req.cookies.jwt;
+        const payload = await jwtService.verifyToken(refreshToken, SETTINGS.REFRESH_TOKEN_SECRET);
     },
 
     async registrationConfirmation(req: RequestWithBody<RegistrationConfirmationCode>, res: Response) {
