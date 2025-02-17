@@ -1,8 +1,8 @@
 import {tokensCollection} from "../db/mongoDb";
 
 export const authRepository = {
-    async isBlacklisted(refreshToken:string): Promise<boolean> {
-        const result = await tokensCollection.findOne({refreshToken:refreshToken})
+    async isBlacklisted(refreshToken: string): Promise<boolean> {
+        const result = await tokensCollection.findOne({refreshToken: refreshToken})
         if (result) {
             return true
         }
@@ -10,6 +10,7 @@ export const authRepository = {
     },
 
     async addTokenInBlacklist(refreshToken: string) {
-        await tokensCollection.insertOne({refreshToken: refreshToken});
+        const expiredToken = await tokensCollection.insertOne({refreshToken: refreshToken});
+        return expiredToken.insertedId.toString();
     }
 }

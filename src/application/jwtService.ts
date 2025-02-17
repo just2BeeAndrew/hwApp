@@ -9,9 +9,12 @@ export const jwtService = {
     },
 
     async verifyToken(token: string,tokenSecret: string ): Promise<{ userId: string } | null> {
+        console.log("токен",token)
+        console.log("секрет",tokenSecret)
         try {
             return jwt.verify(token, tokenSecret) as { userId: string };
         } catch (error) {
+            console.log(error);
             return null
         }
     }

@@ -1,4 +1,4 @@
-import {blogsCollection, commentsCollection, postsCollection, usersCollection} from "../db/mongoDb";
+import {blogsCollection, commentsCollection, postsCollection, usersCollection,tokensCollection} from "../db/mongoDb";
 
 export const testingRepository = {
     async deleteAll(): Promise<void> {
@@ -7,6 +7,8 @@ export const testingRepository = {
             postsCollection.deleteMany({}),
             usersCollection.deleteMany({}),
             commentsCollection.deleteMany({}),
+            tokensCollection.deleteMany({}),
         ]);
+        console.log("Очищено")
     }
 };

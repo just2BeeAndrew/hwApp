@@ -33,15 +33,18 @@ export const authController = {
             return
         }
         const {accessToken, refreshToken} = result.data!
+        console.log("login.refreshToken",refreshToken)
         res
-            .cookie('jwt', refreshToken, {httpOnly: true, secure: true})
+            .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)
             .json({accessToken: accessToken})
     },
 
     async refreshToken(req: Request, res: Response) {
-        const refreshToken = req.cookies.jwt;
-        const result = await authService.refreshToken(refreshToken);
+        const refreshToken = req.cookies.refreshToken;
+        console.log("refreshToken.refreshToken",refreshToken)
+        const userId = req.user?.id as string;
+        const result = await authService.refreshToken(refreshToken, userId);
         if (!result.data) {
             res.sendStatus(HttpStatuses.SERVER_ERROR);
             return
@@ -53,8 +56,9 @@ export const authController = {
             return
         }
         const {newAccessToken, newRefreshToken} = result.data!
+        console.log("refreshToken.newRefreshToken", newRefreshToken)
         res
-            .cookie('jwt', newRefreshToken, {httpOnly: true, secure: true})
+            .cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)
             .json({accessToken: newAccessToken})
     },
@@ -100,7 +104,13 @@ export const authController = {
     },
 
     async logout(req: Request, res: Response) {
-
+        const refreshToken = req.cookies.refreshToken;
+        console.log("logout.refreshToken", refreshToken)
+        const expiredToken = await authService.addTokenInBlacklist(refreshToken)
+        console.log("logout.expiredToken",expiredToken)
+        res
+            .clearCookie('refreshToken', {httpOnly: true, secure: true})
+            .sendStatus(HttpStatuses.NOCONTENT)
     },
 
     async infoUser(req: Request, res: Response) {
@@ -126,7 +136,10 @@ authRouter.post('/registration-email-resending',
     emailValidator,
     errorsResultMiddleware,
     authController.registrationEmailResending)
-authRouter.post('/logout', authController.logout)
+authRouter.post('/logout',
+    refreshTokenMiddleware,
+    errorsResultMiddleware,
+    authController.logout)
 authRouter.get('/me',
     accessTokenMiddleware,
     errorsResultMiddleware,

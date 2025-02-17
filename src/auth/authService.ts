@@ -34,22 +34,13 @@ export const authService = {
         }
     },
 
-    async refreshToken(refreshToken: string): Promise<Result<{
+    async refreshToken(refreshToken: string, userId: string): Promise<Result<{
         newAccessToken: string,
         newRefreshToken: string
     } | null>> {
 
-        const isBlacklisted = await authRepository.isBlacklisted(refreshToken);
-        if (!isBlacklisted) {
-            return {
-                status: ResultStatus.Forbidden,
-                errorMessage: "Forbiden",
-                extensions: [{field: "refreshToken", message: "refreshToken is blacklisted"}],
-                data: null
-            }
-        }
-        await authRepository.addTokenInBlacklist(refreshToken);
-        const token = await jwtService.createJWT(refreshToken);
+        await this.addTokenInBlacklist(refreshToken);
+        const token = await jwtService.createJWT(userId);
         return {
             status: ResultStatus.Success,
             data: {
@@ -58,7 +49,6 @@ export const authService = {
             },
             extensions: []
         }
-
     },
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserDBType> | null>> {
@@ -98,4 +88,8 @@ export const authService = {
             extensions: [],
         }
     },
+
+    async addTokenInBlacklist(refreshToken: string){
+        return await authRepository.addTokenInBlacklist(refreshToken);
+    }
 }
