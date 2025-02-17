@@ -5,9 +5,13 @@ import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
+import {authRepository} from "./authRepository";
 
 export const authService = {
-    async login(loginOrEmail: string, password: string): Promise<Result<{ accessToken: string, refreshToken: string } | null>> {
+    async login(loginOrEmail: string, password: string): Promise<Result<{
+        accessToken: string,
+        refreshToken: string
+    } | null>> {
         const result = await this.checkCredentials(loginOrEmail, password);
 
         if (result.status !== ResultStatus.Success)
@@ -28,6 +32,33 @@ export const authService = {
             },
             extensions: []
         }
+    },
+
+    async refreshToken(refreshToken: string): Promise<Result<{
+        newAccessToken: string,
+        newRefreshToken: string
+    } | null>> {
+
+        const isBlacklisted = await authRepository.isBlacklisted(refreshToken);
+        if (!isBlacklisted) {
+            return {
+                status: ResultStatus.Forbidden,
+                errorMessage: "Forbiden",
+                extensions: [{field: "refreshToken", message: "refreshToken is blacklisted"}],
+                data: null
+            }
+        }
+        await authRepository.addTokenInBlacklist(refreshToken);
+        const token = await jwtService.createJWT(refreshToken);
+        return {
+            status: ResultStatus.Success,
+            data: {
+                newAccessToken: token.accessToken,
+                newRefreshToken: token.refreshToken
+            },
+            extensions: []
+        }
+
     },
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserDBType> | null>> {

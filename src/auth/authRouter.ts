@@ -14,6 +14,7 @@ import {emailValidator, loginValidator, passwordValidator} from "../middlewares/
 import {jwtService} from "../application/jwtService";
 import {SETTINGS} from "../settings";
 import jwt from "jsonwebtoken";
+import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 
 export const authRouter = Router();
 
@@ -40,7 +41,22 @@ export const authController = {
 
     async refreshToken(req: Request, res: Response) {
         const refreshToken = req.cookies.jwt;
-        const payload = await jwtService.verifyToken(refreshToken, SETTINGS.REFRESH_TOKEN_SECRET);
+        const result = await authService.refreshToken(refreshToken);
+        if (!result.data) {
+            res.sendStatus(HttpStatuses.SERVER_ERROR);
+            return
+        }
+        if (result.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .send(result.extensions)
+            return
+        }
+        const {newAccessToken, newRefreshToken} = result.data!
+        res
+            .cookie('jwt', newRefreshToken, {httpOnly: true, secure: true})
+            .status(HttpStatuses.SUCCESS)
+            .json({accessToken: newAccessToken})
     },
 
     async registrationConfirmation(req: RequestWithBody<RegistrationConfirmationCode>, res: Response) {
@@ -94,7 +110,10 @@ export const authController = {
 }
 
 authRouter.post('/login', authController.login)
-authRouter.post('/refresh-token', authController.refreshToken)
+authRouter.post('/refresh-token',
+    refreshTokenMiddleware,
+    errorsResultMiddleware,
+    authController.refreshToken)
 authRouter.post('/registration-confirmation', authController.registrationConfirmation)
 authRouter.post('/registration',
     loginValidator,

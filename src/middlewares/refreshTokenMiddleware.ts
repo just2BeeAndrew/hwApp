@@ -5,7 +5,7 @@ import {SETTINGS} from "../settings";
 import {IdType} from "../types/id";
 import {usersRepository} from "../users/usersRepository";
 
-export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies?.refreshToken
     // let token
     // if (req.cookies && req.cookies.refreshToken) {

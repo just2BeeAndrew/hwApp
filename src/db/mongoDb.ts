@@ -1,5 +1,12 @@
 import {MongoClient,Db, Collection} from "mongodb";
-import {BlogDBType, CommentDBType, PostDBType, UserDBType, accountDataType} from "../types/db.types";
+import {
+    BlogDBType,
+    CommentDBType,
+    PostDBType,
+    UserDBType,
+    accountDataType,
+    BlackListRefreshTokensType
+} from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -8,6 +15,7 @@ export let blogsCollection: Collection<BlogDBType>
 export let commentsCollection: Collection<CommentDBType>
 export let postsCollection: Collection<PostDBType>
 export let usersCollection: Collection<UserDBType>
+export let tokensCollection: Collection<BlackListRefreshTokensType>
 
 export async function runDb(url: string):Promise<boolean>{
     let client = new MongoClient(url)
@@ -17,6 +25,7 @@ export async function runDb(url: string):Promise<boolean>{
     postsCollection = db.collection<PostDBType>(SETTINGS.PATH.POSTS)
     commentsCollection = db.collection<CommentDBType>(SETTINGS.PATH.COMMENTS)
     usersCollection = db.collection<UserDBType>(SETTINGS.PATH.USERS)
+    tokensCollection = db.collection<BlackListRefreshTokensType>(SETTINGS.PATH.BLACKLIST)
 
     try {
         await client.connect();

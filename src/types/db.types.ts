@@ -136,6 +136,11 @@ export type UserOutputType = {
     createdAt: string,
 }
 
+//REFRESH TOKEN BLACKLIST
+export type BlackListRefreshTokensType = {
+    refreshToken: string,
+}
+
 
 
 
