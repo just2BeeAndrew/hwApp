@@ -77,18 +77,19 @@ export const authController = {
 
     async registration(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        const isConfirm = false
-        const user = await usersService.createUser(login, password, email, isConfirm);
-
-        if (user.status !== ResultStatus.Success) {
+        const createdUserId = await usersService.createUser(login, password, email);
+        if (createdUserId.status !== ResultStatus.Success) {
             res
-                .status(resultCodeToHttpException(user.status))
-                .send({errorsMessages: user.extensions})
+                .status(resultCodeToHttpException(createdUserId.status))
+                .send({errorsMessages: createdUserId.extensions})
             return
         }
 
-        res.sendStatus(HttpStatuses.NOCONTENT)
+        const userId = createdUserId.data!.createdUser
+//перенести в сервис
+        const registration = await usersService.registration(userId)
 
+        res.sendStatus(HttpStatuses.NOCONTENT)
     },
 
     async registrationEmailResending(req: RequestWithBody<UserInputType>, res: Response) {

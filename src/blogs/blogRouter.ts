@@ -14,6 +14,8 @@ import {postsService} from "../posts/postsService";
 import {blogsQueryRepository} from "./blogsQueryRepository";
 import {postsQueryRepository} from "../posts/postsQueryRepository";
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
+import {blogsCollection} from "../db/mongoDb";
+import {HttpStatuses} from "../types/httpStatuses";
 
 export const blogRouter = Router();
 
@@ -21,27 +23,30 @@ export const blogController = {
     async getAllBlogs(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const blogs = await blogsQueryRepository.getAllBlogs(sortData)
-        res.status(200).json(blogs);
+        res.status(HttpStatuses.SUCCESS).json(blogs);
     },
 
     async createBlog(req: Request<BlogInputType>, res: Response) {
-        const blogId = await blogsService.createBlog(req.body);
+        const { name, description, websiteUrl } = req.body;
+        const blogId = await blogsService.createBlog(name, description, websiteUrl);
         const blog = await blogsQueryRepository.getBlogBy_Id(blogId)
-        res.status(201).json(blog);
+        res.status(HttpStatuses.CREATED).json(blog);
     },
 
     async getPostsByBlogId(req: RequestWithParams<{ blogId: string }>, res: Response) {
+        const {blogId} = req.params;
         const sortData = paginationQueries(req)
-        const posts = await postsQueryRepository.getPostsByBlogId(req.params.blogId, sortData)
+        const posts = await postsQueryRepository.getPostsByBlogId(blogId, sortData)
         if (posts) {
-            res.status(200).json(posts);
+            res.status(HttpStatuses.SUCCESS).json(posts);
             return
         }
-        res.sendStatus(404)
+        res.sendStatus(HttpStatuses.NOT_FOUND)
     },
 
     async createPostByBlogId(req: RequestWithParamsAndBody<{ blogId: string }, BlogPostInputType>, res: Response) {
-        const postsId = await postsService.createPost({...req.body, blogId: req.params.blogId})
+        const {blogId} = req.params;
+        const postsId = await postsService.createPost({...req.body, blogId: blogId})
         if (!postsId) {
             res.sendStatus(404)
             return
@@ -50,7 +55,7 @@ export const blogController = {
         res.status(201).json(post);
     },
 
-    async getBlogById(req: Request<{ id: string }>, res: Response) {
+    async getBlogById(req: RequestWithParams<{ id: string }>, res: Response) {
         const blogId = await blogsQueryRepository.getBlogBy_Id(req.params.id);
         if (blogId) {
             res.status(200).json(blogId);

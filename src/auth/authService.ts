@@ -34,12 +34,12 @@ export const authService = {
         }
     },
 
-    async refreshToken(refreshToken: string, userId: string): Promise<Result<{
+    async refreshToken(oldrefreshToken: string, userId: string): Promise<Result<{
         newAccessToken: string,
         newRefreshToken: string
     } | null>> {
 
-        await this.addTokenInBlacklist(refreshToken);
+        await this.addTokenInBlacklist(oldrefreshToken);
         const token = await jwtService.createJWT(userId);
         return {
             status: ResultStatus.Success,

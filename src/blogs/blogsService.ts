@@ -3,11 +3,11 @@ import {BlogInputType, BlogOutputType,BlogDBType} from "../types/db.types";
 import {ObjectId} from "mongodb";
 
 export const blogsService = {
-    async createBlog(createData: BlogInputType): Promise<string> {
+    async createBlog(name: string, description: string, websiteUrl: string): Promise<string> {
         const blog: BlogDBType = {
-            name: createData.name,
-            description: createData.description,
-            websiteUrl: createData.websiteUrl,
+            name: name,
+            description: description,
+            websiteUrl: websiteUrl,
             createdAt: new Date().toISOString(),
             isMembership: false
         }

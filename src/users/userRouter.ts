@@ -20,10 +20,9 @@ export const userController = {
 
     async createUser(req: Request<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        const isConfirm = true
-        const newUserId = await usersService.createUser(login, password, email, isConfirm);
+        const newUserId = await usersService.createUser(login, password, email);
         if (newUserId.status !== ResultStatus.Success) {
-             res.status(HttpStatuses.BAD_REQUEST).json(newUserId);
+             res.status(HttpStatuses.BAD_REQUEST)
              return;
          }
         const user = await usersQueryRepository.getUserBy_Id(newUserId.data!.createdUser);

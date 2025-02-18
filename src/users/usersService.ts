@@ -6,10 +6,10 @@ import {bcryptService} from "../application/bcryptService";
 import {v4 as uuidv4} from "uuid";
 import {add} from "date-fns"
 import {emailManagers} from "../email/manager/emailManager";
+import {ObjectId} from "mongodb";
 
 export const usersService = {
-    async createUser(login: string, password: string, email: string, isConfirm: boolean): Promise<Result<{createdUser:string} | null>>
-    {
+    async createUser(login: string, password: string, email: string): Promise<Result<{ createdUser: string } | null>> {
         const isLoginTaken = await usersRepository.checkLoginUser(login);
 
         if (isLoginTaken) {
@@ -42,28 +42,31 @@ export const usersService = {
             emailConfirmation: {
                 confirmationCode: uuidv4(),
                 expirationDate: add(new Date(), {hours: 1}),
-                isConfirm: isConfirm,
+                isConfirm: true,
             }
         }
         const createdUser = await usersRepository.createUser(newUser)
-        if (!isConfirm){
-            try {
-                emailManagers.sendEmail(newUser.accountData.email, newUser.emailConfirmation.confirmationCode)
-            } catch (error) {
-                await this.deleteUser(createdUser)
-                return {
-                    status: ResultStatus.BadRequest,
-                    errorMessage: "Bad Request",
-                    extensions: [{field: 'email', message: "email isn't send"}],
-                    data: null
-                }
-            }
-        }
-
+        //вынести в отдельный метод отправку письма
         return {
             status: ResultStatus.Success,
             extensions: [],
             data: {createdUser}
+        }
+    },
+
+    async registration(_id: string) {
+        const createdUser = await usersRepository.getUserBy_Id(_id);
+        await usersRepository.updateConfirmation(new ObjectId(createdUser!._id), false)
+        try {
+            emailManagers.sendEmail(createdUser!.accountData.email, createdUser!.emailConfirmation.confirmationCode)
+        } catch (error) {
+            await this.deleteUser(createdUser!._id.toString())
+            return {
+                status: ResultStatus.BadRequest,
+                errorMessage: "Bad Request",
+                extensions: [{field: 'email', message: "email isn't send"}],
+                data: null
+            }
         }
     },
 
@@ -106,7 +109,7 @@ export const usersService = {
                 data: false
             }
         }
-        let result = await usersRepository.updateConfirmation(user._id)
+        let result = await usersRepository.updateConfirmation(user._id, true)
         return {
             status: ResultStatus.NoContent,
             extensions: [],
