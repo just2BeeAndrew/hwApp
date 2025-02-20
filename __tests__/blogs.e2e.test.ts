@@ -7,6 +7,8 @@ import {runDb} from "../src/db/mongoDb";
 
 export const req = agent(app)
 
+const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
+
 describe('/blogs', () => {
     beforeAll(async () => {
         await runDb(SETTINGS.MONGO_URL)
@@ -54,6 +56,7 @@ describe('/blogs', () => {
         // Отправка POST-запроса с данными для нового блога
         const res = await req
             .post(SETTINGS.PATH.BLOGS)
+            .set('Authorization', `Basic ${credentials}`)
             .send({
                 name: "Test Blog",
                 description: "This is a test blog",
