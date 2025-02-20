@@ -20,11 +20,11 @@ describe('/blogs', () => {
         const res = await req
             .get(SETTINGS.PATH.BLOGS)
             .query({
-                searchNameTerm:"",
-                sortBy:"",
-                sortDirection:"asc",
-                pageNumber:1,
-                pageSize:10,
+                searchNameTerm: "",
+                sortBy: "",
+                sortDirection: "asc",
+                pageNumber: 1,
+                pageSize: 10,
             })
             .expect(HttpStatuses.SUCCESS);
         // Проверяем, что объект имеет нужные поля
@@ -90,6 +90,44 @@ describe('/blogs', () => {
             ])
         );
     });
+
+    it('should create a new post by blog id and return it with correct structure', async () => {
+        // Сначала создаем блог, чтобы получить blogId
+        const blogRes = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                name: "Test Blog",
+                description: "This is a test blog",
+                websiteUrl: "https://it-incubator.io",
+            })
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = blogRes.body.id; // Достаем id созданного блога
+
+        // Создаем новый пост, используя blogId
+        const postRes = await req
+            .post(`${SETTINGS.PATH.BLOGS}/${blogId}/posts`) // Вставляем реальный blogId
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                title: "Test Post",
+                shortDescription: "Short description of post",
+                content: "Full content of the post",
+            })
+            .expect(HttpStatuses.CREATED);
+
+        // Проверяем, что ответ содержит нужную структуру
+        expect(postRes.body).toMatchObject({
+            id: expect.any(String),
+            title: "Test Post",
+            shortDescription: "Short description of post",
+            content: "Full content of the post",
+            blogId: blogId, // Связываем пост с блогом
+            blogName: expect.any(String), // Должно подтягиваться название блога
+            createdAt: expect.any(String),
+        });
+    });
+
 
 
     it('should return 404 for not existing blogs', async () => {
