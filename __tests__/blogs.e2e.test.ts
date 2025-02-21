@@ -126,9 +126,26 @@ describe('/blogs', () => {
             blogName: expect.any(String), // Должно подтягиваться название блога
             createdAt: expect.any(String),
         });
+        // Вызываем созданый пост
+        const getRes = await req
+            .get(`${SETTINGS.PATH.BLOGS}/${blogId}/posts`)
+            .query({
+                pageNumber: 1,
+                pageSize: 10,
+                sort: "",
+                sortDirection: "desc",
+            })
+            .expect(HttpStatuses.SUCCESS);
+        expect(getRes.body).toMatchObject({
+            pagesCount: expect.any(Number),
+            page: expect.any(Number),
+            pageSize: expect.any(Number),
+            totalCount: expect.any(Number),
+            items: expect.any(Array),
+
+
+        })
     });
-
-
 
     it('should return 404 for not existing blogs', async () => {
         const res = await req
