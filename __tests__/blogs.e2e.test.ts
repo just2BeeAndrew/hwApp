@@ -142,8 +142,6 @@ describe('/blogs', () => {
             pageSize: expect.any(Number),
             totalCount: expect.any(Number),
             items: expect.any(Array),
-
-
         })
     });
 
@@ -151,5 +149,45 @@ describe('/blogs', () => {
         const res = await req
             .get(SETTINGS.PATH.BLOGS + '1')
             .expect(HttpStatuses.NOT_FOUND);
-    })
+    });
+
+    it('should update an existing blog and return 204 No Content', async () => {
+        // 1. Создаем новый блог
+        const createRes = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                name: "Original Blog",
+                description: "Original description",
+                websiteUrl: "https://original-blog.com",
+            })
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = createRes.body.id; // Достаем id созданного блога
+
+        // 2. Отправляем PUT-запрос на обновление блога
+        await req
+            .put(`${SETTINGS.PATH.BLOGS}/${blogId}`) // Вставляем ID блога в URL
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                name: "Updated Blog",
+                description: "Updated description",
+                websiteUrl: "https://updated-blog.com",
+            })
+            .expect(HttpStatuses.NOCONTENT); // Ожидаем статус 204 (успешное обновление без контента)
+
+        // 3. Получаем блог по ID и проверяем, что данные обновились
+        const getRes = await req
+            .get(`${SETTINGS.PATH.BLOGS}/${blogId}`)
+            .expect(HttpStatuses.SUCCESS);
+
+        expect(getRes.body).toMatchObject({
+            id: blogId,
+            name: "Updated Blog",
+            description: "Updated description",
+            websiteUrl: "https://updated-blog.com",
+            createdAt: expect.any(String), // Проверяем, что поле существует и это строка
+            isMembership: expect.any(Boolean),
+        });
+    });
 })
