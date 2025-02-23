@@ -4,6 +4,7 @@ import {agent} from "supertest";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
+import {ObjectId} from "mongodb";
 
 export const req = agent(app)
 
@@ -189,5 +190,60 @@ describe('/blogs', () => {
             createdAt: expect.any(String), // Проверяем, что поле существует и это строка
             isMembership: expect.any(Boolean),
         });
+    });
+
+    it('should delete an existing blog and return 204 No Content', async () => {
+        // 1. Создаем новый блог
+        const createRes = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                name: "Test Blog",
+                description: "Test Description",
+                websiteUrl: "https://test-blog.com",
+            })
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = createRes.body.id; // Достаем id созданного блога
+
+        // 2. Удаляем блог
+        await req
+            .delete(`${SETTINGS.PATH.BLOGS}/${blogId}`)
+            .set('Authorization', `Basic ${credentials}`)
+            .expect(HttpStatuses.NOCONTENT); // Ожидаем статус 204 (успешное удаление)
+
+        // 3. Проверяем, что блог действительно удален (ожидаем 404 при запросе)
+        await req
+            .get(`${SETTINGS.PATH.BLOGS}/${blogId}`)
+            .expect(HttpStatuses.NOT_FOUND);
+    });
+
+    it('should return 404 if trying to delete a non-existent blog', async () => {
+        // Пытаемся удалить блог с несуществующим ID
+        const fakeId = new ObjectId().toString(); // Генерируем случайный валидный ObjectId
+        await req
+            .delete(`${SETTINGS.PATH.BLOGS}/${fakeId}`)
+            .set('Authorization', `Basic ${credentials}`)
+            .expect(HttpStatuses.NOT_FOUND);
+    });
+
+    it('should return 401 Unauthorized if no authorization is provided', async () => {
+        // Создаем новый блог
+        const createRes = await req
+            .post(SETTINGS.PATH.BLOGS)
+            .set('Authorization', `Basic ${credentials}`)
+            .send({
+                name: "Test Blog",
+                description: "Test Description",
+                websiteUrl: "https://test-blog.com",
+            })
+            .expect(HttpStatuses.CREATED);
+
+        const blogId = createRes.body.id; // Достаем id созданного блога
+
+        // Пытаемся удалить блог без авторизации
+        await req
+            .delete(`${SETTINGS.PATH.BLOGS}/${blogId}`)
+            .expect(HttpStatuses.UNAUTHORIZED); // Ожидаем 401 (нет авторизации)
     });
 })
