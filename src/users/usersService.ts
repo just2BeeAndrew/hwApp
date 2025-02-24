@@ -20,6 +20,7 @@ export const usersService = {
                 data: null
             };
         }
+
         const isEmailTaken = await usersRepository.checkEmailUser(email);
 
         if (isEmailTaken) {
@@ -46,7 +47,6 @@ export const usersService = {
             }
         }
         const createdUser = await usersRepository.createUser(newUser)
-        //вынести в отдельный метод отправку письма
         return {
             status: ResultStatus.Success,
             extensions: [],
