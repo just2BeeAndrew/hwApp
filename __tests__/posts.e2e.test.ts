@@ -1,12 +1,8 @@
-import {app} from "../src/app";
-import express from "express";
-import {agent} from "supertest";
+import {req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
 import {ObjectId} from "mongodb";
-
-export const req = agent(app)
 
 const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
 let createdPostId: string;
@@ -35,6 +31,8 @@ describe('/posts', () => {
         userId = createUserRes.body.userId;
 
 
+
+
         const loginRes = await req
             .post(`${SETTINGS.PATH.AUTH}/login`)
             .send({
@@ -43,7 +41,11 @@ describe('/posts', () => {
             })
             .expect(HttpStatuses.SUCCESS);
 
-        accessToken = loginRes.body.token;
+        console.log("🔹 Ответ от логина:", loginRes.body);
+
+        accessToken = loginRes.body.accessToken;
+
+        console.log("🔹 Полученный accessToken:", accessToken);
     })
 
     it('should create a new post', async () => {
@@ -205,6 +207,8 @@ describe('/posts', () => {
 
         const postId = postRes.body.id;
 
+        console.log("тестовый токен",accessToken)
+
         const commentRes = await req
             .post(`${SETTINGS.PATH.POSTS}/${postId}/comments`)
             .set('Authorization', `Bearer ${accessToken}`)
@@ -214,27 +218,6 @@ describe('/posts', () => {
             .expect(HttpStatuses.CREATED);
 
         expect(commentRes.body).toHaveProperty('content', "This is a test comment");
-    });
-
-    it('should get comments by post ID', async () => {
-        const postRes = await req
-            .post('/posts')
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                title: "Test Post for Comments",
-                shortDescription: "Short description",
-                content: "This is a test post content",
-                blogId: new ObjectId().toString()
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const postId = postRes.body.id;
-
-        await req
-            .post(`/posts/${postId}/comments`)
-            .set('Authorization', `Bearer some-valid-token`)
-            .send({content: "Another comment"})
-            .expect(HttpStatuses.CREATED);
 
         const res = await req
             .get(`/posts/${postId}/comments`)

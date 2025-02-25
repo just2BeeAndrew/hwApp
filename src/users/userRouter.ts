@@ -9,6 +9,7 @@ import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {HttpStatuses} from "../types/httpStatuses";
 import {ResultStatus} from "../result/resultCode";
 import {RequestWithBody} from "../types/requests";
+import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 
 export const userRouter = Router();
 
@@ -25,7 +26,7 @@ export const userController = {
         const newUserId = await usersService.createUser(login, password, email);
         console.log(newUserId);
         if (newUserId.status !== ResultStatus.Success) {
-             res.sendStatus(HttpStatuses.BAD_REQUEST)
+             res.sendStatus(resultCodeToHttpException(newUserId.status))
              return;
          }
         const user = await usersQueryRepository.getUserBy_Id(newUserId.data!.createdUser);

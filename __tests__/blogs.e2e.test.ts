@@ -1,12 +1,8 @@
-import {app} from "../src/app";
-import express from "express";
-import {agent} from "supertest";
+import {req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
 import {ObjectId} from "mongodb";
-
-export const req = agent(app)
 
 const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
 
