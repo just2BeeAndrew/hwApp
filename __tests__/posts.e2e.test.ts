@@ -1,92 +1,28 @@
-import {req} from "./test-helper";
+import {createAndLoginTestUser, createBlog, createPost, deleteAll, req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
 import {ObjectId} from "mongodb";
 
-const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
-let createdPostId: string;
-let accessToken: string;
-let userId: string;
+describe(`${SETTINGS.PATH.POSTS}`, () => {
+    let accessToken;
+    let userId;
 
-const testUser = {
-    login: "admin",
-    password: "adminTest",
-    email: "adminTest@test.com",
-}
-
-
-describe('/posts', () => {
     beforeAll(async () => {
         await runDb(SETTINGS.MONGO_URL)
-
-        await req.delete('/testing/all-data/').expect(HttpStatuses.NOCONTENT);
-
-        const createUserRes = await req
-            .post(SETTINGS.PATH.USERS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send(testUser)
-            .expect(HttpStatuses.CREATED);
-
-        userId = createUserRes.body.userId;
-
-
-
-
-        const loginRes = await req
-            .post(`${SETTINGS.PATH.AUTH}/login`)
-            .send({
-                loginOrEmail: testUser.login,
-                password: testUser.password,
-            })
-            .expect(HttpStatuses.SUCCESS);
-
-        console.log("🔹 Ответ от логина:", loginRes.body);
-
-        accessToken = loginRes.body.accessToken;
-
-        console.log("🔹 Полученный accessToken:", accessToken);
+        await deleteAll();
+        ({userId, accessToken} = await createAndLoginTestUser())
     })
 
     it('should create a new post', async () => {
-        const blogRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "This is a test blog",
-                websiteUrl: "https://it-incubator.io",
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const blogId = blogRes.body.id; // Достаем id созданного блога
-
-        const res = await req
-            .post('/posts')
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                title: "Test Post",
-                shortDescription: "Short description",
-                content: "This is a test post content",
-                blogId: blogId
-            })
-            .expect(HttpStatuses.CREATED);
-
-        createdPostId = res.body.id;
-        expect(res.body).toMatchObject({
-            id: expect.any(String),
-            title: "Test Post",
-            shortDescription: "Short description",
-            content: "This is a test post content",
-            blogId: expect.any(String),
-            createdAt: expect.any(String),
-        });
+        const blogId = await createBlog()
+        const createdPostId = await createPost(blogId)
 
         const getRes = await req
-            .get(`/posts/${createdPostId}`)
+            .get(`${SETTINGS.PATH.POSTS}/${createdPostId}`)
             .expect(HttpStatuses.SUCCESS);
 
-        expect(res.body).toHaveProperty('id', createdPostId);
+        expect(getRes.body).toHaveProperty('id', createdPostId);
     });
 
     it('should return all posts', async () => {
@@ -207,7 +143,7 @@ describe('/posts', () => {
 
         const postId = postRes.body.id;
 
-        console.log("тестовый токен",accessToken)
+        console.log("тестовый токен", accessToken)
 
         const commentRes = await req
             .post(`${SETTINGS.PATH.POSTS}/${postId}/comments`)
