@@ -11,9 +11,6 @@ import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {usersService} from "../users/usersService";
 import {ipTrackerMiddleware} from "../middlewares/ipTrackerMiddleware";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
-import {jwtService} from "../application/jwtService";
-import {SETTINGS} from "../settings";
-import jwt from "jsonwebtoken";
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 
 export const authRouter = Router();
@@ -33,7 +30,6 @@ export const authController = {
             return
         }
         const {accessToken, refreshToken} = result.data!
-        console.log("login.refreshToken",refreshToken)
         res
             .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)

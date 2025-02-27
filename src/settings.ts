@@ -13,6 +13,7 @@ export const SETTINGS = {
         BLOGS: '/blogs',
         COMMENTS: '/comments',
         POSTS: '/posts',
+        SECURITY_DEVICES: '/security/devices',
         TESTING: '/testing/all-data',
         USERS: '/users',
         BLACKLIST: '/blacklist',
