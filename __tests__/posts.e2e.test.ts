@@ -1,12 +1,12 @@
-import {createAndLoginTestUser, createBlog, createPost, deleteAll, req} from "./test-helper";
+import {createComment,baseAuthorization, createAndLoginTestUser, createBlog, createPost, deleteAll, req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
 import {ObjectId} from "mongodb";
 
-describe(`${SETTINGS.PATH.POSTS}`, () => {
-    let accessToken;
-    let userId;
+describe(`/posts`, () => {
+    let accessToken: string;
+    let userId
 
     beforeAll(async () => {
         await runDb(SETTINGS.MONGO_URL)
@@ -16,18 +16,18 @@ describe(`${SETTINGS.PATH.POSTS}`, () => {
 
     it('should create a new post', async () => {
         const blogId = await createBlog()
-        const createdPostId = await createPost(blogId)
+        const postId = await createPost(blogId)
 
         const getRes = await req
-            .get(`${SETTINGS.PATH.POSTS}/${createdPostId}`)
+            .get(`${SETTINGS.PATH.POSTS}/${postId}`)
             .expect(HttpStatuses.SUCCESS);
 
-        expect(getRes.body).toHaveProperty('id', createdPostId);
+        expect(getRes.body).toHaveProperty('id', postId);
     });
 
     it('should return all posts', async () => {
         const res = await req
-            .get('/posts')
+            .get(`${SETTINGS.PATH.POSTS}`)
             .expect(HttpStatuses.SUCCESS);
 
         expect(res.body).toHaveProperty('items');
@@ -36,39 +36,17 @@ describe(`${SETTINGS.PATH.POSTS}`, () => {
 
     it('should return 404 for non-existent post', async () => {
         await req
-            .get(`/posts/${new ObjectId().toString()}`)
+            .get(`${SETTINGS.PATH.POSTS}/${new ObjectId().toString()}`)
             .expect(HttpStatuses.NOT_FOUND);
     });
 
     it('should update a post', async () => {
-        const blogRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "This is a test blog",
-                websiteUrl: "https://it-incubator.io",
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const blogId = blogRes.body.id; // Достаем id созданного блога
-
-        const res = await req
-            .post('/posts')
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                title: "Test Post",
-                shortDescription: "Short description",
-                content: "This is a test post content",
-                blogId: blogId
-            })
-            .expect(HttpStatuses.CREATED);
-
-        createdPostId = res.body.id;
+        const blogId = await createBlog()
+        const postId = await createPost(blogId)
 
         await req
-            .put(`/posts/${createdPostId}`)
-            .set('Authorization', `Basic ${credentials}`)
+            .put(`${SETTINGS.PATH.POSTS}/${postId}`)
+            .set('Authorization', baseAuthorization())
             .send({
                 title: "Updated Post",
                 shortDescription: "Updated description",
@@ -79,88 +57,34 @@ describe(`${SETTINGS.PATH.POSTS}`, () => {
     });
 
     it('should delete a post', async () => {
-        const blogRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "This is a test blog",
-                websiteUrl: "https://it-incubator.io",
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const blogId = blogRes.body.id; // Достаем id созданного блога
-
-        const res = await req
-            .post('/posts')
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                title: "Test Post",
-                shortDescription: "Short description",
-                content: "This is a test post content",
-                blogId: blogId
-            })
-            .expect(HttpStatuses.CREATED);
-
-        createdPostId = res.body.id;
+        const blogId = await createBlog()
+        const postId = await createPost(blogId)
 
         await req
-            .delete(`/posts/${createdPostId}`)
-            .set('Authorization', `Basic ${credentials}`)
+            .delete(`${SETTINGS.PATH.POSTS}/${postId}`)
+            .set('Authorization', baseAuthorization())
             .expect(HttpStatuses.NOCONTENT);
     });
 
     it('should return 404 when deleting non-existent post', async () => {
         await req
-            .delete(`/posts/${new ObjectId().toString()}`)
-            .set('Authorization', `Basic ${credentials}`)
+            .delete(`${SETTINGS.PATH.POSTS}/${new ObjectId().toString()}`)
+            .set('Authorization', baseAuthorization())
             .expect(HttpStatuses.NOT_FOUND);
     });
 
     it('should create a comment for a post', async () => {
-        const blogRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "This is a test blog",
-                websiteUrl: "https://it-incubator.io",
-            })
-            .expect(HttpStatuses.CREATED);
+        const blogId = await createBlog()
+        const postId = await createPost(blogId)
+        const comment = await createComment(postId, accessToken)
 
-        const blogId = blogRes.body.id; // Достаем id созданного блога
-
-        const postRes = await req
-            .post('/posts')
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                title: "Test Post for Comments",
-                shortDescription: "Short description",
-                content: "This is a test post content",
-                blogId: blogId
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const postId = postRes.body.id;
-
-        console.log("тестовый токен", accessToken)
-
-        const commentRes = await req
-            .post(`${SETTINGS.PATH.POSTS}/${postId}/comments`)
-            .set('Authorization', `Bearer ${accessToken}`)
-            .send({
-                content: "This is a test comment"
-            })
-            .expect(HttpStatuses.CREATED);
-
-        expect(commentRes.body).toHaveProperty('content', "This is a test comment");
+        expect(comment).toHaveProperty('content', "This is a test comment");
 
         const res = await req
-            .get(`/posts/${postId}/comments`)
+            .get(`${SETTINGS.PATH.POSTS}/${postId}/comments`)
             .expect(HttpStatuses.SUCCESS);
 
         expect(res.body).toHaveProperty('items');
         expect(res.body.items.length).toBeGreaterThan(0);
     });
-
 })

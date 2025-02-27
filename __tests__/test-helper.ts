@@ -5,10 +5,15 @@ import {HttpStatuses} from "../src/types/httpStatuses";
 
 export const req = agent(app)
 
-const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
+
 
 export const deleteAll = async () => {
     await req.delete(`${SETTINGS.PATH.TESTING}`).expect(HttpStatuses.NOCONTENT)
+}
+
+export const baseAuthorization = () => {
+    const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
+    return `Basic ${credentials}`
 }
 
 export const createAndLoginTestUser = async () => {
@@ -20,7 +25,7 @@ export const createAndLoginTestUser = async () => {
 
     const createUserRes = await req
         .post(SETTINGS.PATH.USERS)
-        .set('Authorization', `Basic ${credentials}`)
+        .set('Authorization', baseAuthorization())
         .send(testUser)
         .expect(HttpStatuses.CREATED);
 
@@ -37,7 +42,7 @@ export const createAndLoginTestUser = async () => {
 export const createBlog = async () => {
     const blogRes = await req
         .post(SETTINGS.PATH.BLOGS)
-        .set('Authorization', `Basic ${credentials}`)
+        .set('Authorization', baseAuthorization())
         .send({
             name: "Test Blog",
             description: "This is a test blog",
@@ -51,12 +56,12 @@ export const createBlog = async () => {
 export const createPost = async (blogId: string) => {
     const postRes = await req
         .post(`${SETTINGS.PATH.POSTS}`)
-        .set('Authorization', `Basic ${credentials}`)
+        .set('Authorization', baseAuthorization())
         .send({
             title: "Test Post",
             shortDescription: "Short description",
             content: "This is a test post content",
-            blogOd: blogId
+            blogId: blogId
         })
         .expect(HttpStatuses.CREATED);
 

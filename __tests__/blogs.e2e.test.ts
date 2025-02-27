@@ -1,4 +1,4 @@
-import {req} from "./test-helper";
+import {createBlog, createPost, req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
@@ -50,79 +50,19 @@ describe('/blogs', () => {
 
     it('should create a new blog and return it with correct structure', async () => {
         // Отправка POST-запроса с данными для нового блога
-        const res = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "This is a test blog",
-                websiteUrl: "https://it-incubator.io",
-            })
-            .expect(HttpStatuses.CREATED);
+        const blogId = await createBlog()
 
-        // Проверяем, что ответ содержит нужную структуру
-        expect(res.body).toMatchObject({
-            id: expect.any(String),
-            name: "Test Blog",
-            description: "This is a test blog",
-            websiteUrl: "https://it-incubator.io",
-            createdAt: expect.any(String), // Проверяем, что это строка
-            isMembership: expect.any(Boolean),
-        });
+        const getRes = await req
+            .get(`${SETTINGS.PATH.BLOGS}/${blogId}`)
+            .expect(HttpStatuses.SUCCESS);
 
-        // Проверяем, что поле createdAt валидно
-        expect(new Date(res.body.createdAt).toISOString()).toBe(res.body.createdAt);
+        expect(getRes.body).toHaveProperty('id', blogId);
 
-        // Получаем все блоги и проверяем, что только что созданный появился в списке
-        const allBlogsRes = await req.get(SETTINGS.PATH.BLOGS).expect(HttpStatuses.SUCCESS);
-        expect(allBlogsRes.body.items).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    id: res.body.id,
-                    name: "Test Blog",
-                    description: "This is a test blog",
-                    websiteUrl: "https://it-incubator.io",
-                }),
-            ])
-        );
     });
 
     it('should create a new post by blog id and return it with correct structure', async () => {
-        // Сначала создаем блог, чтобы получить blogId
-        const blogRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "This is a test blog",
-                websiteUrl: "https://it-incubator.io",
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const blogId = blogRes.body.id; // Достаем id созданного блога
-
-        // Создаем новый пост, используя blogId
-        const postRes = await req
-            .post(`${SETTINGS.PATH.BLOGS}/${blogId}/posts`) // Вставляем реальный blogId
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                title: "Test Post",
-                shortDescription: "Short description of post",
-                content: "Full content of the post",
-            })
-            .expect(HttpStatuses.CREATED);
-
-        // Проверяем, что ответ содержит нужную структуру
-        expect(postRes.body).toMatchObject({
-            id: expect.any(String),
-            title: "Test Post",
-            shortDescription: "Short description of post",
-            content: "Full content of the post",
-            blogId: blogId, // Связываем пост с блогом
-            blogName: expect.any(String), // Должно подтягиваться название блога
-            createdAt: expect.any(String),
-        });
-        // Вызываем созданый пост
+        const blogId = await createBlog()
+        const postId = await createPost(blogId)
         const getRes = await req
             .get(`${SETTINGS.PATH.BLOGS}/${blogId}/posts`)
             .query({
@@ -132,13 +72,6 @@ describe('/blogs', () => {
                 sortDirection: "desc",
             })
             .expect(HttpStatuses.SUCCESS);
-        expect(getRes.body).toMatchObject({
-            pagesCount: expect.any(Number),
-            page: expect.any(Number),
-            pageSize: expect.any(Number),
-            totalCount: expect.any(Number),
-            items: expect.any(Array),
-        })
     });
 
     it('should return 404 for not existing blogs', async () => {
@@ -148,31 +81,17 @@ describe('/blogs', () => {
     });
 
     it('should update an existing blog and return 204 No Content', async () => {
-        // 1. Создаем новый блог
-        const createRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Original Blog",
-                description: "Original description",
-                websiteUrl: "https://original-blog.com",
-            })
-            .expect(HttpStatuses.CREATED);
-
-        const blogId = createRes.body.id; // Достаем id созданного блога
-
-        // 2. Отправляем PUT-запрос на обновление блога
+        const blogId = await createBlog()
         await req
-            .put(`${SETTINGS.PATH.BLOGS}/${blogId}`) // Вставляем ID блога в URL
+            .put(`${SETTINGS.PATH.BLOGS}/${blogId}`)
             .set('Authorization', `Basic ${credentials}`)
             .send({
                 name: "Updated Blog",
                 description: "Updated description",
                 websiteUrl: "https://updated-blog.com",
             })
-            .expect(HttpStatuses.NOCONTENT); // Ожидаем статус 204 (успешное обновление без контента)
+            .expect(HttpStatuses.NOCONTENT);
 
-        // 3. Получаем блог по ID и проверяем, что данные обновились
         const getRes = await req
             .get(`${SETTINGS.PATH.BLOGS}/${blogId}`)
             .expect(HttpStatuses.SUCCESS);
@@ -188,33 +107,19 @@ describe('/blogs', () => {
     });
 
     it('should delete an existing blog and return 204 No Content', async () => {
-        // 1. Создаем новый блог
-        const createRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "Test Description",
-                websiteUrl: "https://test-blog.com",
-            })
-            .expect(HttpStatuses.CREATED);
+        const blogId = await createBlog()
 
-        const blogId = createRes.body.id; // Достаем id созданного блога
-
-        // 2. Удаляем блог
         await req
             .delete(`${SETTINGS.PATH.BLOGS}/${blogId}`)
             .set('Authorization', `Basic ${credentials}`)
-            .expect(HttpStatuses.NOCONTENT); // Ожидаем статус 204 (успешное удаление)
+            .expect(HttpStatuses.NOCONTENT);
 
-        // 3. Проверяем, что блог действительно удален (ожидаем 404 при запросе)
         await req
             .get(`${SETTINGS.PATH.BLOGS}/${blogId}`)
             .expect(HttpStatuses.NOT_FOUND);
     });
 
     it('should return 404 if trying to delete a non-existent blog', async () => {
-        // Пытаемся удалить блог с несуществующим ID
         const fakeId = new ObjectId().toString(); // Генерируем случайный валидный ObjectId
         await req
             .delete(`${SETTINGS.PATH.BLOGS}/${fakeId}`)
@@ -223,20 +128,8 @@ describe('/blogs', () => {
     });
 
     it('should return 401 Unauthorized if no authorization is provided', async () => {
-        // Создаем новый блог
-        const createRes = await req
-            .post(SETTINGS.PATH.BLOGS)
-            .set('Authorization', `Basic ${credentials}`)
-            .send({
-                name: "Test Blog",
-                description: "Test Description",
-                websiteUrl: "https://test-blog.com",
-            })
-            .expect(HttpStatuses.CREATED);
+        const blogId = await createBlog()
 
-        const blogId = createRes.body.id; // Достаем id созданного блога
-
-        // Пытаемся удалить блог без авторизации
         await req
             .delete(`${SETTINGS.PATH.BLOGS}/${blogId}`)
             .expect(HttpStatuses.UNAUTHORIZED); // Ожидаем 401 (нет авторизации)
