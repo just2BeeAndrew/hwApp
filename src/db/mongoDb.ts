@@ -4,8 +4,8 @@ import {
     CommentDBType,
     PostDBType,
     UserDBType,
-    accountDataType,
-    BlackListRefreshTokensType, DevicesDBType
+    BlackListRefreshTokensType,
+    DevicesDBType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
