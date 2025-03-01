@@ -31,9 +31,19 @@ export async function runDb(url: string):Promise<boolean>{
     devicesCollection = db.collection<DevicesDBType>(SETTINGS.PATH.SECURITY_DEVICES)
     devicesRateCollection = db.collection<DeviceRateDBType>(SETTINGS.PATH.DEVICES)
 
+
+
     try {
         await client.connect();
         await db.command({ ping: 1 });
+        await devicesRateCollection.createIndex(
+            { date: 1 },
+            {
+                expireAfterSeconds: 10,
+                name: "ttl_requests_index"
+            }
+        );
+        console.log('У нас 10 секунд...ДвИиигаем!!! -До чего? -До полного п*****а, сынуля, до пОООлного п****а!!! © Баба Зина ')
         console.log('Не упал @_@')
         return true
     } catch (error) {
