@@ -42,6 +42,7 @@ export const usersService = {
             },
             emailConfirmation: {
                 confirmationCode: uuidv4(),
+                issuedAt: new Date(),
                 expirationDate: add(new Date(), {hours: 1}),
                 isConfirm: true,
             }

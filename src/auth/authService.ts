@@ -7,6 +7,7 @@ import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
 import {authRepository} from "./authRepository";
 import {v4 as uuidv4} from "uuid";
+import {ObjectId} from "mongodb";
 
 export const authService = {
     async login(loginOrEmail: string, password: string): Promise<Result<{
@@ -14,7 +15,6 @@ export const authService = {
         refreshToken: string
     } | null>> {
         const result = await this.checkCredentials(loginOrEmail, password);
-        const deviceId = uuidv4()
         if (result.status !== ResultStatus.Success)
             return {
                 status: ResultStatus.Unauthorized,
@@ -23,13 +23,15 @@ export const authService = {
                 data: null
             };
 
-        const token = await jwtService.createJWT(result.data!._id.toString(),deviceId)
+        const deviceId = new ObjectId().toString();
+        const accessToken = await jwtService.createAccessToken(result.data!._id.toString())
+        const refreshToken = await jwtService.createRefreshToken(result.data!._id.toString(), deviceId)
 
         return {
             status: ResultStatus.Success,
             data: {
-                accessToken: token.accessToken,
-                refreshToken: token.refreshToken
+                accessToken: accessToken,
+                refreshToken: refreshToken
             },
             extensions: []
         }
@@ -91,7 +93,7 @@ export const authService = {
         }
     },
 
-    async addTokenInBlacklist(refreshToken: string){
+    async addTokenInBlacklist(refreshToken: string) {
         return await authRepository.addTokenInBlacklist(refreshToken);
     }
 }

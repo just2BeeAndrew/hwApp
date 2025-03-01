@@ -2,7 +2,6 @@ import {Request, Response, NextFunction} from "express";
 import {HttpStatuses} from "../types/httpStatuses";
 
 const ipRequestCount:{[key:string]:{count: number, lastRequestTime: number}} = {}
-
 export const ipTrackerMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const ip = req.ip
     const currentTime = Date.now();

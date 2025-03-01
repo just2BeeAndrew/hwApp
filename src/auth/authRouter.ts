@@ -102,9 +102,7 @@ export const authController = {
 
     async logout(req: Request, res: Response) {
         const refreshToken = req.cookies.refreshToken;
-        console.log("logout.refreshToken", refreshToken)
         const expiredToken = await authService.addTokenInBlacklist(refreshToken)
-        console.log("logout.expiredToken",expiredToken)
         res
             .clearCookie('refreshToken', {httpOnly: true, secure: true})
             .sendStatus(HttpStatuses.NOCONTENT)

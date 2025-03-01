@@ -120,6 +120,7 @@ export type accountDataType = {
 
 export type ConfirmationType = {
     confirmationCode: string,
+    issuedAt: Date,
     expirationDate: Date,
     isConfirm: boolean,
 }
