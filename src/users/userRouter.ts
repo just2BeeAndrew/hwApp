@@ -17,7 +17,7 @@ export const userController = {
     async getAllUsers(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const users = await usersQueryRepository.getAllUsers(sortData)
-        res.status(200).json(users)
+        res.status(HttpStatuses.SUCCESS).json(users)
     },
 
     async createUser(req: RequestWithBody<UserInputType>, res: Response) {

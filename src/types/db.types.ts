@@ -150,6 +150,12 @@ export type DevicesDBType = {
     deviceId: string,
 }
 
+export type  DeviceRateDBType = {
+    IP: string,
+    URL: string,
+    date: Date
+}
+
 
 
 

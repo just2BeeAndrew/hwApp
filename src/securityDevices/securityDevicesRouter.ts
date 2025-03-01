@@ -1,9 +1,11 @@
 import {Router, Request, Response} from 'express';
+import {securityDevicesQueryRepository} from "./securityDevicesQueryRepository";
 
 export const securityDeviceRouter = Router();
 
 export const securityDeviceController = {
     async getAllDevices(req: Request, res: Response) {
+        const devices = await securityDevicesQueryRepository.getAllDevicesSessions(req.user!.id)
 
     },
 

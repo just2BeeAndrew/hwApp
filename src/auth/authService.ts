@@ -6,6 +6,7 @@ import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
 import {authRepository} from "./authRepository";
+import {v4 as uuidv4} from "uuid";
 
 export const authService = {
     async login(loginOrEmail: string, password: string): Promise<Result<{
@@ -13,7 +14,7 @@ export const authService = {
         refreshToken: string
     } | null>> {
         const result = await this.checkCredentials(loginOrEmail, password);
-
+        const deviceId = uuidv4()
         if (result.status !== ResultStatus.Success)
             return {
                 status: ResultStatus.Unauthorized,
@@ -22,7 +23,7 @@ export const authService = {
                 data: null
             };
 
-        const token = await jwtService.createJWT(result.data!._id.toString())
+        const token = await jwtService.createJWT(result.data!._id.toString(),deviceId)
 
         return {
             status: ResultStatus.Success,
@@ -40,7 +41,8 @@ export const authService = {
     } | null>> {
 
         await this.addTokenInBlacklist(oldrefreshToken);
-        const token = await jwtService.createJWT(userId);
+        const deviceId = uuidv4()
+        const token = await jwtService.createJWT(userId, deviceId);
         return {
             status: ResultStatus.Success,
             data: {

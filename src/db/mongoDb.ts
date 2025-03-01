@@ -5,7 +5,7 @@ import {
     PostDBType,
     UserDBType,
     BlackListRefreshTokensType,
-    DevicesDBType
+    DevicesDBType, DeviceRateDBType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -17,6 +17,7 @@ export let postsCollection: Collection<PostDBType>
 export let usersCollection: Collection<UserDBType>
 export let tokensCollection: Collection<BlackListRefreshTokensType>
 export let devicesCollection: Collection<DevicesDBType>
+export let devicesRateCollection: Collection<DeviceRateDBType>
 
 export async function runDb(url: string):Promise<boolean>{
     let client = new MongoClient(url)
@@ -28,6 +29,7 @@ export async function runDb(url: string):Promise<boolean>{
     usersCollection = db.collection<UserDBType>(SETTINGS.PATH.USERS)
     tokensCollection = db.collection<BlackListRefreshTokensType>(SETTINGS.PATH.BLACKLIST)
     devicesCollection = db.collection<DevicesDBType>(SETTINGS.PATH.SECURITY_DEVICES)
+    devicesRateCollection = db.collection<DeviceRateDBType>(SETTINGS.PATH.DEVICES)
 
     try {
         await client.connect();

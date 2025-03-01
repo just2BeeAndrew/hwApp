@@ -61,8 +61,7 @@ export const usersQueryRepository = {
     },
 
     async getInfoBy_Id(_id: string) {
-        const object_Id = new ObjectId(_id)
-        const user = await usersCollection.findOne({_id: object_Id});
+        const user = await usersCollection.findOne({_id: new ObjectId(_id)});
         if (!user) {
             return null
         }
