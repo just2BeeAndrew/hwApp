@@ -11,9 +11,9 @@ export const accessTokenMiddleware = async (req: Request, res: Response, next: N
         return
     }
 
-    const token = req.headers.authorization.split(" ")[1];
+    const accessToken = req.headers.authorization.split(" ")[1];
 
-    const payload = await jwtService.verifyToken(token, SETTINGS.ACCESS_TOKEN_SECRET);
+    const payload = await jwtService.verifyAccessToken(accessToken);
     if (payload) {
         const {userId} = payload;
 

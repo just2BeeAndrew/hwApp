@@ -14,11 +14,8 @@ export const apiRateLimiter = async (req: Request, res: Response, next: NextFunc
     }
 
     try {
-        // Сохраняем запрос в коллекцию
         await devicesRateRepository.addRequestInfo(IP, URL, date);
-        // Считаем запросы за последние 10 секунд
         const requestCount = await devicesRateRepository.requestCount(IP, URL, date)
-        // Проверяем лимит
         if (requestCount > 5) {
             return res.status(HttpStatuses.TOO_MANY_REQUEST).json({
                 error: 'Too Many Requests. Limit: 5 requests per 10 seconds',

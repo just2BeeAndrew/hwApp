@@ -8,14 +8,15 @@ import {jwtService} from "../application/jwtService";
 import {authRepository} from "./authRepository";
 import {v4 as uuidv4} from "uuid";
 import {ObjectId} from "mongodb";
+import {devicesRepository} from "../securityDevices/devicesRepository";
 
 export const authService = {
-    async login(loginOrEmail: string, password: string): Promise<Result<{
+    async login(loginOrEmail: string, password: string, title: string, ip: string): Promise<Result<{
         accessToken: string,
         refreshToken: string
     } | null>> {
-        const result = await this.checkCredentials(loginOrEmail, password);
-        if (result.status !== ResultStatus.Success)
+        const credentials = await this.checkCredentials(loginOrEmail, password);
+        if (credentials.status !== ResultStatus.Success)
             return {
                 status: ResultStatus.Unauthorized,
                 errorMessage: "Unauthorized",
@@ -23,15 +24,15 @@ export const authService = {
                 data: null
             };
 
-        const deviceId = new ObjectId().toString();
-        const accessToken = await jwtService.createAccessToken(result.data!._id.toString())
-        const refreshToken = await jwtService.createRefreshToken(result.data!._id.toString(), deviceId)
+        const userId = credentials.data!._id.toString()
+
+        const sessions = await this.createSessions(userId, title, ip);
 
         return {
             status: ResultStatus.Success,
             data: {
-                accessToken: accessToken,
-                refreshToken: refreshToken
+                accessToken: sessions.accessToken,
+                refreshToken: sessions.refreshToken
             },
             extensions: []
         }
@@ -95,5 +96,37 @@ export const authService = {
 
     async addTokenInBlacklist(refreshToken: string) {
         return await authRepository.addTokenInBlacklist(refreshToken);
+    },
+
+    async createSessions(userId: string, title: string, ip: string) {
+        const deviceId = new ObjectId();
+
+        const {accessToken, refreshToken} = await jwtService.createJWT(userId, deviceId.toString());
+
+        const {iat, exp} = await jwtService.cutTimeFromRefreshToken(refreshToken);
+
+        const newSession = {
+            _id: deviceId,
+            userId: userId,
+            title: title,
+            ip: ip,
+            iat: iat,
+            exp: exp,
+        }
+
+        await devicesRepository.addDevice(newSession);
+
+        return {accessToken, refreshToken}
+
+
+
+
+
+
+
+
+
+
+
     }
 }

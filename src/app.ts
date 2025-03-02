@@ -8,8 +8,10 @@ import {authRouter} from "./auth/authRouter";
 import {userRouter} from "./users/userRouter";
 import {commentRouter} from "./comments/commentRouter";
 import cookieParser from "cookie-parser";
+import {HttpStatuses} from "./types/httpStatuses";
 
 export const app = express() // создать приложение
+app.set('trust proxy', true);
 app.use(express.json()) // создание свойств-объектов body и query во всех реквестах
 app.use(cors()) // разрешить любым фронтам делать запросы на наш бэк
 app.use(cookieParser())
@@ -22,6 +24,5 @@ app.use(SETTINGS.PATH.USERS, userRouter)
 
 
 app.get('/', (req, res) => {
-    // эндпоинт, который будет показывать на верселе какая версия бэкэнда сейчас залита
-    res.status(200).json("Всё работает")
+    res.status(HttpStatuses.SUCCESS).json("Всё работает")
 })

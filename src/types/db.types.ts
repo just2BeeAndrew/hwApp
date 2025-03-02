@@ -143,8 +143,15 @@ export type BlackListRefreshTokensType = {
 }
 
 //SECURITY_DEVICES
-
 export type DevicesDBType = {
+    userId: string,
+    title: string,
+    ip: string,
+    iat: number,
+    exp: number,
+}
+
+export type DevicesOutputType = {
     ip: string,
     title: string,
     lastActiveDate: string,

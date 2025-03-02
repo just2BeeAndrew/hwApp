@@ -18,7 +18,17 @@ export const authRouter = Router();
 export const authController = {
     async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
-        const result = await authService.login(loginOrEmail, password);
+        const title = req.headers['user-agent']
+        if (!title){
+            res.status(HttpStatuses.NOT_FOUND)
+            return
+        }
+        const ip = req.ip
+        if (!ip){
+            res.status(HttpStatuses.NOT_FOUND)
+            return
+        }
+        const result = await authService.login(loginOrEmail, password, title, ip);
         if (!result.data) {
             res.sendStatus(HttpStatuses.SERVER_ERROR);
             return

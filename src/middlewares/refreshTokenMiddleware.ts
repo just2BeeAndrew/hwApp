@@ -8,26 +8,26 @@ import {authRepository} from "../auth/authRepository";
 import {ResultStatus} from "../result/resultCode";
 
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies?.refreshToken
-    console.log("1",token);
+    const refreshToken = req.cookies?.refreshToken
+    console.log("1",refreshToken);
     // let token
     // if (req.cookies && req.cookies.refreshToken) {
     //     token = req.cookies.refreshToken;
     //     return
     // }
-    if (!token) {
+    if (!refreshToken) {
         console.log("2")
         res.sendStatus(HttpStatuses.UNAUTHORIZED)
     }
 
-    const isBlacklisted = await authRepository.isBlacklisted(token);
+    const isBlacklisted = await authRepository.isBlacklisted(refreshToken);
     if (isBlacklisted) {
         console.log("3")
         res.sendStatus(HttpStatuses.UNAUTHORIZED)
         return
     }
     try {
-        const payload = await jwtService.verifyToken(token, SETTINGS.REFRESH_TOKEN_SECRET);
+        const payload = await jwtService.verifyRefreshToken(refreshToken);
         console.log(payload);
         if (payload) {
             const {userId} = payload;
