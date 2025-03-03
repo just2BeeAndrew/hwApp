@@ -6,9 +6,9 @@ import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
 import {authRepository} from "./authRepository";
-import {v4 as uuidv4} from "uuid";
 import {ObjectId} from "mongodb";
 import {devicesRepository} from "../securityDevices/devicesRepository";
+import {devicesCollection} from "../db/mongoDb";
 
 export const authService = {
     async login(loginOrEmail: string, password: string, title: string, ip: string): Promise<Result<{
@@ -38,19 +38,19 @@ export const authService = {
         }
     },
 
-    async refreshToken(oldrefreshToken: string, userId: string): Promise<Result<{
+    async refreshToken(oldrefreshToken: string, userId: string, deviceId: string): Promise<Result<{
         newAccessToken: string,
         newRefreshToken: string
     } | null>> {
 
         await this.addTokenInBlacklist(oldrefreshToken);
-        const deviceId = uuidv4()
-        const token = await jwtService.createJWT(userId, deviceId);
+        const sessions = await this.updateSessions(userId, deviceId);
+
         return {
             status: ResultStatus.Success,
             data: {
-                newAccessToken: token.accessToken,
-                newRefreshToken: token.refreshToken
+                newAccessToken: sessions.accessToken,
+                newRefreshToken: sessions.refreshToken
             },
             extensions: []
         }
@@ -117,16 +117,17 @@ export const authService = {
         await devicesRepository.addDevice(newSession);
 
         return {accessToken, refreshToken}
+    },
 
+    async updateSessions(userId: string, deviceId: string) {
 
+        const {accessToken, refreshToken} = await jwtService.createJWT(userId, deviceId);
 
+        const {iat: newIat, exp: newExp} = await jwtService.cutTimeFromRefreshToken(refreshToken);
 
+        await devicesRepository.updateDevice(newIat, newExp, deviceId);
 
-
-
-
-
-
+        return {accessToken, refreshToken}
 
     }
 }

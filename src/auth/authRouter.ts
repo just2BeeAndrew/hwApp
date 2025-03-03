@@ -48,9 +48,9 @@ export const authController = {
 
     async refreshToken(req: Request, res: Response) {
         const refreshToken = req.cookies.refreshToken;
-        console.log("refreshToken.refreshToken",refreshToken)
         const userId = req.user?.id as string;
-        const result = await authService.refreshToken(refreshToken, userId);
+        const deviceId = req.device?.deviceId as string;
+        const result = await authService.refreshToken(refreshToken, userId, deviceId);
         if (!result.data) {
             res.sendStatus(HttpStatuses.SERVER_ERROR);
             return
@@ -62,7 +62,6 @@ export const authController = {
             return
         }
         const {newAccessToken, newRefreshToken} = result.data!
-        console.log("refreshToken.newRefreshToken", newRefreshToken)
         res
             .cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)
