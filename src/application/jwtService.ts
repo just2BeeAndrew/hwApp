@@ -24,9 +24,9 @@ export const jwtService = {
         }
     },
 
-    async verifyRefreshToken(refreshToken: string): Promise<{ userId: string, deviceId: string } | null> {
+    async verifyRefreshToken(refreshToken: string): Promise<{ userId: string, deviceId: string, iat: number, exp: number } | null> {
         try {
-            return jwt.verify(refreshToken, SETTINGS.REFRESH_TOKEN_SECRET) as { userId: string, deviceId: string };
+            return jwt.verify(refreshToken, SETTINGS.REFRESH_TOKEN_SECRET) as { userId: string, deviceId: string, iat: number, exp: number };
         } catch (error) {
             return null
         }

@@ -12,6 +12,7 @@ import {usersService} from "../users/usersService";
 import {ipTrackerMiddleware} from "../middlewares/ipTrackerMiddleware";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
+import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
 
 export const authRouter = Router();
 
@@ -47,10 +48,9 @@ export const authController = {
     },
 
     async refreshToken(req: Request, res: Response) {
-        const refreshToken = req.cookies.refreshToken;
         const userId = req.user?.id as string;
         const deviceId = req.device?.deviceId as string;
-        const result = await authService.refreshToken(refreshToken, userId, deviceId);
+        const result = await authService.refreshToken( userId, deviceId);
         if (!result.data) {
             res.sendStatus(HttpStatuses.SERVER_ERROR);
             return
@@ -110,8 +110,9 @@ export const authController = {
     },
 
     async logout(req: Request, res: Response) {
-        const refreshToken = req.cookies.refreshToken;
-        const expiredToken = await authService.addTokenInBlacklist(refreshToken)
+        const userId = req.user?.id as string;
+        const deviceId = req.device?.deviceId as string;
+        await authService.logout(userId, deviceId)
         res
             .clearCookie('refreshToken', {httpOnly: true, secure: true})
             .sendStatus(HttpStatuses.NOCONTENT)
@@ -123,13 +124,20 @@ export const authController = {
     }
 }
 
-authRouter.post('/login', authController.login)
+authRouter.post('/login',
+    ipRateLimitMiddleware,
+    errorsResultMiddleware,
+    authController.login)
 authRouter.post('/refresh-token',
     refreshTokenMiddleware,
     errorsResultMiddleware,
     authController.refreshToken)
-authRouter.post('/registration-confirmation', authController.registrationConfirmation)
+authRouter.post('/registration-confirmation',
+    ipRateLimitMiddleware,
+    errorsResultMiddleware,
+    authController.registrationConfirmation)
 authRouter.post('/registration',
+    ipRateLimitMiddleware,
     loginValidator,
     passwordValidator,
     emailValidator,

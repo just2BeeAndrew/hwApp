@@ -9,8 +9,14 @@ export const authRepository = {
         return false
     },
 
+    async findByIat(iat: number) {
+
+    },
+
     async addTokenInBlacklist(refreshToken: string) {
         const expiredToken = await tokensCollection.insertOne({refreshToken: refreshToken});
         return expiredToken.insertedId.toString();
     }
+
+
 }

@@ -4,6 +4,7 @@ import {jwtService} from "../application/jwtService";
 import {DeviceId, IdType} from "../types/id";
 import {usersRepository} from "../users/usersRepository";
 import {authRepository} from "../auth/authRepository";
+import {devicesRepository} from "../securityDevices/devicesRepository";
 
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies?.refreshToken
@@ -11,19 +12,18 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
         res.sendStatus(HttpStatuses.UNAUTHORIZED)
     }
 
-    const isBlacklisted = await authRepository.isBlacklisted(refreshToken);
-    if (isBlacklisted) {
-        res.sendStatus(HttpStatuses.UNAUTHORIZED)
-        return
-    }
     try {
         const payload = await jwtService.verifyRefreshToken(refreshToken);
         if (payload) {
-            const {userId, deviceId} = payload;
+            const {userId, deviceId, iat} = payload;
 
-            const user = await usersRepository.doesExistById(userId);
+            const session = await devicesRepository.findByUserAndDevice(userId, deviceId);
+            if (!session) {
+                res.sendStatus(HttpStatuses.UNAUTHORIZED);
+                return
+            }
 
-            if (!user) {
+            if (session.iat !== iat) {
                 res.sendStatus(HttpStatuses.UNAUTHORIZED);
                 return
             }

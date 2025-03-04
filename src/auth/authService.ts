@@ -9,6 +9,7 @@ import {authRepository} from "./authRepository";
 import {ObjectId} from "mongodb";
 import {devicesRepository} from "../securityDevices/devicesRepository";
 import {devicesCollection} from "../db/mongoDb";
+import exp from "node:constants";
 
 export const authService = {
     async login(loginOrEmail: string, password: string, title: string, ip: string): Promise<Result<{
@@ -38,12 +39,11 @@ export const authService = {
         }
     },
 
-    async refreshToken(oldrefreshToken: string, userId: string, deviceId: string): Promise<Result<{
+    async refreshToken(userId: string, deviceId: string): Promise<Result<{
         newAccessToken: string,
         newRefreshToken: string
     } | null>> {
 
-        await this.addTokenInBlacklist(oldrefreshToken);
         const sessions = await this.updateSessions(userId, deviceId);
 
         return {
@@ -54,6 +54,10 @@ export const authService = {
             },
             extensions: []
         }
+    },
+
+    async logout(userId: string, deviceId: string) {
+        await devicesRepository.logout(userId, deviceId);
     },
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserDBType> | null>> {
@@ -123,9 +127,9 @@ export const authService = {
 
         const {accessToken, refreshToken} = await jwtService.createJWT(userId, deviceId);
 
-        const {iat: newIat, exp: newExp} = await jwtService.cutTimeFromRefreshToken(refreshToken);
-
-        await devicesRepository.updateDevice(newIat, newExp, deviceId);
+        const payload = await jwtService.verifyRefreshToken(refreshToken);
+        //!!! уточнить на саппорте
+        await devicesRepository.updateDevice(payload!.iat, payload!.exp, deviceId);
 
         return {accessToken, refreshToken}
 
