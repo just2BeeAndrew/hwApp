@@ -8,7 +8,7 @@ export const devicesRepository = {
     },
 
     async updateDevice(newIat: number, newExp: number, deviceId: string) {
-        await devicesCollection.updateOne({_id:new ObjectId(deviceId)}, {$set: {iat: newIat, exp: newExp}});
+        await devicesCollection.updateOne({_id: new ObjectId(deviceId)}, {$set: {iat: newIat, exp: newExp}});
     },
 
     async findByUserAndDevice(userId: string, deviceId: string) {
@@ -17,6 +17,16 @@ export const devicesRepository = {
 
     async logout(userId: string, deviceId: string) {
         const res = await devicesCollection.deleteOne({_id: new ObjectId(deviceId), userId: userId});
+        if (res.deletedCount > 0) return true
+    },
+
+    async terminateOtherSessions(userId: string, deviceId: string) {
+        const res = await devicesCollection.deleteMany({_id: {$ne: new ObjectId(deviceId)}, userId: userId});
+        if (res.deletedCount > 0) return true
+    },
+
+    async deleteSessionsById( deviceId: string) {
+        const res = await devicesCollection.deleteOne({_id: new ObjectId(deviceId)});
         if (res.deletedCount > 0) return true
     }
 
