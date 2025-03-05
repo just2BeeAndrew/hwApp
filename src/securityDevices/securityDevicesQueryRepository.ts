@@ -2,7 +2,7 @@ import {devicesCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {DevicesDBType, DevicesOutputType} from "../types/db.types";
 
-export const deviceMapper = (device: WithId<DevicesDBType>): DevicesOutputType => {
+const deviceMapper = (device: WithId<DevicesDBType>): DevicesOutputType => {
     return {
         ip:device.ip,
         title:device.title,
@@ -13,8 +13,7 @@ export const deviceMapper = (device: WithId<DevicesDBType>): DevicesOutputType =
 
 export const securityDevicesQueryRepository = {
     async getAllDevicesSessions(userId: string) {
-        const devices = await devicesCollection.find({userId: userId});
-        return devices;
-
+        const devices = await devicesCollection.find({userId: userId}).toArray();
+        return devices.map(deviceMapper);
     }
 }

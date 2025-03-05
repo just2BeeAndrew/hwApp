@@ -9,6 +9,7 @@ import {userRouter} from "./users/userRouter";
 import {commentRouter} from "./comments/commentRouter";
 import cookieParser from "cookie-parser";
 import {HttpStatuses} from "./types/httpStatuses";
+import {securityDeviceRouter} from "./securityDevices/securityDevicesRouter";
 
 export const app = express() // создать приложение
 app.set('trust proxy', true);
@@ -21,6 +22,7 @@ app.use(SETTINGS.PATH.COMMENTS, commentRouter)
 app.use(SETTINGS.PATH.POSTS, postRouter)
 app.use(SETTINGS.PATH.TESTING, testingRouter)
 app.use(SETTINGS.PATH.USERS, userRouter)
+app.use(SETTINGS.PATH.SECURITY_DEVICES, securityDeviceRouter)
 
 
 app.get('/', (req, res) => {

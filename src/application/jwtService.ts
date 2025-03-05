@@ -9,11 +9,11 @@ export const jwtService = {
     },
 
     async createAccessToken(userId: string) {
-        return jwt.sign({userId}, SETTINGS.ACCESS_TOKEN_SECRET, {expiresIn: "10s"});//вынести в сеттинг
+        return jwt.sign({userId}, SETTINGS.ACCESS_TOKEN_SECRET, {expiresIn: "100s"});//вынести в сеттинг
     },
 
     async createRefreshToken(userId: string, deviceId: string) {
-        return jwt.sign({userId, deviceId}, SETTINGS.REFRESH_TOKEN_SECRET, {expiresIn: "20s"});
+        return jwt.sign({userId, deviceId}, SETTINGS.REFRESH_TOKEN_SECRET, {expiresIn: "200s"});
     },
 
     async verifyAccessToken(accessToken: string): Promise<{ userId: string } | null> {

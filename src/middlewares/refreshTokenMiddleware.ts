@@ -9,6 +9,7 @@ import {devicesRepository} from "../securityDevices/devicesRepository";
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies?.refreshToken
     if (!refreshToken) {
+        console.log("1")
         res.sendStatus(HttpStatuses.UNAUTHORIZED)
     }
 
@@ -19,11 +20,13 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
 
             const session = await devicesRepository.findByUserAndDevice(userId, deviceId);
             if (!session) {
+                console.log("2")
                 res.sendStatus(HttpStatuses.UNAUTHORIZED);
                 return
             }
 
             if (session.iat !== iat) {
+                console.log("3")
                 res.sendStatus(HttpStatuses.UNAUTHORIZED);
                 return
             }
@@ -33,14 +36,17 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
             next()
             return
         }
+        console.log("4")
         res.sendStatus(HttpStatuses.UNAUTHORIZED)
         return
     } catch (error) {
         if (error instanceof Error) {
             if (error.name === "TokenExpiredError") {
+                console.log("5")
                 res.sendStatus(HttpStatuses.UNAUTHORIZED)
             }
         }
     }
+    console.log("6")
     res.status(HttpStatuses.UNAUTHORIZED)
 }

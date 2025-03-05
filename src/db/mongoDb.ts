@@ -31,8 +31,6 @@ export async function runDb(url: string):Promise<boolean>{
     devicesCollection = db.collection<DevicesDBType>(SETTINGS.PATH.SECURITY_DEVICES)
     devicesRateCollection = db.collection<DeviceRateDBType>(SETTINGS.PATH.DEVICES)
 
-
-
     try {
         await client.connect();
         await db.command({ ping: 1 });
