@@ -9,7 +9,6 @@ import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {usersService} from "../users/usersService";
-import {ipTrackerMiddleware} from "../middlewares/ipTrackerMiddleware";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
@@ -26,7 +25,7 @@ export const authController = {
         }
         const ip = req.ip
         if (!ip){
-            res.status(HttpStatuses.NOT_FOUND)
+            res.status(HttpStatuses.SERVER_ERROR)
             return
         }
         const result = await authService.login(loginOrEmail, password, title, ip);
@@ -145,7 +144,6 @@ authRouter.post('/registration',
     authController.registration)
 authRouter.post('/registration-email-resending',
     ipRateLimitMiddleware,
-    ipTrackerMiddleware,
     emailValidator,
     errorsResultMiddleware,
     authController.registrationEmailResending)

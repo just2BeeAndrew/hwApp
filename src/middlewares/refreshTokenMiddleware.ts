@@ -16,7 +16,7 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
         const payload = await jwtService.verifyRefreshToken(refreshToken);
         if (payload) {
             const {userId, deviceId, iat} = payload;
-
+//объединить iat и deviceid
             const session = await devicesRepository.findByUserAndDevice(userId, deviceId);
             if (!session) {
                 res.sendStatus(HttpStatuses.UNAUTHORIZED);
@@ -30,8 +30,6 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
 
             req.user = {id: userId} as IdType
             req.device = {deviceId: deviceId} as DeviceId
-            console.log("reqUser",req.user)
-            console.log("reqDevice",req.device)
             next()
             return
         }
@@ -40,7 +38,6 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
     } catch (error) {
         if (error instanceof Error) {
             if (error.name === "TokenExpiredError") {
-                console.log("5")
                 res.sendStatus(HttpStatuses.UNAUTHORIZED)
             }
         }
