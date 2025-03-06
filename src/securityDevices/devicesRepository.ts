@@ -12,7 +12,8 @@ export const devicesRepository = {
     },
 
     async findByUserAndDevice(userId: string, deviceId: string) {
-        return await devicesCollection.findOne({userId: userId, deviceId: deviceId});
+        const session = await devicesCollection.findOne({userId: userId, _id: new ObjectId(deviceId)});
+        return session;
     },
 
     async logout(userId: string, deviceId: string) {
@@ -25,9 +26,12 @@ export const devicesRepository = {
         if (res.deletedCount > 0) return true
     },
 
-    async deleteSessionsById( deviceId: string) {
+    async deleteSessionsById(deviceId: string): Promise<boolean> {
         const res = await devicesCollection.deleteOne({_id: new ObjectId(deviceId)});
-        if (res.deletedCount > 0) return true
+        if (res.deletedCount > 0) {
+            return true
+        }
+        return false;
     }
 
 

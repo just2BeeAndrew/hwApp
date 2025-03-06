@@ -1,4 +1,11 @@
-import {blogsCollection, commentsCollection, postsCollection, usersCollection,tokensCollection} from "../db/mongoDb";
+import {
+    blogsCollection,
+    commentsCollection,
+    postsCollection,
+    usersCollection,
+    tokensCollection,
+    devicesCollection
+} from "../db/mongoDb";
 
 export const testingRepository = {
     async deleteAll() {
@@ -8,6 +15,7 @@ export const testingRepository = {
             usersCollection.deleteMany({}),
             commentsCollection.deleteMany({}),
             tokensCollection.deleteMany({}),
+            devicesCollection.deleteMany({}),
         ]);
         console.log("Очищено")
     }

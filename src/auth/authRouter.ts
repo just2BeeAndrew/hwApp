@@ -30,10 +30,10 @@ export const authController = {
             return
         }
         const result = await authService.login(loginOrEmail, password, title, ip);
-        if (!result.data) {
-            res.sendStatus(HttpStatuses.SERVER_ERROR);
-            return
-        }
+        // if (!result.data) {
+        //     res.sendStatus(HttpStatuses.SERVER_ERROR);
+        //     return
+        // }
         if (result.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(result.status))
@@ -144,11 +144,13 @@ authRouter.post('/registration',
     errorsResultMiddleware,
     authController.registration)
 authRouter.post('/registration-email-resending',
+    ipRateLimitMiddleware,
     ipTrackerMiddleware,
     emailValidator,
     errorsResultMiddleware,
     authController.registrationEmailResending)
 authRouter.post('/logout',
+    ipRateLimitMiddleware,
     refreshTokenMiddleware,
     errorsResultMiddleware,
     authController.logout)

@@ -22,25 +22,22 @@ export const userController = {
 
     async createUser(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        console.log("Логин, пароль, емэйл",login, password, email)
         const newUserId = await usersService.createUser(login, password, email);
-        console.log(newUserId);
         if (newUserId.status !== ResultStatus.Success) {
              res.sendStatus(resultCodeToHttpException(newUserId.status))
              return;
          }
         const user = await usersQueryRepository.getUserBy_Id(newUserId.data!.createdUser);
-        console.log(user)
         res.status(201).json(user);
     },
 
     async deleteUser(req: Request, res: Response){
         const deleteUser = await usersService.deleteUser(req.params.id);
         if(deleteUser){
-            res.sendStatus(204)
+            res.sendStatus(HttpStatuses.NOCONTENT)
             return;
         }
-        res.sendStatus(404)
+        res.sendStatus(HttpStatuses.NOT_FOUND)
     },
 }
 

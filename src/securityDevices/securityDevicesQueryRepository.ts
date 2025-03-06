@@ -6,7 +6,7 @@ const deviceMapper = (device: WithId<DevicesDBType>): DevicesOutputType => {
     return {
         ip:device.ip,
         title:device.title,
-        lastActiveDate:device.iat.toString(),
+        lastActiveDate:new Date(device.iat * 1000).toISOString(),
         deviceId: device._id.toString(),
     }
 }
