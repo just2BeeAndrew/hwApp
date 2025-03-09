@@ -28,13 +28,15 @@ export type BlogInputType = {
     websiteUrl: string,
 }
 
-export type BlogDBType = {
-    name: string,
-    description: string,
-    websiteUrl: string,
-    createdAt: string
-    isMembership: boolean
+export class BlogDBType {
+    constructor(public name: string,
+                public description: string,
+                public websiteUrl: string,
+                public createdAt: string,
+                public isMembership: boolean,) {
+    }
 }
+
 export type BlogOutputType = {
     id: string,
     name: string,
@@ -56,12 +58,14 @@ export type CommentInputType = {
     content: string,
 }
 
-export type CommentDBType = {
-    postId: string,
-    content: string,
-    commentatorInfo: CommentatorInfoType,
-    createdAt: string,
+export class CommentDBType {
+    constructor(public postId: string,
+                public content: string,
+                public commentatorInfo: CommentatorInfoType,
+                public createdAt: string) {
+    }
 }
+
 
 export type CommentatorInfoType = {
     userId: string,
@@ -125,9 +129,10 @@ export type ConfirmationType = {
     isConfirm: boolean,
 }
 
-export type UserDBType = {
-    accountData: accountDataType,
-    emailConfirmation: ConfirmationType
+export class UserDBType {
+    constructor(public accountData: accountDataType,
+                public emailConfirmation: ConfirmationType,) {
+    }
 }
 
 export type UserOutputType = {

@@ -15,7 +15,7 @@ import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
 
 export const authRouter = Router();
 
-export const authController = {
+class AuthController {
     async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
         const title = req.headers['user-agent']
@@ -40,7 +40,15 @@ export const authController = {
             .cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)
             .json({accessToken: accessToken})
-    },
+    }
+
+    async passwordRecovery ( req: Request, res: Response ) {
+
+    }
+
+    async confirmPasswordRecovery ( req: Request, res: Response ) {
+
+    }
 
     async refreshToken(req: Request, res: Response) {
         const userId = req.user?.id as string;
@@ -61,7 +69,7 @@ export const authController = {
             .cookie('refreshToken', newRefreshToken, {httpOnly: true, secure: true})
             .status(HttpStatuses.SUCCESS)
             .json({accessToken: newAccessToken})
-    },
+    }
 
     async registrationConfirmation(req: RequestWithBody<RegistrationConfirmationCode>, res: Response) {
         const {code} = req.body
@@ -73,7 +81,7 @@ export const authController = {
             return
         }
         res.sendStatus(HttpStatuses.NOCONTENT)
-    },
+    }
 
     async registration(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
@@ -87,10 +95,9 @@ export const authController = {
 
         const userId = createdUserId.data!.createdUser
 //перенести в сервис
-        const registration = await usersService.registration(userId)
-
+        await usersService.registration(userId)
         res.sendStatus(HttpStatuses.NOCONTENT)
-    },
+    }
 
     async registrationEmailResending(req: RequestWithBody<UserInputType>, res: Response) {
         const {email} = req.body
@@ -102,7 +109,7 @@ export const authController = {
             return
         }
         res.sendStatus(HttpStatuses.NOCONTENT)
-    },
+    }
 
     async logout(req: Request, res: Response) {
         const userId = req.user?.id as string;
@@ -111,13 +118,15 @@ export const authController = {
         res
             .clearCookie('refreshToken', {httpOnly: true, secure: true})
             .sendStatus(HttpStatuses.NOCONTENT)
-    },
+    }
 
     async infoUser(req: Request, res: Response) {
         const info = await usersQueryRepository.getInfoBy_Id(req.user!.id);
         res.status(HttpStatuses.SUCCESS).json(info)
     }
 }
+
+export const authController = new AuthController();
 
 authRouter.post('/login',
     ipRateLimitMiddleware,

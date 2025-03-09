@@ -5,7 +5,7 @@ import {postsRepository} from "../posts/postsRepository";
 import {usersRepository} from "../users/usersRepository";
 import {WithId} from "mongodb";
 
-export const commentsService = {
+class CommentsService {
     async createComment(postId: string, createData: string, userId: string) {
         const userInfo: WithId<UserDBType> | null = await usersRepository.getUserBy_Id(userId);
         if (!userInfo) {
@@ -27,22 +27,22 @@ export const commentsService = {
             };
         }
 
-        const newComment: CommentDBType = {
-            postId: postId,
-            content: createData,
-            commentatorInfo: {
+        const newComment= new CommentDBType  (
+            postId,
+            createData,
+            {
                 userId: userInfo._id.toString(),
                 userLogin: userInfo.accountData.login,
             },
-            createdAt: new Date().toISOString(),
-        }
+            new Date().toISOString()
+        )
         const res = await commentsRepository.createComment(newComment);
         return {
             status: ResultStatus.Success,
             data: res,
             extensions: [],
         };
-    },
+    }
 
     async updateComment(commentId: string, updateComment: string, userId: string) {
         const checkerResult = await this.checkIsExistingComment(commentId);
@@ -74,7 +74,7 @@ export const commentsService = {
             data: null,
             extensions: []
         }
-    },
+    }
 
     async deleteComment(commentId: string, userId: string) {
         const isExist = await this.checkIsExistingComment(commentId);
@@ -105,7 +105,7 @@ export const commentsService = {
             extensions: []
 
         }
-    },
+    }
 
     async checkIsExistingComment(commentId: string) {
         const  comment = await commentsRepository.getCommentBy_Id(commentId);
@@ -122,7 +122,7 @@ export const commentsService = {
             data: comment,
             extensions: [],
         }
-    },
+    }
 
     async checkIsOwnerComment(commentatorId: string, userId: string) {
         if (commentatorId !== userId) {
@@ -139,6 +139,6 @@ export const commentsService = {
             extensions: [],
         }
     }
-
-
 }
+
+export const commentsService = new CommentsService()

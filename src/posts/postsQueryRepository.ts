@@ -16,7 +16,7 @@ const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     }
 }
 
-export const postsQueryRepository = {
+class PostsQueryRepository {
     async getAllPosts(sortData: SortType) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
         const posts = await postsCollection
@@ -33,8 +33,7 @@ export const postsQueryRepository = {
             totalCount: postsCount,
             items: posts.map(postMapper),
         }
-
-    },
+    }
 
     getPostsCount(blogId?: string): Promise<number> {
         const filter: any = {}
@@ -42,7 +41,7 @@ export const postsQueryRepository = {
             filter.blogId = blogId;
         }
         return postsCollection.countDocuments(filter)
-    },
+    }
 
     async getPostById(id: string) {
         const posts = await postsCollection.findOne({_id:new ObjectId(id)});
@@ -50,7 +49,7 @@ export const postsQueryRepository = {
             return null
         }
         return postMapper(posts);
-    },
+    }
 
     async getPostBy_Id(_id: ObjectId) {
         const posts = await postsCollection.findOne({_id});
@@ -58,7 +57,7 @@ export const postsQueryRepository = {
             return null
         }
         return postMapper(posts);
-    },
+    }
 
     async getPostsByBlogId(blogId: string, sortData: SortType) {
         const blogsIndex = await blogsQueryRepository.getBlogBy_Id(blogId);
@@ -85,6 +84,7 @@ export const postsQueryRepository = {
             totalCount: postsCount,
             items: posts.map(postMapper),
         }
-    },
-
+    }
 }
+
+export const postsQueryRepository = new PostsQueryRepository();

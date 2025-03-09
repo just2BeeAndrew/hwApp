@@ -14,24 +14,23 @@ import {postsService} from "../posts/postsService";
 import {blogsQueryRepository} from "./blogsQueryRepository";
 import {postsQueryRepository} from "../posts/postsQueryRepository";
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
-import {blogsCollection} from "../db/mongoDb";
 import {HttpStatuses} from "../types/httpStatuses";
 
 export const blogRouter = Router();
 
-export const blogController = {
+class BlogController {
     async getAllBlogs(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const blogs = await blogsQueryRepository.getAllBlogs(sortData)
         res.status(HttpStatuses.SUCCESS).json(blogs);
-    },
+    }
 
     async createBlog(req: Request<BlogInputType>, res: Response) {
         const { name, description, websiteUrl } = req.body;
         const blogId = await blogsService.createBlog(name, description, websiteUrl);
         const blog = await blogsQueryRepository.getBlogBy_Id(blogId)
         res.status(HttpStatuses.CREATED).json(blog);
-    },
+    }
 
     async getPostsByBlogId(req: RequestWithParams<{ blogId: string }>, res: Response) {
         const {blogId} = req.params;
@@ -42,7 +41,7 @@ export const blogController = {
             return
         }
         res.sendStatus(HttpStatuses.NOT_FOUND)
-    },
+    }
 
     async createPostByBlogId(req: RequestWithParamsAndBody<{ blogId: string }, BlogPostInputType>, res: Response) {
         const {blogId} = req.params;
@@ -53,7 +52,7 @@ export const blogController = {
         }
         const post = await postsQueryRepository.getPostBy_Id(postsId)
         res.status(201).json(post);
-    },
+    }
 
     async getBlogById(req: RequestWithParams<{ id: string }>, res: Response) {
         const blogId = await blogsQueryRepository.getBlogBy_Id(req.params.id);
@@ -62,7 +61,7 @@ export const blogController = {
             return
         }
         res.sendStatus(404);
-    },
+    }
 
     async updateBlog(req: RequestWithParams<{ id: string }>, res: Response) {
         const updatedBlog = await blogsService.updateBlog(req.params.id, req.body);
@@ -71,7 +70,7 @@ export const blogController = {
             return;
         }
         res.sendStatus(404);
-    },
+    }
 
     async deleteBlog(req: Request, res: Response) {
         const deletedBlog = await blogsService.deleteBlog(req.params.id);
@@ -82,6 +81,8 @@ export const blogController = {
         res.sendStatus(404)
     }
 }
+
+export const blogController = new BlogController()
 
 blogRouter.get('/', blogController.getAllBlogs);
 blogRouter.post('/',

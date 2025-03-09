@@ -5,13 +5,10 @@ import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
-import {authRepository} from "./authRepository";
 import {ObjectId} from "mongodb";
 import {devicesRepository} from "../securityDevices/devicesRepository";
-import {devicesCollection} from "../db/mongoDb";
 
-
-export const authService = {
+class AuthService {
     async login(loginOrEmail: string, password: string, title: string, ip: string): Promise<Result<{
         accessToken: string,
         refreshToken: string
@@ -37,7 +34,7 @@ export const authService = {
             },
             extensions: []
         }
-    },
+    }
 
     async refreshToken(userId: string, deviceId: string): Promise<Result<{
         newAccessToken: string,
@@ -54,11 +51,11 @@ export const authService = {
             },
             extensions: []
         }
-    },
+    }
 
     async logout(userId: string, deviceId: string) {
         await devicesRepository.logout(userId, deviceId);
-    },
+    }
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserDBType> | null>> {
         const user = await usersRepository.findByLoginOrEmail(loginOrEmail);
@@ -96,11 +93,7 @@ export const authService = {
             data: user,
             extensions: [],
         }
-    },
-
-    async addTokenInBlacklist(refreshToken: string) {
-        return await authRepository.addTokenInBlacklist(refreshToken);
-    },
+    }
 
     async createSessions(userId: string, title: string, ip: string) {
         const deviceId = new ObjectId();
@@ -121,7 +114,7 @@ export const authService = {
         await devicesRepository.addDevice(newSession);
 
         return {accessToken, refreshToken}
-    },
+    }
 
     async updateSessions(userId: string, deviceId: string) {
 
@@ -135,3 +128,6 @@ export const authService = {
 
     }
 }
+
+
+export const authService = new AuthService()

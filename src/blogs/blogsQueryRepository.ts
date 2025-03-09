@@ -14,7 +14,7 @@ const blogMapper = (blog: WithId<BlogDBType>): BlogOutputType => {
     }
 }
 
-export const blogsQueryRepository = {
+class BlogsQueryRepository {
     async getAllBlogs(sortData:SortType) {
         const {searchNameTerm,sortBy,sortDirection, pageSize,pageNumber } = sortData;
         const filter: any = {}//создаем пустой объект
@@ -35,7 +35,7 @@ export const blogsQueryRepository = {
             totalCount: blogsCount,
             items: blogs.map(blogMapper),
         }
-    },
+    }
 
     async getBlogBy_Id(_id: string) {
         const blog = await blogsCollection.findOne({_id: new ObjectId(_id)});
@@ -43,5 +43,7 @@ export const blogsQueryRepository = {
             return null
         }
         return blogMapper(blog);
-    },
+    }
 }
+
+export const blogsQueryRepository = new BlogsQueryRepository();

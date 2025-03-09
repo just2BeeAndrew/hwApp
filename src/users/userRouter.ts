@@ -13,23 +13,23 @@ import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 
 export const userRouter = Router();
 
-export const userController = {
+class UsersController {
     async getAllUsers(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const users = await usersQueryRepository.getAllUsers(sortData)
         res.status(HttpStatuses.SUCCESS).json(users)
-    },
+    }
 
     async createUser(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
         const newUserId = await usersService.createUser(login, password, email);
         if (newUserId.status !== ResultStatus.Success) {
-             res.sendStatus(resultCodeToHttpException(newUserId.status))
-             return;
-         }
+            res.sendStatus(resultCodeToHttpException(newUserId.status))
+            return;
+        }
         const user = await usersQueryRepository.getUserBy_Id(newUserId.data!.createdUser);
         res.status(201).json(user);
-    },
+    }
 
     async deleteUser(req: Request, res: Response){
         const deleteUser = await usersService.deleteUser(req.params.id);
@@ -38,8 +38,10 @@ export const userController = {
             return;
         }
         res.sendStatus(HttpStatuses.NOT_FOUND)
-    },
+    }
 }
+
+export const userController = new UsersController()
 
 userRouter.get('/',
     authorizationMiddleware,

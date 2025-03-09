@@ -4,11 +4,10 @@ import {ObjectId} from "mongodb";
 import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 
-
-export const devicesService = {
+class DevicesService {
     async terminateOtherSessions(userId: string, deviceId: string) {
         await devicesRepository.terminateOtherSessions(userId, deviceId);
-    },
+    }
 
     async deleteSessionsById(deviceId: string, userId: string): Promise<Result<boolean>> {
         const device = await devicesCollection.findOne({_id: new ObjectId(deviceId)});
@@ -44,3 +43,5 @@ export const devicesService = {
         }
     }
 }
+
+export const devicesService = new DevicesService();

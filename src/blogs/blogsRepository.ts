@@ -2,11 +2,11 @@ import {BlogInputType, BlogDBType} from "../types/db.types";
 import {blogsCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
-export const blogsRepository = {
+class BlogsRepository {
     async createBlog(createdBlog: BlogDBType): Promise<string> {
         const res = await blogsCollection.insertOne(createdBlog)
         return res.insertedId.toString()
-    },
+    }
 
     async updateBlog(id: string, body: BlogInputType): Promise<boolean> {
         const object_Id = new ObjectId(id)
@@ -21,7 +21,7 @@ export const blogsRepository = {
             }
         )
         return res.matchedCount === 1
-    },
+    }
 
     async deleteBlog(id: string): Promise<boolean> {
         const blog = await blogsCollection.findOne({_id: new ObjectId(id)});
@@ -32,3 +32,5 @@ export const blogsRepository = {
         return false
     }
 }
+
+export const blogsRepository = new BlogsRepository();

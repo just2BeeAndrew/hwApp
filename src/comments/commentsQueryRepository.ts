@@ -18,14 +18,13 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
     }
 }
 
-
-export const commentsQueryRepository = {
+class CommentsQueryRepository {
     async getCommentBy_Id(_id: string) {
         console.log("getCommentBy_Id", _id);
         const comment = await commentsCollection.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
         return commentsMapper(comment);
-    },
+    }
 
     async getCommentsByPostId(postId: string, sortData: SortType):Promise<Result<{
         pagesCount: number;
@@ -75,7 +74,7 @@ export const commentsQueryRepository = {
             },
             extensions: [],
         };
-    },
+    }
 
 
     getCommentsCount(postId?: string): Promise<number> {
@@ -85,5 +84,6 @@ export const commentsQueryRepository = {
         }
         return commentsCollection.countDocuments(filter)
     }
-
 }
+
+export const commentsQueryRepository = new CommentsQueryRepository()

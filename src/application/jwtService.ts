@@ -1,20 +1,20 @@
-import jwt, {JwtPayload} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
 
-export const jwtService = {
+class JwtService {
     async createJWT(userId: string, deviceId: string) {
         const accessToken = await this.createAccessToken(userId);
         const refreshToken = await this.createRefreshToken(userId, deviceId);
         return {accessToken, refreshToken};
-    },
+    }
 
     async createAccessToken(userId: string) {
         return jwt.sign({userId}, SETTINGS.ACCESS_TOKEN_SECRET, {expiresIn: "100s"});//вынести в сеттинг
-    },
+    }
 
     async createRefreshToken(userId: string, deviceId: string) {
         return jwt.sign({userId, deviceId}, SETTINGS.REFRESH_TOKEN_SECRET, {expiresIn: "200s"});
-    },
+    }
 
     async verifyAccessToken(accessToken: string): Promise<{ userId: string } | null> {
         try {
@@ -22,7 +22,7 @@ export const jwtService = {
         } catch (error) {
             return null
         }
-    },
+    }
 
     async verifyRefreshToken(refreshToken: string): Promise<{ userId: string, deviceId: string, iat: number, exp: number } | null> {
         try {
@@ -30,7 +30,7 @@ export const jwtService = {
         } catch (error) {
             return null
         }
-    },
+    }
 
     async cutTimeFromRefreshToken(refreshToken: string): Promise<{iat: number, exp: number}> {
         try {
@@ -40,3 +40,5 @@ export const jwtService = {
         }
     }
 }
+
+export const jwtService = new JwtService()

@@ -22,8 +22,7 @@ import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 
 export const postRouter = Router();
 
-export const postController = {
-
+class PostsController {
     async getCommentsByPostId(req: RequestWithParams<{ postId: string }>, res: Response) {
         const sortData = paginationQueries(req)
         const {postId} = req.params;
@@ -37,7 +36,7 @@ export const postController = {
         res
             .status(HttpStatuses.SUCCESS)
             .json(comments.data)
-    },
+    }
 
     async createComment(req: RequestWithParamsAndBody<{ postId: string }, CommentInputType>, res: Response) {
         const {postId} = req.params;
@@ -59,13 +58,13 @@ export const postController = {
         res
             .status(HttpStatuses.CREATED)
             .json(newComment);
-    },
+    }
 
     async getAllPosts(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const posts = await postsQueryRepository.getAllPosts(sortData);
         res.status(200).send(posts);
-    },
+    }
 
     async createPost(req: Request<PostInputType>, res: Response) {
         const postId = await postsService.createPost(req.body);
@@ -77,7 +76,7 @@ export const postController = {
         res.status(201).send(post);
 
 
-    },
+    }
 
     async getPostById(req: Request, res: Response) {
         const postId = await postsQueryRepository.getPostById(req.params.id);
@@ -86,7 +85,7 @@ export const postController = {
             return;
         }
         res.sendStatus(404)
-    },
+    }
 
     async updatePost(req: RequestWithParamsAndBody<{ id: string }, PostInputType>, res: Response) {
         const {id} = req.params;
@@ -96,7 +95,7 @@ export const postController = {
             return;
         }
         res.sendStatus(404)
-    },
+    }
 
     async deletePost(req: Request, res: Response) {
         const deletedPost = await postsService.deletePost(req.params.id);
@@ -108,6 +107,7 @@ export const postController = {
     }
 }
 
+export const postController = new PostsController();
 
 postRouter.get('/:postId/comments', postController.getCommentsByPostId);
 postRouter.post('/:postId/comments',

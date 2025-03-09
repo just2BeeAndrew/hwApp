@@ -1,7 +1,9 @@
 import {emailAdapter} from "../emailAdapter";
 
-export const emailManagers = {
+class EmailManager {
     async sendEmail(email: string, code: string) {
         await emailAdapter.sendEmail(email, code)
     }
 }
+
+export const emailManagers = new EmailManager()

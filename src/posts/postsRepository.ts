@@ -2,19 +2,19 @@ import {PostInputType, PostDBType,   BlogOutputType} from "../types/db.types";
 import {postsCollection} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
-export const postsRepository = {
+class PostsRepository {
     async getPostBy_Id(_id: string) {
         const post = await postsCollection.findOne({_id:new ObjectId(_id)});
         if (!post) {
             return null
         }
         return post;
-    },
+    }
 
     async createPost(createdPost: PostDBType): Promise<ObjectId> {
         const res = await postsCollection.insertOne(createdPost);
         return res.insertedId
-    },
+    }
 
     async updatePost(id: string, body: PostInputType, blogsIndex: BlogOutputType): Promise<boolean> {
         const res = await postsCollection.updateOne(
@@ -30,7 +30,7 @@ export const postsRepository = {
             }
         )
         return res.matchedCount === 1
-    },
+    }
 
     async deletePost(id: string): Promise<boolean> {
         const post = await postsCollection.findOne({_id: new ObjectId(id)});
@@ -41,3 +41,5 @@ export const postsRepository = {
         return false
     }
 }
+
+export const postsRepository = new PostsRepository();

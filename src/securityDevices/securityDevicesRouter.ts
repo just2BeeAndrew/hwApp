@@ -10,11 +10,11 @@ import {ResultStatus} from "../result/resultCode";
 
 export const securityDeviceRouter = Router();
 
-export const securityDeviceController = {
+class SecurityDevicesController {
     async getAllDevices(req: Request, res: Response) {
         const devices = await securityDevicesQueryRepository.getAllDevicesSessions(req.user!.id)
         res.status(HttpStatuses.SUCCESS).json(devices)
-    },
+    }
 
     async deleteExcludeCurrentSessions(req: Request, res: Response) {
         const userId = req.user!.id
@@ -22,10 +22,9 @@ export const securityDeviceController = {
         await devicesService.terminateOtherSessions(userId, deviceId)
         res.sendStatus(HttpStatuses.NOCONTENT)
 
-    },
+    }
 
     async deleteSessionsById(req: RequestWithParams<{ deviceId: string }>, res: Response) {
-        const _id = req.device?.deviceId as string
         const userId = req.user?.id as string
         const deviceId = req.params.deviceId
         console.log(deviceId)
@@ -39,6 +38,8 @@ export const securityDeviceController = {
         res.sendStatus(HttpStatuses.NOCONTENT)
     }
 }
+
+export const securityDeviceController = new SecurityDevicesController();
 
 securityDeviceRouter.get('/',
     refreshTokenMiddleware,

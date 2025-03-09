@@ -8,7 +8,7 @@ import {add} from "date-fns"
 import {emailManagers} from "../email/manager/emailManager";
 import {ObjectId} from "mongodb";
 
-export const usersService = {
+class UsersService {
     async createUser(login: string, password: string, email: string): Promise<Result<{ createdUser: string } | null>> {
         const isLoginTaken = await usersRepository.checkLoginUser(login);
 
@@ -33,27 +33,28 @@ export const usersService = {
         }
         const passwordHash = await bcryptService.generateHash(password);
 
-        const newUser: UserDBType = {
-            accountData: {
+        const newUser = new UserDBType(
+            {
                 login: login,
                 passwordHash,
                 email: email,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
             },
-            emailConfirmation: {
+            {
                 confirmationCode: uuidv4(),
                 issuedAt: new Date(),
                 expirationDate: add(new Date(), {hours: 1}),
                 isConfirm: true,
             }
-        }
+        )
+
         const createdUser = await usersRepository.createUser(newUser)
         return {
             status: ResultStatus.Success,
             extensions: [],
             data: {createdUser}
         }
-    },
+    }
 
     async registration(_id: string) {
         const createdUser = await usersRepository.getUserBy_Id(_id);
@@ -69,12 +70,11 @@ export const usersService = {
                 data: null
             }
         }
-    },
-
+    }
 
     async deleteUser(id: string) {
         return await usersRepository.deleteUser(id)
-    },
+    }
 
     async registrationConfirmation(confirmCode: string): Promise<Result<{ result: boolean } | false>> {
         let user = await usersRepository.findUserByConfirmationCode(confirmCode);
@@ -116,7 +116,7 @@ export const usersService = {
             extensions: [],
             data: {result}
         }
-    },
+    }
 
     async registrationEmailResending(email: string) {
         const user = await usersRepository.findByLoginOrEmail(email);
@@ -158,3 +158,5 @@ export const usersService = {
         }
     }
 }
+
+export const usersService = new UsersService()

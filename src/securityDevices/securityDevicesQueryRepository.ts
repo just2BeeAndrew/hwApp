@@ -1,5 +1,5 @@
 import {devicesCollection} from "../db/mongoDb";
-import {ObjectId, WithId} from "mongodb";
+import { WithId} from "mongodb";
 import {DevicesDBType, DevicesOutputType} from "../types/db.types";
 
 const deviceMapper = (device: WithId<DevicesDBType>): DevicesOutputType => {
@@ -11,9 +11,11 @@ const deviceMapper = (device: WithId<DevicesDBType>): DevicesOutputType => {
     }
 }
 
-export const securityDevicesQueryRepository = {
+class SecurityDevicesQueryRepository {
     async getAllDevicesSessions(userId: string) {
         const devices = await devicesCollection.find({userId: userId}).toArray();
         return devices.map(deviceMapper);
     }
 }
+
+export const securityDevicesQueryRepository = new SecurityDevicesQueryRepository();

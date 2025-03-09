@@ -1,13 +1,8 @@
-import {BlogPostInputType, PostDBType, PostInputType} from "../types/db.types";
-import {ObjectId} from "mongodb";
-import {blogsCollection} from "../db/mongoDb";
+import { PostDBType, PostInputType} from "../types/db.types";
 import {postsRepository} from "./postsRepository";
-import {SortType} from "../helpers/paginationValues";
-import {blogsRepository} from "../blogs/blogsRepository";
 import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
 
-
-export const postsService = {
+class PostsService {
     async createPost(createData: PostInputType) {
         const blogsIndex = await blogsQueryRepository.getBlogBy_Id(createData.blogId);
         if (!blogsIndex) return null
@@ -20,20 +15,20 @@ export const postsService = {
             blogName: blogsIndex.name,
             createdAt: new Date().toISOString()
         }
-        const createdPost = await postsRepository.createPost(post);
-        return createdPost
-    },
+        return await postsRepository.createPost(post);
+
+    }
 
     async updatePost(id:string, updateData: PostInputType) {
         const blogsIndex = await blogsQueryRepository.getBlogBy_Id(updateData.blogId);
         if (!blogsIndex) throw new Error("blog index not found");
 
-        const updatedPost = await postsRepository.updatePost(id, updateData, blogsIndex);
-        return updatedPost
-    },
+        return await postsRepository.updatePost(id, updateData, blogsIndex);
+    }
 
     async deletePost(id: string): Promise<boolean> {
-        const deletedPost = await postsRepository.deletePost(id);
-        return deletedPost
+        return await postsRepository.deletePost(id);
     }
 }
+
+export const postsService = new PostsService();
