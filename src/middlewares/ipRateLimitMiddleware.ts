@@ -15,7 +15,7 @@ export const ipRateLimitMiddleware = async (req: Request, res: Response, next: N
 
     try {
         await devicesRateRepository.addRequestInfo(IP, URL, date);
-        const requestCount = await devicesRateRepository.requestCount(IP, URL, date)
+        const requestCount = await devicesRateRepository.requestCount(IP, URL)
         if (requestCount > 5) {
             res.status(HttpStatuses.TOO_MANY_REQUEST).json({
                 error: 'Too Many Requests. Limit: 5 requests per 10 seconds',
