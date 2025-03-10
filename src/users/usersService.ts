@@ -9,10 +9,7 @@ import {emailManagers} from "../email/manager/emailManager";
 import {ObjectId} from "mongodb";
 
 export class UsersService {
-    usersRepository: UsersRepository
-    constructor() {
-        this.usersRepository = new UsersRepository();
-    }
+    constructor(protected usersRepository: UsersRepository) {}
 
     async createUser(login: string, password: string, email: string): Promise<Result<{ createdUser: string } | null>> {
         const isLoginTaken = await this.usersRepository.checkLoginUser(login);
