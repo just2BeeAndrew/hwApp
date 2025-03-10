@@ -2,7 +2,7 @@ import {UserDBType} from "../types/db.types";
 import {usersCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 
-class UsersRepository {
+export class UsersRepository {
     async getUserBy_Id(_id: string): Promise<WithId<UserDBType> | null> {
         return await usersCollection.findOne({_id: new ObjectId(_id)}) || null;
     }
@@ -65,5 +65,3 @@ class UsersRepository {
         return ObjectId.isValid(userId)
     }
 }
-
-export const usersRepository = new UsersRepository()

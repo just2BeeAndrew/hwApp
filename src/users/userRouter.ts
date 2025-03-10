@@ -1,5 +1,5 @@
 import {Router,Request,Response} from "express";
-import {usersService} from "./usersService";
+import {UsersService} from "./usersService";
 import {UserInputType} from "../types/db.types";
 import {paginationQueries} from "../helpers/paginationValues";
 import {usersQueryRepository} from "./usersQueryRepository";
@@ -14,6 +14,10 @@ import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 export const userRouter = Router();
 
 class UsersController {
+    private  usersService: UsersService
+    constructor() {
+        this.usersService = new UsersService()
+    }
     async getAllUsers(req: Request, res: Response) {
         const sortData = paginationQueries(req)
         const users = await usersQueryRepository.getAllUsers(sortData)
@@ -22,7 +26,7 @@ class UsersController {
 
     async createUser(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        const newUserId = await usersService.createUser(login, password, email);
+        const newUserId = await this.usersService.createUser(login, password, email);
         if (newUserId.status !== ResultStatus.Success) {
             res.sendStatus(resultCodeToHttpException(newUserId.status))
             return;
@@ -32,7 +36,7 @@ class UsersController {
     }
 
     async deleteUser(req: Request, res: Response){
-        const deleteUser = await usersService.deleteUser(req.params.id);
+        const deleteUser = await this.usersService.deleteUser(req.params.id);
         if(deleteUser){
             res.sendStatus(HttpStatuses.NOCONTENT)
             return;
@@ -41,20 +45,20 @@ class UsersController {
     }
 }
 
-export const userController = new UsersController()
+const userController = new UsersController()
 
 userRouter.get('/',
     authorizationMiddleware,
     errorsResultMiddleware,
-    userController.getAllUsers);
+    userController.getAllUsers.bind(userController));
 userRouter.post('/',
     authorizationMiddleware,
     loginValidator,
     passwordValidator,
     emailValidator,
     errorsResultMiddleware,
-    userController.createUser);
+    userController.createUser.bind(userController));
 userRouter.delete('/:id',
     authorizationMiddleware,
     errorsResultMiddleware,
-    userController.deleteUser);
+    userController.deleteUser.bind(userController));

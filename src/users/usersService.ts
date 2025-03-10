@@ -1,5 +1,5 @@
 import {UserDBType} from "../types/db.types";
-import {usersRepository} from "./usersRepository";
+import {UsersRepository} from "./usersRepository";
 import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
@@ -8,9 +8,14 @@ import {add} from "date-fns"
 import {emailManagers} from "../email/manager/emailManager";
 import {ObjectId} from "mongodb";
 
-class UsersService {
+export class UsersService {
+    usersRepository: UsersRepository
+    constructor() {
+        this.usersRepository = new UsersRepository();
+    }
+
     async createUser(login: string, password: string, email: string): Promise<Result<{ createdUser: string } | null>> {
-        const isLoginTaken = await usersRepository.checkLoginUser(login);
+        const isLoginTaken = await this.usersRepository.checkLoginUser(login);
 
         if (isLoginTaken) {
             return {
@@ -21,7 +26,7 @@ class UsersService {
             };
         }
 
-        const isEmailTaken = await usersRepository.checkEmailUser(email);
+        const isEmailTaken = await this.usersRepository.checkEmailUser(email);
 
         if (isEmailTaken) {
             return {
@@ -48,7 +53,7 @@ class UsersService {
             }
         )
 
-        const createdUser = await usersRepository.createUser(newUser)
+        const createdUser = await this.usersRepository.createUser(newUser)
         return {
             status: ResultStatus.Success,
             extensions: [],
@@ -57,8 +62,8 @@ class UsersService {
     }
 
     async registration(_id: string) {
-        const createdUser = await usersRepository.getUserBy_Id(_id);
-        await usersRepository.updateConfirmation(new ObjectId(createdUser!._id), false)
+        const createdUser = await this.usersRepository.getUserBy_Id(_id);
+        await this.usersRepository.updateConfirmation(new ObjectId(createdUser!._id), false)
         try {
             emailManagers.sendEmail(createdUser!.accountData.email, createdUser!.emailConfirmation.confirmationCode)
         } catch (error) {
@@ -73,11 +78,11 @@ class UsersService {
     }
 
     async deleteUser(id: string) {
-        return await usersRepository.deleteUser(id)
+        return await this.usersRepository.deleteUser(id)
     }
 
     async registrationConfirmation(confirmCode: string): Promise<Result<{ result: boolean } | false>> {
-        let user = await usersRepository.findUserByConfirmationCode(confirmCode);
+        let user = await this.usersRepository.findUserByConfirmationCode(confirmCode);
         if (!user) {
             return {
                 status: ResultStatus.BadRequest,
@@ -110,7 +115,7 @@ class UsersService {
                 data: false
             }
         }
-        let result = await usersRepository.updateConfirmation(user._id, true)
+        let result = await this.usersRepository.updateConfirmation(user._id, true)
         return {
             status: ResultStatus.NoContent,
             extensions: [],
@@ -119,7 +124,7 @@ class UsersService {
     }
 
     async registrationEmailResending(email: string) {
-        const user = await usersRepository.findByLoginOrEmail(email);
+        const user = await this.usersRepository.findByLoginOrEmail(email);
         if (!user) {
             return {
                 status: ResultStatus.BadRequest,
@@ -139,7 +144,7 @@ class UsersService {
 
         const code = uuidv4();
 
-        await usersRepository.updateConfirmCode(email, code)
+        await this.usersRepository.updateConfirmCode(email, code)
 
         try {
             emailManagers.sendEmail(email, code)
@@ -158,5 +163,3 @@ class UsersService {
         }
     }
 }
-
-export const usersService = new UsersService()

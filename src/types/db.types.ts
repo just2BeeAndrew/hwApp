@@ -33,8 +33,7 @@ export class BlogDBType {
                 public description: string,
                 public websiteUrl: string,
                 public createdAt: string,
-                public isMembership: boolean,) {
-    }
+                public isMembership: boolean,) {}
 }
 
 export type BlogOutputType = {

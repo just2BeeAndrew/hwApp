@@ -8,7 +8,7 @@ import {HttpStatuses} from "../types/httpStatuses";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {RequestWithBody} from "../types/requests";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
-import {usersService} from "../users/usersService";
+import {UsersService} from "../users/usersService";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
@@ -16,6 +16,10 @@ import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
 export const authRouter = Router();
 
 class AuthController {
+    private usersService: UsersService;
+    constructor() {
+        this.usersService = new UsersService();
+    }
     async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
         const title = req.headers['user-agent']
@@ -73,7 +77,7 @@ class AuthController {
 
     async registrationConfirmation(req: RequestWithBody<RegistrationConfirmationCode>, res: Response) {
         const {code} = req.body
-        const result = await usersService.registrationConfirmation(code);
+        const result = await this.usersService.registrationConfirmation(code);
         if (result.status !== ResultStatus.NoContent) {
             res
                 .status(resultCodeToHttpException(result.status))
@@ -85,7 +89,7 @@ class AuthController {
 
     async registration(req: RequestWithBody<UserInputType>, res: Response) {
         const {login, password, email} = req.body
-        const createdUserId = await usersService.createUser(login, password, email);
+        const createdUserId = await this.usersService.createUser(login, password, email);
         if (createdUserId.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(createdUserId.status))
@@ -95,13 +99,13 @@ class AuthController {
 
         const userId = createdUserId.data!.createdUser
 //перенести в сервис
-        await usersService.registration(userId)
+        await this.usersService.registration(userId)
         res.sendStatus(HttpStatuses.NOCONTENT)
     }
 
     async registrationEmailResending(req: RequestWithBody<UserInputType>, res: Response) {
         const {email} = req.body
-        const user = await usersService.registrationEmailResending(email)
+        const user = await this.usersService.registrationEmailResending(email)
         if (user.status !== ResultStatus.NoContent) {
             res
                 .status(resultCodeToHttpException(user.status))
@@ -126,7 +130,7 @@ class AuthController {
     }
 }
 
-export const authController = new AuthController();
+const authController = new AuthController();
 
 authRouter.post('/login',
     ipRateLimitMiddleware,
