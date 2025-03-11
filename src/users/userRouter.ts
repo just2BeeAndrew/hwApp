@@ -2,7 +2,11 @@ import {Router} from "express";
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
-import {usersController} from "../composition-root";
+import {ioc} from "../composition-root";
+import {UsersController} from "./usersController";
+
+
+const usersController = ioc.getInstance<UsersController>(UsersController)
 
 export const userRouter = Router();
 
