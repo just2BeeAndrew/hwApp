@@ -7,9 +7,11 @@ import {RequestWithBody} from "../types/requests";
 import {UserInputType} from "../types/db.types";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
+import {injectable, inject} from "inversify";
 
+@injectable()
 export class UsersController {
-    constructor(protected usersService: UsersService) {
+    constructor(@inject(UsersService)protected usersService: UsersService) {
     }
 
     async getAllUsers(req: Request, res: Response) {

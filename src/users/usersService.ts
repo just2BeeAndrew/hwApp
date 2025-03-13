@@ -7,9 +7,11 @@ import {v4 as uuidv4} from "uuid";
 import {add} from "date-fns"
 import {emailManagers} from "../email/manager/emailManager";
 import {ObjectId} from "mongodb";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class UsersService {
-    constructor(protected usersRepository: UsersRepository) {}
+    constructor(@inject(UsersRepository)protected usersRepository: UsersRepository) {}
 
     async createUser(login: string, password: string, email: string): Promise<Result<{ createdUser: string } | null>> {
         const isLoginTaken = await this.usersRepository.checkLoginUser(login);
