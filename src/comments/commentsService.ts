@@ -2,12 +2,16 @@ import {ResultStatus} from "../result/resultCode";
 import {CommentDBType, UserDBType} from "../types/db.types";
 import {commentsRepository} from "./commentsRepository";
 import {postsRepository} from "../posts/postsRepository";
-import {usersRepository} from "../users/usersRepository";
+import {UsersRepository} from "../users/usersRepository";
 import {WithId} from "mongodb";
+import {inject, injectable} from "inversify";
 
-class CommentsService {
+@injectable()
+export class CommentsService {
+    constructor(@inject(UsersRepository)protected usersRepository: UsersRepository) {}
+
     async createComment(postId: string, createData: string, userId: string) {
-        const userInfo: WithId<UserDBType> | null = await usersRepository.getUserBy_Id(userId);
+        const userInfo: WithId<UserDBType> | null = await this.usersRepository.getUserBy_Id(userId);
         if (!userInfo) {
             return {
                 status: ResultStatus.NotFound,

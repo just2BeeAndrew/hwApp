@@ -12,14 +12,17 @@ import {UsersService} from "../users/usersService";
 import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
+import {container} from "../composition-root";
+import {UsersController} from "../users/usersController";
+import {inject} from "inversify";
+
+const usersController = container.get(UsersController);
 
 export const authRouter = Router();
 
 class AuthController {
-    private usersService: UsersService;
-    constructor() {
-        this.usersService = new UsersService();
-    }
+    constructor(@inject(UsersService)protected usersService: UsersService) {}
+
     async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
         const title = req.headers['user-agent']

@@ -4,6 +4,9 @@ import {UsersRepository} from "../users/usersRepository";
 import {IdType} from "../types/id";
 import {HttpStatuses} from "../types/httpStatuses";
 import {SETTINGS} from "../settings";
+import {container} from "../composition-root";
+
+const usersRepository = container.get(UsersRepository);
 
 export const accessTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     if (!req.headers.authorization) {

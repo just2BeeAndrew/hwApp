@@ -11,8 +11,7 @@ import {injectable, inject} from "inversify";
 
 @injectable()
 export class UsersController {
-    constructor(@inject(UsersService)protected usersService: UsersService) {
-    }
+    constructor(@inject(UsersService)protected usersService: UsersService) {}
 
     async getAllUsers(req: Request, res: Response) {
         const sortData = paginationQueries(req)

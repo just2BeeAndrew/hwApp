@@ -1,14 +1,19 @@
 import {UserDBType} from "../types/db.types";
 import {WithId} from "mongodb";
-import {usersRepository} from "../users/usersRepository";
+import {UsersRepository} from "../users/usersRepository";
 import {Result} from "../result/result.type";
 import {ResultStatus} from "../result/resultCode";
 import {bcryptService} from "../application/bcryptService";
 import {jwtService} from "../application/jwtService";
 import {ObjectId} from "mongodb";
 import {devicesRepository} from "../securityDevices/devicesRepository";
+import {inject, injectable} from "inversify";
 
-class AuthService {
+
+@injectable()
+export class AuthService {
+    constructor(@inject(UsersRepository)protected usersRepository: UsersRepository) {}
+
     async login(loginOrEmail: string, password: string, title: string, ip: string): Promise<Result<{
         accessToken: string,
         refreshToken: string
@@ -58,7 +63,7 @@ class AuthService {
     }
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<Result<WithId<UserDBType> | null>> {
-        const user = await usersRepository.findByLoginOrEmail(loginOrEmail);
+        const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
 
         if (!user) {
             return {

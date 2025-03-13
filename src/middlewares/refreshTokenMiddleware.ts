@@ -2,9 +2,12 @@ import {Request, Response, NextFunction} from "express";
 import {HttpStatuses} from "../types/httpStatuses";
 import {jwtService} from "../application/jwtService";
 import {DeviceId, IdType} from "../types/id";
-import {usersRepository} from "../users/usersRepository";
+import {UsersRepository} from "../users/usersRepository";
 import {authRepository} from "../auth/authRepository";
 import {devicesRepository} from "../securityDevices/devicesRepository";
+import {container} from "../composition-root";
+
+const usersRepository = container.get(UsersRepository);
 
 export const refreshTokenMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies?.refreshToken
