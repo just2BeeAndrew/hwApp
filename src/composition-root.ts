@@ -3,6 +3,12 @@ import {UsersRepository} from "./users/usersRepository";
 import {UsersService} from "./users/usersService";
 import {UsersController} from "./users/usersController";
 import {Container} from "inversify";
+import {AuthController} from "./auth/authController";
+import {AuthService} from "./auth/authService";
+import {CommentsController} from "./comments/commentsController";
+import {CommentsService} from "./comments/commentsService";
+import {CommentsRepository} from "./comments/commentsRepository";
+import {CommentsQueryRepository} from "./comments/commentsQueryRepository";
 
 // const objects:any[] = []
 //
@@ -24,6 +30,17 @@ import {Container} from "inversify";
 
 export const container = new Container();
 
+//Users
 container.bind(UsersController).to(UsersController);
 container.bind<UsersService>(UsersService).to(UsersService);
 container.bind<UsersRepository>(UsersRepository).to(UsersRepository);
+
+//Auth
+container.bind(AuthController).to(AuthController);
+container.bind<AuthService>(AuthService).to(AuthService);
+
+//comments
+container.bind(CommentsController).to(CommentsController);
+container.bind<CommentsService>(CommentsService).to(CommentsService);
+container.bind<CommentsRepository>(CommentsRepository).to(CommentsRepository);
+container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQueryRepository);

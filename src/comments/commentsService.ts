@@ -1,6 +1,6 @@
 import {ResultStatus} from "../result/resultCode";
 import {CommentDBType, UserDBType} from "../types/db.types";
-import {commentsRepository} from "./commentsRepository";
+import {CommentsRepository, commentsRepository} from "./commentsRepository";
 import {postsRepository} from "../posts/postsRepository";
 import {UsersRepository} from "../users/usersRepository";
 import {WithId} from "mongodb";
@@ -8,7 +8,10 @@ import {inject, injectable} from "inversify";
 
 @injectable()
 export class CommentsService {
-    constructor(@inject(UsersRepository)protected usersRepository: UsersRepository) {}
+    constructor(
+        @inject(UsersRepository)protected usersRepository: UsersRepository,
+        @inject(CommentsRepository)protected commentsRepository: CommentsRepository
+    ) {}
 
     async createComment(postId: string, createData: string, userId: string) {
         const userInfo: WithId<UserDBType> | null = await this.usersRepository.getUserBy_Id(userId);
@@ -144,5 +147,3 @@ export class CommentsService {
         }
     }
 }
-
-export const commentsService = new CommentsService()

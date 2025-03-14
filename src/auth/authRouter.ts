@@ -5,10 +5,9 @@ import {emailValidator, loginValidator, passwordValidator} from "../middlewares/
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
 import {container} from "../composition-root";
-import {UsersController} from "../users/usersController";
 import {AuthController} from "./authController";
 
-const usersController = container.get(UsersController);
+const authController = container.get(AuthController);
 
 export const authRouter = Router();
 

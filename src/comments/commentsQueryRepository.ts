@@ -18,7 +18,7 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
     }
 }
 
-class CommentsQueryRepository {
+export class CommentsQueryRepository {
     async getCommentBy_Id(_id: string) {
         console.log("getCommentBy_Id", _id);
         const comment = await commentsCollection.findOne({_id: new ObjectId(_id)});

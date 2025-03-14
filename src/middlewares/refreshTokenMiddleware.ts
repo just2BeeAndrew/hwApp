@@ -3,7 +3,6 @@ import {HttpStatuses} from "../types/httpStatuses";
 import {jwtService} from "../application/jwtService";
 import {DeviceId, IdType} from "../types/id";
 import {UsersRepository} from "../users/usersRepository";
-import {authRepository} from "../auth/authRepository";
 import {devicesRepository} from "../securityDevices/devicesRepository";
 import {container} from "../composition-root";
 

@@ -1,17 +1,20 @@
-import {inject} from "inversify";
+import {inject, injectable} from "inversify";
 import {UsersService} from "../users/usersService";
 import {RequestWithBody} from "../types/requests";
 import {LoginInputType, RegistrationConfirmationCode, UserInputType} from "../types/db.types";
 import {Request, Response} from "express";
 import {HttpStatuses} from "../types/httpStatuses";
-import {authService} from "./authService";
+import {AuthService} from "./authService";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {usersQueryRepository} from "../users/usersQueryRepository";
 
+@injectable()
 export class AuthController {
-    constructor(@inject(UsersService) protected usersService: UsersService) {
-    }
+    constructor(
+        @inject(UsersService) protected usersService: UsersService,
+        @inject(AuthService) protected authService: AuthService,
+        ) {}
 
     async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
@@ -25,7 +28,7 @@ export class AuthController {
             res.status(HttpStatuses.SERVER_ERROR)
             return
         }
-        const result = await authService.login(loginOrEmail, password, title, ip);
+        const result = await this.authService.login(loginOrEmail, password, title, ip);
         if (result.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(result.status))
@@ -50,7 +53,7 @@ export class AuthController {
     async refreshToken(req: Request, res: Response) {
         const userId = req.user?.id as string;
         const deviceId = req.device?.deviceId as string;
-        const result = await authService.refreshToken(userId, deviceId);
+        const result = await this.authService.refreshToken(userId, deviceId);
         if (!result.data) {
             res.sendStatus(HttpStatuses.SERVER_ERROR);
             return
@@ -111,12 +114,12 @@ export class AuthController {
     async logout(req: Request, res: Response) {
         const userId = req.user?.id as string;
         const deviceId = req.device?.deviceId as string;
-        await authService.logout(userId, deviceId)
+        await this.authService.logout(userId, deviceId)
         res
             .clearCookie('refreshToken', {httpOnly: true, secure: true})
             .sendStatus(HttpStatuses.NOCONTENT)
     }
-
+//проверить репозиторий
     async infoUser(req: Request, res: Response) {
         const info = await usersQueryRepository.getInfoBy_Id(req.user!.id);
         res.status(HttpStatuses.SUCCESS).json(info)
