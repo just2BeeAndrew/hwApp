@@ -2,8 +2,8 @@ import {SortType} from "../helpers/paginationValues";
 import {postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {PostDBType, PostOutputType} from "../types/db.types";
-import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
+import {BlogsQueryRepository} from "../blogs/blogsQueryRepository";
 
 const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     return {
@@ -19,6 +19,7 @@ const postMapper = (post: WithId<PostDBType>): PostOutputType => {
 
 @injectable()
 export class PostsQueryRepository {
+    constructor(@inject(BlogsQueryRepository)protected blogsQueryRepository: BlogsQueryRepository) {}
     async getAllPosts(sortData: SortType) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
         const posts = await postsCollection
@@ -62,7 +63,7 @@ export class PostsQueryRepository {
     }
 
     async getPostsByBlogId(blogId: string, sortData: SortType) {
-        const blogsIndex = await blogsQueryRepository.getBlogBy_Id(blogId);
+        const blogsIndex = await this.blogsQueryRepository.getBlogBy_Id(blogId);
         if (!blogsIndex) return null
 
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;

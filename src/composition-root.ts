@@ -12,6 +12,10 @@ import {CommentsQueryRepository} from "./comments/commentsQueryRepository";
 import {PostsController} from "./posts/postsController";
 import {PostsService} from "./posts/postsService";
 import {PostsRepository} from "./posts/postsRepository";
+import {BlogsController} from "./blogs/blogsController";
+import {BlogsRepository} from "./blogs/blogsRepository";
+import {BlogsService} from "./blogs/blogsService";
+import {BlogsQueryRepository} from "./blogs/blogsQueryRepository";
 
 // const objects:any[] = []
 //
@@ -49,8 +53,13 @@ container.bind<CommentsRepository>(CommentsRepository).to(CommentsRepository);
 container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQueryRepository);
 
 //Posts
-
 container.bind(PostsController).to(PostsController);
 container.bind<PostsService>(PostsService).to(PostsService)
 container.bind<PostsRepository>(PostsRepository).to(PostsRepository);
 container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQueryRepository);
+
+//Blogs
+container.bind(BlogsController).to(BlogsController);
+container.bind<BlogsService>(BlogsService).to(BlogsService);
+container.bind<BlogsRepository>(BlogsRepository).to(BlogsRepository);
+container.bind<BlogsQueryRepository>(BlogsQueryRepository).to(BlogsQueryRepository);

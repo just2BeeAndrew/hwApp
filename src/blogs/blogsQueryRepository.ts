@@ -2,6 +2,7 @@ import {SortType} from "../helpers/paginationValues";
 import {blogsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {BlogDBType, BlogOutputType} from "../types/db.types";
+import {injectable} from "inversify";
 
 const blogMapper = (blog: WithId<BlogDBType>): BlogOutputType => {
     return {
@@ -14,7 +15,8 @@ const blogMapper = (blog: WithId<BlogDBType>): BlogOutputType => {
     }
 }
 
-class BlogsQueryRepository {
+@injectable()
+export class BlogsQueryRepository {
     async getAllBlogs(sortData:SortType) {
         const {searchNameTerm,sortBy,sortDirection, pageSize,pageNumber } = sortData;
         const filter: any = {}//создаем пустой объект
@@ -45,5 +47,3 @@ class BlogsQueryRepository {
         return blogMapper(blog);
     }
 }
-
-export const blogsQueryRepository = new BlogsQueryRepository();
