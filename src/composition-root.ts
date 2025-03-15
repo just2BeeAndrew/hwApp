@@ -16,6 +16,7 @@ import {BlogsController} from "./blogs/blogsController";
 import {BlogsRepository} from "./blogs/blogsRepository";
 import {BlogsService} from "./blogs/blogsService";
 import {BlogsQueryRepository} from "./blogs/blogsQueryRepository";
+import {PostsQueryRepository} from "./posts/postsQueryRepository";
 
 // const objects:any[] = []
 //
@@ -56,7 +57,7 @@ container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQuer
 container.bind(PostsController).to(PostsController);
 container.bind<PostsService>(PostsService).to(PostsService)
 container.bind<PostsRepository>(PostsRepository).to(PostsRepository);
-container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQueryRepository);
+container.bind<PostsQueryRepository>(PostsQueryRepository).to(PostsQueryRepository);
 
 //Blogs
 container.bind(BlogsController).to(BlogsController);

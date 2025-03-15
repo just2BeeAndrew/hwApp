@@ -1,5 +1,5 @@
 import { PostDBType, PostInputType} from "../types/db.types";
-import {PostsRepository, postsRepository} from "./postsRepository";
+import {PostsRepository} from "./postsRepository";
 import {inject, injectable} from "inversify";
 import {PostsQueryRepository} from "./postsQueryRepository";
 import {BlogsQueryRepository} from "../blogs/blogsQueryRepository";
@@ -24,7 +24,7 @@ export class PostsService {
             blogName: blogsIndex.name,
             createdAt: new Date().toISOString()
         }
-        return await postsRepository.createPost(post);
+        return await this.postsRepository.createPost(post);
 
     }
 
@@ -32,10 +32,10 @@ export class PostsService {
         const blogsIndex = await this.blogsQueryRepository.getBlogBy_Id(updateData.blogId);
         if (!blogsIndex) throw new Error("blog index not found");
 
-        return await postsRepository.updatePost(id, updateData, blogsIndex);
+        return await this.postsRepository.updatePost(id, updateData, blogsIndex);
     }
 
     async deletePost(id: string): Promise<boolean> {
-        return await postsRepository.deletePost(id);
+        return await this.postsRepository.deletePost(id);
     }
 }
