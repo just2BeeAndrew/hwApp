@@ -64,7 +64,7 @@ export class UsersService {
         const createdUser = await this.usersRepository.getUserBy_Id(_id);
         await this.usersRepository.updateConfirmation(new ObjectId(createdUser!._id), false)
         try {
-            emailManagers.sendEmail(createdUser!.accountData.email, createdUser!.emailConfirmation.confirmationCode)
+            emailManagers.sendConfirmationEmail(createdUser!.accountData.email, createdUser!.emailConfirmation.confirmationCode)
         } catch (error) {
             await this.deleteUser(createdUser!._id.toString())
             return {
@@ -146,7 +146,7 @@ export class UsersService {
         await this.usersRepository.updateConfirmCode(email, code)
 
         try {
-            emailManagers.sendEmail(email, code)
+            emailManagers.sendConfirmationEmail(email, code)
         } catch (error) {
             return {
                 status: ResultStatus.ServerError,

@@ -1,23 +1,24 @@
 import nodemailer from "nodemailer";
 
 class EmailAdapter {
-    async sendEmail(email: string, code: string) {
-        let transport = nodemailer.createTransport({
+    protected transporter;
+    constructor() {
+        this.transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: "andrew.dudal.1997@gmail.com",
-                pass: "bwxyzxbcfadxrmml",//bwxy zxbc fadx rmml
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
             },
         });
-
-        return await transport.sendMail({
-            from: 'just2BeeAndrew<andrew.dudal.1997@gmail.com>',
-            to: email,
-            subject: 'Тестовое письмо через Gmail',
-            html: `<h1> Thanks for registration</h1><p>to finish registration please follow the link bellow:<a href = 'https://somesite.com/confirm-email?code=${code}'>ЖМАК!!!</a>complete registration></p>`
+    }
+    async sendEmail(to: string, subject: string, html: string) {
+        await this.transporter.sendMail({
+            from: `just2BeeAndrew<${process.env.EMAIL_USER}>`,
+            to,
+            subject,
+            html,
         });
     }
 }
 
-export const emailAdapter = new EmailAdapter()
-
+export const emailAdapter = new EmailAdapter();
