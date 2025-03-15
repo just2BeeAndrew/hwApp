@@ -1,8 +1,17 @@
 import { PostDBType, PostInputType} from "../types/db.types";
-import {postsRepository} from "./postsRepository";
+import {PostsRepository, postsRepository} from "./postsRepository";
 import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
+import {inject, injectable} from "inversify";
+import {UsersRepository} from "../users/usersRepository";
+import {PostsQueryRepository} from "./postsQueryRepository";
 
-class PostsService {
+@injectable()
+export class PostsService {
+    constructor(
+        @inject(PostsRepository) protected postsRepository: PostsRepository,
+        @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
+    ) {}
+
     async createPost(createData: PostInputType) {
         const blogsIndex = await blogsQueryRepository.getBlogBy_Id(createData.blogId);
         if (!blogsIndex) return null
@@ -30,5 +39,3 @@ class PostsService {
         return await postsRepository.deletePost(id);
     }
 }
-
-export const postsService = new PostsService();

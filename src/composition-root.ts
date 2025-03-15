@@ -9,6 +9,9 @@ import {CommentsController} from "./comments/commentsController";
 import {CommentsService} from "./comments/commentsService";
 import {CommentsRepository} from "./comments/commentsRepository";
 import {CommentsQueryRepository} from "./comments/commentsQueryRepository";
+import {PostsController} from "./posts/postsController";
+import {PostsService} from "./posts/postsService";
+import {PostsRepository} from "./posts/postsRepository";
 
 // const objects:any[] = []
 //
@@ -43,4 +46,11 @@ container.bind<AuthService>(AuthService).to(AuthService);
 container.bind(CommentsController).to(CommentsController);
 container.bind<CommentsService>(CommentsService).to(CommentsService);
 container.bind<CommentsRepository>(CommentsRepository).to(CommentsRepository);
+container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQueryRepository);
+
+//Posts
+
+container.bind(PostsController).to(PostsController);
+container.bind<PostsService>(PostsService).to(PostsService)
+container.bind<PostsRepository>(PostsRepository).to(PostsRepository);
 container.bind<CommentsQueryRepository>(CommentsQueryRepository).to(CommentsQueryRepository);

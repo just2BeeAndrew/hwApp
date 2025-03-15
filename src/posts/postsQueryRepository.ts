@@ -3,6 +3,7 @@ import {postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {PostDBType, PostOutputType} from "../types/db.types";
 import {blogsQueryRepository} from "../blogs/blogsQueryRepository";
+import {injectable} from "inversify";
 
 const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     return {
@@ -16,7 +17,8 @@ const postMapper = (post: WithId<PostDBType>): PostOutputType => {
     }
 }
 
-class PostsQueryRepository {
+@injectable()
+export class PostsQueryRepository {
     async getAllPosts(sortData: SortType) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
         const posts = await postsCollection
@@ -86,5 +88,3 @@ class PostsQueryRepository {
         }
     }
 }
-
-export const postsQueryRepository = new PostsQueryRepository();
