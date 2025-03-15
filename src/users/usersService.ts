@@ -149,8 +149,8 @@ export class UsersService {
             emailManagers.sendEmail(email, code)
         } catch (error) {
             return {
-                status: ResultStatus.BadRequest,
-                errorMessage: "Bad Request",
+                status: ResultStatus.ServerError,
+                errorMessage: "Server Error",
                 extensions: [{field: 'email', message: "email isn't send"}],
                 data: null
             }
@@ -159,6 +159,31 @@ export class UsersService {
             status: ResultStatus.NoContent,
             extensions: [],
             data: null
+        }
+    }
+
+    async passwordRecovery(email: string) {
+        const isEmailExist = await this.usersRepository.checkEmailUser(email);
+        if (!isEmailExist) {
+            return {
+                status: ResultStatus.NotFound,
+                errorMessage: "Not Found",
+                extensions: [{field: 'email', message: "email isn't found"}],
+                data: null
+            }
+        }
+
+        const recoveryCode = uuidv4();
+        await this.usersRepository.updateConfirmCode(email, recoveryCode)
+        try {
+            emailManagers.sendEmail(email, recoveryCode)
+        } catch (error) {
+            return {
+                status: ResultStatus.ServerError,
+                errorMessage: "Server Error",
+                extensions: [{field: 'email', message: "email isn't send"}],
+                data: null
+            }
         }
     }
 }

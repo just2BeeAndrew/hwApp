@@ -14,34 +14,44 @@ export const authRouter = Router();
 authRouter.post('/login',
     ipRateLimitMiddleware,
     errorsResultMiddleware,
-    authController.login)
+    authController.login.bind(authController))
+authRouter.post('/password-recovery',
+    emailValidator,
+    ipRateLimitMiddleware,
+    errorsResultMiddleware,
+    authController.passwordRecovery.bind(authController))
+authRouter.post('new-password',
+    passwordValidator,
+    ipRateLimitMiddleware,
+    errorsResultMiddleware,
+    authController.confirmPasswordRecovery.bind(authController))
 authRouter.post('/refresh-token',
     refreshTokenMiddleware,
     errorsResultMiddleware,
-    authController.refreshToken)
+    authController.refreshToken.bind(authController))
 authRouter.post('/registration-confirmation',
     ipRateLimitMiddleware,
     errorsResultMiddleware,
-    authController.registrationConfirmation)
+    authController.registrationConfirmation.bind(authController))
 authRouter.post('/registration',
     ipRateLimitMiddleware,
     loginValidator,
     passwordValidator,
     emailValidator,
     errorsResultMiddleware,
-    authController.registration)
+    authController.registration.bind(authController))
 authRouter.post('/registration-email-resending',
     ipRateLimitMiddleware,
     emailValidator,
     errorsResultMiddleware,
-    authController.registrationEmailResending)
+    authController.registrationEmailResending.bind(authController))
 authRouter.post('/logout',
     ipRateLimitMiddleware,
     refreshTokenMiddleware,
     errorsResultMiddleware,
-    authController.logout)
+    authController.logout.bind(authController))
 authRouter.get('/me',
     accessTokenMiddleware,
     errorsResultMiddleware,
-    authController.infoUser)
+    authController.infoUser.bind(authController))
 

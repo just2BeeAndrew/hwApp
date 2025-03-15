@@ -14,7 +14,8 @@ export class AuthController {
     constructor(
         @inject(UsersService) protected usersService: UsersService,
         @inject(AuthService) protected authService: AuthService,
-        ) {}
+    ) {
+    }
 
     async login(req: RequestWithBody<LoginInputType>, res: Response) {
         const {loginOrEmail, password} = req.body
@@ -42,7 +43,9 @@ export class AuthController {
             .json({accessToken: accessToken})
     }
 
-    async passwordRecovery(req: Request, res: Response) {
+    async passwordRecovery(req: RequestWithBody<{ email: string }>, res: Response) {
+        const {email} = req.body
+        const result = await this.usersService.passwordRecovery(email)
 
     }
 
@@ -119,6 +122,7 @@ export class AuthController {
             .clearCookie('refreshToken', {httpOnly: true, secure: true})
             .sendStatus(HttpStatuses.NOCONTENT)
     }
+
 //проверить репозиторий
     async infoUser(req: Request, res: Response) {
         const info = await usersQueryRepository.getInfoBy_Id(req.user!.id);
