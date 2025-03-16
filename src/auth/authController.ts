@@ -1,7 +1,7 @@
 import {inject, injectable} from "inversify";
 import {UsersService} from "../users/usersService";
 import {RequestWithBody} from "../types/requests";
-import {LoginInputType, RegistrationConfirmationCode, UserInputType} from "../types/db.types";
+import {ConfirmPasswordType, LoginInputType, RegistrationConfirmationCode, UserInputType} from "../types/db.types";
 import {Request, Response} from "express";
 import {HttpStatuses} from "../types/httpStatuses";
 import {AuthService} from "./authService";
@@ -46,13 +46,26 @@ export class AuthController {
     async passwordRecovery(req: RequestWithBody<{ email: string }>, res: Response) {
         const {email} = req.body
         const result = await this.usersService.passwordRecovery(email)
+        if (result.status !== ResultStatus.NoContent) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .json(result.extensions)
+            return
+        }
+        res.sendStatus(HttpStatuses.NOCONTENT)
 
     }
 
-    async confirmPasswordRecovery(req: RequestWithBody<{ newPassword: string, recoveryCode: string }>, res: Response) {
+    async confirmPasswordRecovery(req: RequestWithBody<ConfirmPasswordType>, res: Response) {
         const {newPassword, recoveryCode} = req.body
-        const result = this.usersService.confirmPasswordRecovery(newPassword, recoveryCode)
-
+        const result = await this.usersService.confirmPasswordRecovery(newPassword, recoveryCode)
+        if (result.status !== ResultStatus.NoContent) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .json(result.extensions)
+            return
+        }
+        res.sendStatus(HttpStatuses.NOCONTENT)
     }
 
     async refreshToken(req: Request, res: Response) {

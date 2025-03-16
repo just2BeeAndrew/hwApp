@@ -123,6 +123,7 @@ export type accountDataType = {
 
 export type ConfirmationType = {
     confirmationCode: string,
+    recoveryCode: string | null,
     issuedAt: Date,
     expirationDate: Date,
     isConfirm: boolean,
@@ -130,7 +131,7 @@ export type ConfirmationType = {
 
 export class UserDBType {
     constructor(public accountData: accountDataType,
-                public emailConfirmation: ConfirmationType,) {
+                public emailConfirmation: ConfirmationType) {
     }
 }
 
@@ -166,6 +167,11 @@ export type  DeviceRateDBType = {
     IP: string,
     URL: string,
     date: Date
+}
+
+export class ConfirmPasswordType {
+    constructor(public newPassword: string,
+                public recoveryCode: string) {}
 }
 
 

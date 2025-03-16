@@ -11,7 +11,8 @@ import {inject, injectable} from "inversify";
 
 @injectable()
 export class UsersService {
-    constructor(@inject(UsersRepository)protected usersRepository: UsersRepository) {}
+    constructor(@inject(UsersRepository) protected usersRepository: UsersRepository) {
+    }
 
     async createUser(login: string, password: string, email: string): Promise<Result<{ createdUser: string } | null>> {
         const isLoginTaken = await this.usersRepository.checkLoginUser(login);
@@ -46,6 +47,7 @@ export class UsersService {
             },
             {
                 confirmationCode: uuidv4(),
+                recoveryCode: null,
                 issuedAt: new Date(),
                 expirationDate: add(new Date(), {hours: 1}),
                 isConfirm: true,
@@ -81,7 +83,7 @@ export class UsersService {
     }
 
     async registrationConfirmation(confirmCode: string): Promise<Result<{ result: boolean } | false>> {
-        let user = await this.usersRepository.findUserByCode(confirmCode);
+        let user = await this.usersRepository.findUserByConfirmationCode(confirmCode);
         if (!user) {
             return {
                 status: ResultStatus.BadRequest,
@@ -174,9 +176,14 @@ export class UsersService {
         }
 
         const recoveryCode = uuidv4();
-        await this.usersRepository.updateConfirmCode(email, recoveryCode)
+        await this.usersRepository.updateRecoveryCode(email, recoveryCode)
         try {
             emailManagers.sendPasswordRecoveryEmail(email, recoveryCode)
+            return {
+                status: ResultStatus.NoContent,
+                extensions: [],
+                data: null
+            }
         } catch (error) {
             return {
                 status: ResultStatus.ServerError,
@@ -187,5 +194,33 @@ export class UsersService {
         }
     }
 
-    async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {}
+    async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {
+        const user = await this.usersRepository.findUserByRecoveryCode(recoveryCode);
+        if (!user) {
+            return {
+                status: ResultStatus.NotFound,
+                errorMessage: "Not Found",
+                extensions: [{field: 'confirmCode', message: "code isn't exist"}],
+                data: null
+            }
+        }
+        const passwordHash = await bcryptService.generateHash(newPassword);
+
+        try {
+            await this.usersRepository.updatePassword(user._id, passwordHash)
+            return {
+                status: ResultStatus.NoContent,
+                extensions: [],
+                data: null
+            }
+        } catch (error) {
+            return {
+                status: ResultStatus.ServerError,
+                errorMessage: "Server Error",
+                extensions: [{field: 'email', message: "email isn't send"}],
+                data: null
+            }
+        }
+
+    }
 }

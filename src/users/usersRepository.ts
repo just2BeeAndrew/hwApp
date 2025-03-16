@@ -34,8 +34,12 @@ export class UsersRepository {
         return await usersCollection.findOne({$or: [{'accountData.email': loginOrEmail}, {'accountData.login': loginOrEmail}]});
     }
 
-    async findUserByCode(confirmCode: string) {
+    async findUserByConfirmationCode(confirmCode: string) {
         return await usersCollection.findOne({"emailConfirmation.confirmationCode": confirmCode});
+    }
+
+    async findUserByRecoveryCode(recoveryCode: string) {
+        return await usersCollection.findOne({'emailConfirmation.recoveryCode': recoveryCode});
     }
 
     async updateConfirmation(_id: ObjectId, isConfirm: boolean): Promise<boolean> {
@@ -45,6 +49,11 @@ export class UsersRepository {
 
     async updateConfirmCode(email: string, confirmCode: string): Promise<boolean> {
         let result = await usersCollection.updateOne({'accountData.email': email}, {$set: {'emailConfirmation.confirmationCode': confirmCode}});
+        return result.modifiedCount === 1
+    }
+
+    async updateRecoveryCode(email: string, recoveryCode: string) {
+        const result = await usersCollection.updateOne({'accountData.email': email}, {$set: {'emailConfirmation.recoveryCode': recoveryCode}})
         return result.modifiedCount === 1
     }
 
@@ -61,6 +70,14 @@ export class UsersRepository {
         if (!this.checkObjectId(userId)) return false;
         const isUser = await usersCollection.findOne({_id: new ObjectId(userId)});
         return !!isUser;
+    }
+
+    async updatePassword(userId: ObjectId, newPassword: string): Promise<boolean> {
+        const result = await usersCollection.updateOne(
+            {_id: userId},
+            {'accountData.passwordHash': newPassword},
+        )
+        return result.modifiedCount === 1
     }
 
     checkObjectId(userId: string): boolean {
