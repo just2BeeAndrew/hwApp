@@ -81,7 +81,7 @@ export class UsersService {
     }
 
     async registrationConfirmation(confirmCode: string): Promise<Result<{ result: boolean } | false>> {
-        let user = await this.usersRepository.findUserByConfirmationCode(confirmCode);
+        let user = await this.usersRepository.findUserByCode(confirmCode);
         if (!user) {
             return {
                 status: ResultStatus.BadRequest,
@@ -176,7 +176,7 @@ export class UsersService {
         const recoveryCode = uuidv4();
         await this.usersRepository.updateConfirmCode(email, recoveryCode)
         try {
-            emailManagers.sendEmail(email, recoveryCode)
+            emailManagers.sendPasswordRecoveryEmail(email, recoveryCode)
         } catch (error) {
             return {
                 status: ResultStatus.ServerError,
@@ -186,4 +186,6 @@ export class UsersService {
             }
         }
     }
+
+    async confirmPasswordRecovery(newPassword: string, recoveryCode: string) {}
 }

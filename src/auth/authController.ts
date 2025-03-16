@@ -49,7 +49,9 @@ export class AuthController {
 
     }
 
-    async confirmPasswordRecovery(req: Request, res: Response) {
+    async confirmPasswordRecovery(req: RequestWithBody<{ newPassword: string, recoveryCode: string }>, res: Response) {
+        const {newPassword, recoveryCode} = req.body
+        const result = this.usersService.confirmPasswordRecovery(newPassword, recoveryCode)
 
     }
 

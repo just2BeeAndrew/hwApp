@@ -34,7 +34,7 @@ export class UsersRepository {
         return await usersCollection.findOne({$or: [{'accountData.email': loginOrEmail}, {'accountData.login': loginOrEmail}]});
     }
 
-    async findUserByConfirmationCode(confirmCode: string) {
+    async findUserByCode(confirmCode: string) {
         return await usersCollection.findOne({"emailConfirmation.confirmationCode": confirmCode});
     }
 
