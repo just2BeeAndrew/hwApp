@@ -168,9 +168,8 @@ export class UsersService {
         const isEmailExist = await this.usersRepository.checkEmailUser(email);
         if (!isEmailExist) {
             return {
-                status: ResultStatus.NotFound,
-                errorMessage: "Not Found",
-                extensions: [{field: 'email', message: "email isn't found"}],
+                status: ResultStatus.NoContent,
+                extensions: [],
                 data: null
             }
         }
@@ -198,9 +197,9 @@ export class UsersService {
         const user = await this.usersRepository.findUserByRecoveryCode(recoveryCode);
         if (!user) {
             return {
-                status: ResultStatus.NotFound,
-                errorMessage: "Not Found",
-                extensions: [{field: 'confirmCode', message: "code isn't exist"}],
+                status: ResultStatus.BadRequest,
+                errorMessage: "Recovery code is incorrect",
+                extensions: [{field: 'recoveryCode', message: 'Recovery code is incorrect'}],
                 data: null
             }
         }
@@ -221,6 +220,5 @@ export class UsersService {
                 data: null
             }
         }
-
     }
 }

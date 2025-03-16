@@ -62,7 +62,7 @@ export class AuthController {
         if (result.status !== ResultStatus.NoContent) {
             res
                 .status(resultCodeToHttpException(result.status))
-                .json(result.extensions)
+                .json({errorsMessages:result.extensions})
             return
         }
         res.sendStatus(HttpStatuses.NOCONTENT)

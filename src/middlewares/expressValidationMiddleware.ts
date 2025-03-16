@@ -95,14 +95,25 @@ export const passwordValidator = body("password")
     .isLength({min: 6, max: 20})
     .withMessage("password should contain 6 - 20 symbols")
 
+export const newPasswordValidator = body("newPassword")
+    .isString()
+    .withMessage("passwords should be a string")
+    .trim()
+    .notEmpty()
+    .withMessage("password is required")
+    .isLength({min: 6, max: 20})
+    .withMessage("password should contain 6 - 20 symbols")
+
 export const emailValidator = body("email")
     .isString()
     .withMessage("email should be a string")
     .trim()
     .notEmpty()
     .withMessage("email is required")
-    .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
-    .withMessage("incorrect email should be a valid email address")
+    .isEmail()
+    .withMessage("Email should be a valid email address")
+    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+    .withMessage("Invalid email format");
 
 //comments validator
 export const commentContentValidator = body("content")
@@ -113,6 +124,12 @@ export const commentContentValidator = body("content")
     .withMessage("content is required")
     .isLength({min: 20, max: 300})
     .withMessage("content should be a 20 - 300 symbols")
+
+export const recoveryCodeValidator = body("recoveryCode")
+    .isString()
+    .withMessage("Recovery code should be a string")
+
+
 
 export const blogsMwArr = [nameValidator, descriptionValidator, websiteUrlValidator]
 export const postsMwArr = [titleValidator, shortDescriptionValidator, postContentValidator, blogIdValidator]

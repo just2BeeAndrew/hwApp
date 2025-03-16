@@ -1,7 +1,12 @@
 import {Router} from 'express';
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
-import {emailValidator, loginValidator, passwordValidator} from "../middlewares/expressValidationMiddleware";
+import {
+    emailValidator,
+    loginValidator,
+    newPasswordValidator,
+    passwordValidator, recoveryCodeValidator
+} from "../middlewares/expressValidationMiddleware";
 import {refreshTokenMiddleware} from "../middlewares/refreshTokenMiddleware";
 import {ipRateLimitMiddleware} from "../middlewares/ipRateLimitMiddleware";
 import {container} from "../composition-root";
@@ -20,8 +25,9 @@ authRouter.post('/password-recovery',
     ipRateLimitMiddleware,
     errorsResultMiddleware,
     authController.passwordRecovery.bind(authController))
-authRouter.post('new-password',
-    passwordValidator,
+authRouter.post('/new-password',
+    recoveryCodeValidator,
+    newPasswordValidator,
     ipRateLimitMiddleware,
     errorsResultMiddleware,
     authController.confirmPasswordRecovery.bind(authController))

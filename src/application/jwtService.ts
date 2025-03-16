@@ -1,5 +1,7 @@
 import jwt from 'jsonwebtoken';
 import {SETTINGS} from "../settings";
+import dotenv from "dotenv";
+dotenv.config();
 
 class JwtService {
     async createJWT(userId: string, deviceId: string) {
@@ -9,11 +11,11 @@ class JwtService {
     }
 
     async createAccessToken(userId: string) {
-        return jwt.sign({userId}, SETTINGS.ACCESS_TOKEN_SECRET, {expiresIn: "100s"});//вынести в сеттинг
+        return jwt.sign({userId}, SETTINGS.ACCESS_TOKEN_SECRET, {expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN});//вынести в сеттинг
     }
 
     async createRefreshToken(userId: string, deviceId: string) {
-        return jwt.sign({userId, deviceId}, SETTINGS.REFRESH_TOKEN_SECRET, {expiresIn: "200s"});
+        return jwt.sign({userId, deviceId}, SETTINGS.REFRESH_TOKEN_SECRET, {expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN});
     }
 
     async verifyAccessToken(accessToken: string): Promise<{ userId: string } | null> {

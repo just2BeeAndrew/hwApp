@@ -75,7 +75,7 @@ export class UsersRepository {
     async updatePassword(userId: ObjectId, newPassword: string): Promise<boolean> {
         const result = await usersCollection.updateOne(
             {_id: userId},
-            {'accountData.passwordHash': newPassword},
+            {$set: {"accountData.passwordHash": newPassword, "emailConfirmation.recoveryCode": null}},
         )
         return result.modifiedCount === 1
     }
