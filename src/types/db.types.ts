@@ -33,7 +33,8 @@ export class BlogDBType {
                 public description: string,
                 public websiteUrl: string,
                 public createdAt: string,
-                public isMembership: boolean,) {}
+                public isMembership: boolean,) {
+    }
 }
 
 export type BlogOutputType = {
@@ -114,25 +115,28 @@ export type UserInputType = {
     email: string,
 }
 
-export type accountDataType = {
-    login: string,
-    passwordHash: string,
-    email: string,
-    createdAt: string
+export class accountDataType {
+    constructor(
+        public login: string,
+        public passwordHash: string,
+        public email: string,
+        public createdAt: string
+    ) {}
 }
 
-export type ConfirmationType = {
-    confirmationCode: string,
-    recoveryCode: string | null,
-    issuedAt: Date,
-    expirationDate: Date,
-    isConfirm: boolean,
+export class ConfirmationType {
+    constructor(
+        public confirmationCode: string,
+        public recoveryCode: string | null,
+        public issuedAt: Date,
+        public expirationDate: Date,
+        public isConfirm: boolean,
+    ) {}
 }
 
 export class UserDBType {
     constructor(public accountData: accountDataType,
-                public emailConfirmation: ConfirmationType) {
-    }
+                public emailConfirmation: ConfirmationType) {}
 }
 
 export type UserOutputType = {
@@ -163,15 +167,18 @@ export type DevicesOutputType = {
     deviceId: string,
 }
 
-export type  DeviceRateDBType = {
-    IP: string,
-    URL: string,
-    date: Date
+export class DeviceRateDBType {
+    constructor(
+        public IP: string,
+        public URL: string,
+        public date: Date
+    ) {}
 }
 
 export class ConfirmPasswordType {
     constructor(public newPassword: string,
-                public recoveryCode: string) {}
+                public recoveryCode: string) {
+    }
 }
 
 
