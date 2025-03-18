@@ -1,5 +1,4 @@
 import {Request, Response, NextFunction} from 'express';
-import {devicesRateCollection} from "../db/mongoDb";
 import {HttpStatuses} from "../types/httpStatuses";
 import {devicesRateRepository} from "../devicesRate/devicesRateRepository";
 
