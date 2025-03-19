@@ -22,9 +22,20 @@ export let devicesCollection: Collection<DevicesDBType>
 
 
 const UserSchema = new mongoose.Schema<UserDBType>({
-    accountData: {type: accountDataType, required: true},
-    emailConfirmation: {type: ConfirmationType, required: true},
-})
+    accountData: {
+        login: { type: String, required: true },
+        passwordHash: { type: String, required: true },
+        email: { type: String, required: true },
+        createdAt: { type: String, required: true }
+    },
+    emailConfirmation: {
+        confirmationCode: { type: String, required: true },
+        recoveryCode: { type: String, default: null },
+        issuedAt: { type: Date, required: true },
+        expirationDate: { type: Date, required: true },
+        isConfirm: { type: Boolean, required: true }
+    }
+});
 
 export const UserModel = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
 
@@ -60,12 +71,11 @@ export async function runDb(url: string): Promise<boolean> {
 
     try {
         await client.connect();//удалить при полном переводе на mongoose
-        await mongoose.connect(url + "/" + SETTINGS.DB_NAME)
+        await mongoose.connect(SETTINGS.MONGO_URL)
         //await db.command({ ping: 1 });
         if (mongoose.connection.readyState !== 1) {
             throw new Error('Не встал =(')
         }
-
         console.log('У нас 10 секунд...ДвИиигаем!!! -До чего? -До полного п*****а, сынуля, до пОООлного п****а!!! © Баба Зина ')
         console.log('Не упал @_@')
         return true
