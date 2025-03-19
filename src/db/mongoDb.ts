@@ -6,7 +6,7 @@ import {
     PostDBType,
     UserDBType,
     BlackListRefreshTokensType,
-    DevicesDBType, DeviceRateDBType, ConfirmationType, accountDataType
+    DevicesDBType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -37,13 +37,7 @@ const UserSchema = new mongoose.Schema<UserDBType>({
     }
 });
 
-export const UserModel = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
-
-const DeviceRate = new mongoose.Schema({
-    IP: {type: String, required: true},
-    URL: {type: String, required: true},
-    date: {type:Date, required: true},
-})
+export const UserModelClass = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
 
 const DeviceRateSchema = new mongoose.Schema({
     IP: String,

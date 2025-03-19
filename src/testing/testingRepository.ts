@@ -2,7 +2,7 @@ import {
     blogsCollection,
     commentsCollection,
     postsCollection,
-    UserModel,
+    UserModelClass,
     tokensCollection,
     devicesCollection
 } from "../db/mongoDb";
@@ -12,7 +12,7 @@ export const testingRepository = {
         await Promise.all([
             blogsCollection.deleteMany({}),
             postsCollection.deleteMany({}),
-            UserModel.deleteMany({}),
+            UserModelClass.deleteMany({}),
             commentsCollection.deleteMany({}),
             tokensCollection.deleteMany({}),
             devicesCollection.deleteMany({}),

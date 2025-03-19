@@ -9,11 +9,15 @@ const commentsController = container.get(CommentsController);
 
 export const commentRouter = Router();
 
+commentRouter.put('/:commentId/like-status',
+    accessTokenMiddleware,
+    errorsResultMiddleware,
+    commentsController.likeStatus.bind(commentsController))
 commentRouter.put('/:commentId',
     commentContentValidator,
     accessTokenMiddleware,
     errorsResultMiddleware,
-    commentsController.updateComment.bind(commentsController),)
+    commentsController.updateComment.bind(commentsController))
 commentRouter.delete('/:commentId',
     accessTokenMiddleware,
     errorsResultMiddleware,

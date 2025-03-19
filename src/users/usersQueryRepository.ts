@@ -1,7 +1,7 @@
 import {SortType} from "../helpers/paginationValues";
-import {UserModel} from "../db/mongoDb";
+import {UserModelClass} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
-import {MeType, UserDBType, accountDataType, UserOutputType} from "../types/db.types";
+import {MeType, UserDBType, UserOutputType} from "../types/db.types";
 
 export const userMapper = (user: WithId<UserDBType>): UserOutputType => {
     return {
@@ -35,12 +35,12 @@ export const usersQueryRepository = {
         } else if (searchEmailTerm) {
             filter.email = {$regex: searchEmailTerm, $options: "i"};
         }
-        const users = await UserModel
+        const users = await UserModelClass
             .find(filter)
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-        const usersCount = await UserModel.countDocuments(filter);
+        const usersCount = await UserModelClass.countDocuments(filter);
         return {
             pagesCount: Math.ceil(usersCount / sortData.pageSize),
             page: sortData.pageNumber,
@@ -52,7 +52,7 @@ export const usersQueryRepository = {
 
     async getUserBy_Id(_id: string) {
         const object_Id = new ObjectId(_id)
-        const user = await UserModel.findOne({_id: object_Id});
+        const user = await UserModelClass.findOne({_id: object_Id}).lean();
         if (!user) {
             return null
         }
@@ -60,7 +60,7 @@ export const usersQueryRepository = {
     },
 
     async getInfoBy_Id(_id: string) {
-        const user = await UserModel.findOne({_id: new ObjectId(_id)});
+        const user = await UserModelClass.findOne({_id: new ObjectId(_id)});
         if (!user) {
             return null
         }

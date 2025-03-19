@@ -3,13 +3,16 @@ import {CommentsService} from "./commentsService";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
-import {RequestWithParams} from "../types/requests";
+import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
 import {commentsQueryRepository} from "./commentsQueryRepository";
 import {inject, injectable} from "inversify";
 
 @injectable()
 export class CommentsController {
     constructor(@inject(CommentsService) protected commentsService: CommentsService) {
+    }
+    async likeStatus(req: RequestWithParamsAndBody<{commentId: string}, {likeStatus: string}>, res: Response) {
+
     }
 
     async updateComment(req: Request, res: Response) {
