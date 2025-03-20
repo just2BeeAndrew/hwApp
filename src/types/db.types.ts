@@ -58,25 +58,42 @@ export type CommentInputType = {
     content: string,
 }
 
+export class CommentatorInfoType {
+    constructor(public userId: string,
+                public userLogin: string) {
+    }
+}
+
+export enum LikeStatus {
+    "Like" = "Like",
+    "Dislike" = "Dislike",
+    "None" = "None",
+}
+
+export class LikesInfoType {
+    constructor(public likesCount: number,
+                public dislikesCount: number,
+                public myStatus: LikeStatus,
+    ) {
+    }
+}
+
 export class CommentDBType {
     constructor(public postId: string,
                 public content: string,
                 public commentatorInfo: CommentatorInfoType,
-                public createdAt: string) {
+                public createdAt: string,
+                public likesInfo: LikesInfoType) {
     }
 }
 
-
-export type CommentatorInfoType = {
-    userId: string,
-    userLogin: string,
-}
-
-export type CommentOutputType = {
-    id: string,
-    content: string,
-    commentatorInfo: CommentatorInfoType,
-    createdAt: string,
+export class CommentOutputType {
+    constructor(
+    public id: string,
+    public content: string,
+    public commentatorInfo: CommentatorInfoType,
+    public createdAt: string,
+    public likesInfo: LikesInfoType){}
 }
 
 
@@ -121,7 +138,8 @@ export class accountDataType {
         public passwordHash: string,
         public email: string,
         public createdAt: string
-    ) {}
+    ) {
+    }
 }
 
 export class ConfirmationType {
@@ -131,12 +149,14 @@ export class ConfirmationType {
         public issuedAt: Date,
         public expirationDate: Date,
         public isConfirm: boolean,
-    ) {}
+    ) {
+    }
 }
 
 export class UserDBType {
     constructor(public accountData: accountDataType,
-                public emailConfirmation: ConfirmationType) {}
+                public emailConfirmation: ConfirmationType) {
+    }
 }
 
 export type UserOutputType = {
@@ -172,7 +192,8 @@ export class DeviceRateDBType {
         public IP: string,
         public URL: string,
         public date: Date
-    ) {}
+    ) {
+    }
 }
 
 export class ConfirmPasswordType {

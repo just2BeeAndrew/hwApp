@@ -6,7 +6,7 @@ import {
     PostDBType,
     UserDBType,
     BlackListRefreshTokensType,
-    DevicesDBType
+    DevicesDBType, LikeStatus
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -20,6 +20,22 @@ export let postsCollection: Collection<PostDBType>
 export let tokensCollection: Collection<BlackListRefreshTokensType>
 export let devicesCollection: Collection<DevicesDBType>
 
+const CommentsSchema = new mongoose.Schema<CommentDBType>({
+    postId: {type: String, required: true},
+    content: {type: String, required: true},
+    commentatorInfo: {
+        userId: {type: String, required: true},
+        userLogin: {type: String, required: true},
+    },
+    createdAt: {type: String, required: true},
+    likesInfo: {
+        likesCount: {type: Number, required: false, default: 0},
+        dislikesCount: {type: Number, required: false, default: 0},
+        myLikesCount: {type: LikeStatus, required: false, default: "None"},
+    }
+})
+
+export const CommentsModel = mongoose.model(SETTINGS.PATH.COMMENTS, CommentsSchema)
 
 const UserSchema = new mongoose.Schema<UserDBType>({
     accountData: {
