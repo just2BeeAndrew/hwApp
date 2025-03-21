@@ -71,9 +71,9 @@ export enum LikeStatus {
 }
 
 export class LikesInfoType {
-    constructor(public likesCount: number,
-                public dislikesCount: number,
-                public myStatus: LikeStatus,
+    constructor(public likesCount: number = 0,
+                public dislikesCount: number = 0,
+                public myStatus: LikeStatus = LikeStatus.None,
     ) {
     }
 }
@@ -83,7 +83,7 @@ export class CommentDBType {
                 public content: string,
                 public commentatorInfo: CommentatorInfoType,
                 public createdAt: string,
-                public likesInfo: LikesInfoType) {
+                public likesInfo: LikesInfoType = new LikesInfoType()) {
     }
 }
 
@@ -95,6 +95,8 @@ export class CommentOutputType {
     public createdAt: string,
     public likesInfo: LikesInfoType){}
 }
+
+
 
 
 //POST

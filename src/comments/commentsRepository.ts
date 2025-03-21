@@ -1,7 +1,9 @@
 import {CommentDBType} from "../types/db.types";
-import {commentsCollection} from "../db/mongoDb";
+import {commentsCollection, CommentsModel} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
+import {injectable} from "inversify";
 
+@injectable()
 export class CommentsRepository {
     async getCommentBy_Id(_id: string) {
         const comment = await commentsCollection.findOne({_id:new ObjectId(_id)});
@@ -12,8 +14,8 @@ export class CommentsRepository {
     }
 
     async createComment(newComment: CommentDBType ):Promise<string> {
-        const res = await commentsCollection.insertOne(newComment);
-        return res.insertedId.toString();
+        const res = await CommentsModel.create(newComment);
+        return res._id.toString();
     }
 
     async updateComment(_id: string, commentInput: string) {
@@ -33,5 +35,3 @@ export class CommentsRepository {
         return isDeleted.deletedCount === 1;
     }
 }
-
-export const commentsRepository = new CommentsRepository();

@@ -1,10 +1,10 @@
-import {commentsCollection, postsCollection} from "../db/mongoDb";
+import {commentsCollection, CommentsModel, postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {CommentOutputType, CommentDBType} from "../types/db.types";
 import {SortType} from "../helpers/paginationValues";
 import {ResultStatus} from "../result/resultCode";
 import {Result} from "../result/result.type";
-
+import {injectable} from "inversify";
 
 const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
     return {
@@ -15,13 +15,19 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
             userLogin: comment.commentatorInfo.userLogin
         },
         createdAt: comment.createdAt,
+        likesInfo:{
+            likesCount: comment.likesInfo.likesCount,
+            dislikesCount: comment.likesInfo.dislikesCount,
+            myStatus: comment.likesInfo.myStatus,
+        }
     }
 }
 
+@injectable()
 export class CommentsQueryRepository {
     async getCommentBy_Id(_id: string) {
         console.log("getCommentBy_Id", _id);
-        const comment = await commentsCollection.findOne({_id: new ObjectId(_id)});
+        const comment = await CommentsModel.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
         return commentsMapper(comment);
     }
@@ -85,5 +91,3 @@ export class CommentsQueryRepository {
         return commentsCollection.countDocuments(filter)
     }
 }
-
-export const commentsQueryRepository = new CommentsQueryRepository()

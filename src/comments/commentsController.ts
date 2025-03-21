@@ -4,14 +4,17 @@ import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
-import {commentsQueryRepository} from "./commentsQueryRepository";
+import {CommentsQueryRepository} from "./commentsQueryRepository";
 import {inject, injectable} from "inversify";
 
 @injectable()
 export class CommentsController {
-    constructor(@inject(CommentsService) protected commentsService: CommentsService) {
+    constructor(
+        @inject(CommentsService) protected commentsService: CommentsService,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository) {
     }
-    async likeStatus(req: RequestWithParamsAndBody<{commentId: string}, {likeStatus: string}>, res: Response) {
+
+    async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { likeStatus: string }>, res: Response) {
 
     }
 
@@ -46,7 +49,7 @@ export class CommentsController {
 
     async getCommentById(req: RequestWithParams<{ commentId: string }>, res: Response) {
         const {commentId} = req.params;
-        const comment = await commentsQueryRepository.getCommentBy_Id(commentId);
+        const comment = await this.commentsQueryRepository.getCommentBy_Id(commentId);
         if (!comment) {
             res.sendStatus(HttpStatuses.NOT_FOUND)
             return

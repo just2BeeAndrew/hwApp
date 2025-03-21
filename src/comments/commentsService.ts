@@ -1,7 +1,7 @@
 import {ResultStatus} from "../result/resultCode";
 import {CommentDBType, UserDBType} from "../types/db.types";
-import {CommentsRepository, commentsRepository} from "./commentsRepository";
-import {postsRepository} from "../posts/postsRepository";
+import {CommentsRepository} from "./commentsRepository";
+import {PostsRepository, postsRepository} from "../posts/postsRepository";
 import {UsersRepository} from "../users/usersRepository";
 import {WithId} from "mongodb";
 import {inject, injectable} from "inversify";
@@ -10,7 +10,8 @@ import {inject, injectable} from "inversify";
 export class CommentsService {
     constructor(
         @inject(UsersRepository)protected usersRepository: UsersRepository,
-        @inject(CommentsRepository)protected commentsRepository: CommentsRepository
+        @inject(CommentsRepository)protected commentsRepository: CommentsRepository,
+        @inject(PostsRepository)protected postsRepository: PostsRepository
     ) {}
 
     async createComment(postId: string, createData: string, userId: string) {
@@ -24,7 +25,7 @@ export class CommentsService {
             };
         }
 
-        const post = await postsRepository.getPostBy_Id(postId);
+        const post = await this.postsRepository.getPostBy_Id(postId);
         if (!post) {
             return {
                 status : ResultStatus.NotFound,
@@ -41,9 +42,9 @@ export class CommentsService {
                 userId: userInfo._id.toString(),
                 userLogin: userInfo.accountData.login,
             },
-            new Date().toISOString()
+            new Date().toISOString(),
         )
-        const res = await commentsRepository.createComment(newComment);
+        const res = await this.commentsRepository.createComment(newComment);
         return {
             status: ResultStatus.Success,
             data: res,
@@ -54,7 +55,6 @@ export class CommentsService {
     async updateComment(commentId: string, updateComment: string, userId: string) {
         const checkerResult = await this.checkIsExistingComment(commentId);
 
-        console.log("###",checkerResult);
         if (checkerResult.status !== ResultStatus.Success) {
             return {
                 status: ResultStatus.NotFound,
@@ -75,7 +75,7 @@ export class CommentsService {
             }
         }
 
-        await commentsRepository.updateComment(commentId, updateComment);
+        await this.commentsRepository.updateComment(commentId, updateComment);
         return {
             status: ResultStatus.NoContent,
             data: null,
@@ -105,7 +105,7 @@ export class CommentsService {
             }
         }
 
-        await commentsRepository.deleteComment(commentId);
+        await this.commentsRepository.deleteComment(commentId);
         return {
             status: ResultStatus.NoContent,
             data: null,
@@ -115,7 +115,7 @@ export class CommentsService {
     }
 
     async checkIsExistingComment(commentId: string) {
-        const  comment = await commentsRepository.getCommentBy_Id(commentId);
+        const  comment = await this.commentsRepository.getCommentBy_Id(commentId);
         if (!comment) {
             return {
                 status: ResultStatus.NotFound,

@@ -1,7 +1,7 @@
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
 import {Request, Response} from "express";
 import {paginationQueries} from "../helpers/paginationValues";
-import {commentsQueryRepository} from "../comments/commentsQueryRepository";
+import {CommentsQueryRepository} from "../comments/commentsQueryRepository";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
@@ -16,13 +16,15 @@ export class PostsController {
     constructor(
         @inject(PostsService) protected postsService: PostsService,
         @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
-        @inject(CommentsService)protected commentsService: CommentsService,
-    ) {}
+        @inject(CommentsService) protected commentsService: CommentsService,
+        @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository,
+    ) {
+    }
 
     async getCommentsByPostId(req: RequestWithParams<{ postId: string }>, res: Response) {
         const sortData = paginationQueries(req)
         const {postId} = req.params;
-        const comments = await commentsQueryRepository.getCommentsByPostId(postId, sortData);
+        const comments = await this.commentsQueryRepository.getCommentsByPostId(postId, sortData);
         if (comments.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(comments.status))
@@ -50,7 +52,7 @@ export class PostsController {
                 .sendStatus(404)
             return
         }
-        const newComment = await commentsQueryRepository.getCommentBy_Id(createdComment.data!);
+        const newComment = await this.commentsQueryRepository.getCommentBy_Id(createdComment.data!);
         res
             .status(HttpStatuses.CREATED)
             .json(newComment);

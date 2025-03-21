@@ -29,9 +29,13 @@ const CommentsSchema = new mongoose.Schema<CommentDBType>({
     },
     createdAt: {type: String, required: true},
     likesInfo: {
-        likesCount: {type: Number, required: false, default: 0},
-        dislikesCount: {type: Number, required: false, default: 0},
-        myLikesCount: {type: LikeStatus, required: false, default: "None"},
+        likesCount: {type: Number, default: 0},
+        dislikesCount: {type: Number, default: 0},
+        myStatus: {
+            type: String,
+            enum: Object.values(LikeStatus),
+            default: LikeStatus.None
+        },
     }
 })
 
