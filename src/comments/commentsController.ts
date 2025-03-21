@@ -15,6 +15,9 @@ export class CommentsController {
     }
 
     async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { likeStatus: string }>, res: Response) {
+        const {commentId} = req.params;
+        const {likeStatus} = req.body;
+        const result = await this.commentsService.likeStatus(commentId, likeStatus);
 
     }
 
@@ -36,7 +39,6 @@ export class CommentsController {
     async deleteComment(req: Request, res: Response) {
         const {commentId} = req.params;
         const userId = req.user!.id as string;
-        console.log(userId);
         const deleteComment = await this.commentsService.deleteComment(commentId, userId)
         if (deleteComment.status !== ResultStatus.NoContent) {
             res

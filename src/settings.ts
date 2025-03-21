@@ -18,6 +18,7 @@ export const SETTINGS = {
         USERS: '/users',
         BLACKLIST: '/blacklist',
         DEVICES: '/devices',
+        LIKES: '/likes',
     },
     MONGO_URL:process.env.MONGO_URL||"",
     DB_NAME:process.env.DB_NAME||"testing",

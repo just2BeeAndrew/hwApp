@@ -52,6 +52,20 @@ export class CommentsService {
         };
     }
 
+    async likeStatus ( commentId: string, likeStatus: string) {
+        const commentIsExist = await this.checkIsExistingComment(commentId);
+        if (!commentIsExist) {
+            return {
+                status: ResultStatus.NotFound,
+                errorMessage: "Comment isn't exists",
+                extensions: [{field: 'comment', message: 'Not Found'}],
+                data: null,
+            }
+        }
+
+
+    }
+
     async updateComment(commentId: string, updateComment: string, userId: string) {
         const checkerResult = await this.checkIsExistingComment(commentId);
 

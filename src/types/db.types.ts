@@ -89,14 +89,22 @@ export class CommentDBType {
 
 export class CommentOutputType {
     constructor(
-    public id: string,
-    public content: string,
-    public commentatorInfo: CommentatorInfoType,
-    public createdAt: string,
-    public likesInfo: LikesInfoType){}
+        public id: string,
+        public content: string,
+        public commentatorInfo: CommentatorInfoType,
+        public createdAt: string,
+        public likesInfo: LikesInfoType) {
+    }
 }
 
-
+export class likesDBType {
+    constructor(public userId: string,//айди того кто поставил реакцию
+                public commentId: string,// айди комментария
+                public status: LikesInfoType,
+                public createdAt: Date,
+    ) {
+    }
+}
 
 
 //POST

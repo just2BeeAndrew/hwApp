@@ -43,17 +43,17 @@ export const CommentsModel = mongoose.model(SETTINGS.PATH.COMMENTS, CommentsSche
 
 const UserSchema = new mongoose.Schema<UserDBType>({
     accountData: {
-        login: { type: String, required: true },
-        passwordHash: { type: String, required: true },
-        email: { type: String, required: true },
-        createdAt: { type: String, required: true }
+        login: {type: String, required: true},
+        passwordHash: {type: String, required: true},
+        email: {type: String, required: true},
+        createdAt: {type: String, required: true}
     },
     emailConfirmation: {
-        confirmationCode: { type: String, required: true },
-        recoveryCode: { type: String, default: null },
-        issuedAt: { type: Date, required: true },
-        expirationDate: { type: Date, required: true },
-        isConfirm: { type: Boolean, required: true }
+        confirmationCode: {type: String, required: true},
+        recoveryCode: {type: String, default: null},
+        issuedAt: {type: Date, required: true},
+        expirationDate: {type: Date, required: true},
+        isConfirm: {type: Boolean, required: true}
     }
 });
 
@@ -70,6 +70,15 @@ const DeviceRateSchema = new mongoose.Schema({
 })
 
 export const DeviceRateModel = mongoose.model(SETTINGS.PATH.DEVICES, DeviceRateSchema);
+
+const LikesSchema = new mongoose.Schema({
+    userId: {type: String, required: true},
+    commentId: {type: String, required: true},
+    status: {type: String, enum: Object.values(LikeStatus), required: true},
+    createdAt: {type: Date, required: true},
+})
+
+export const LikesModel = mongoose.model(SETTINGS.PATH.LIKES, LikesSchema)
 
 export async function runDb(url: string): Promise<boolean> {
     let client = new MongoClient(url)//удалить при полном переводе на mongoose
