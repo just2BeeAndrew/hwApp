@@ -15,9 +15,10 @@ export class CommentsController {
     }
 
     async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { likeStatus: string }>, res: Response) {
+        const userId = req.user!.id as string;
         const {commentId} = req.params;
         const {likeStatus} = req.body;
-        const result = await this.commentsService.likeStatus(commentId, likeStatus);
+        const result = await this.commentsService.likeStatus(commentId, userId, likeStatus);
 
     }
 

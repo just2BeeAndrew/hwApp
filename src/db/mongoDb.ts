@@ -14,7 +14,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export let blogsCollection: Collection<BlogDBType>
-export let commentsCollection: Collection<CommentDBType>
 export let postsCollection: Collection<PostDBType>
 
 export let tokensCollection: Collection<BlackListRefreshTokensType>
@@ -86,7 +85,6 @@ export async function runDb(url: string): Promise<boolean> {
 
     blogsCollection = db.collection<BlogDBType>(SETTINGS.PATH.BLOGS)
     postsCollection = db.collection<PostDBType>(SETTINGS.PATH.POSTS)
-    commentsCollection = db.collection<CommentDBType>(SETTINGS.PATH.COMMENTS)
 
     tokensCollection = db.collection<BlackListRefreshTokensType>(SETTINGS.PATH.BLACKLIST)
     devicesCollection = db.collection<DevicesDBType>(SETTINGS.PATH.SECURITY_DEVICES)

@@ -10,10 +10,11 @@ import {inject, injectable} from "inversify";
 @injectable()
 export class CommentsService {
     constructor(
-        @inject(UsersRepository)protected usersRepository: UsersRepository,
-        @inject(CommentsRepository)protected commentsRepository: CommentsRepository,
-        @inject(PostsRepository)protected postsRepository: PostsRepository
-    ) {}
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
+        @inject(CommentsRepository) protected commentsRepository: CommentsRepository,
+        @inject(PostsRepository) protected postsRepository: PostsRepository
+    ) {
+    }
 
     async createComment(postId: string, createData: string, userId: string) {
         const userInfo: WithId<UserDBType> | null = await this.usersRepository.getUserBy_Id(userId);
@@ -29,14 +30,14 @@ export class CommentsService {
         const post = await this.postsRepository.getPostBy_Id(postId);
         if (!post) {
             return {
-                status : ResultStatus.NotFound,
+                status: ResultStatus.NotFound,
                 data: null,
                 errorMessage: "Post not found",
                 extensions: [{field: 'Post', message: 'Not Found'}],
             };
         }
 
-        const newComment= new CommentDBType  (
+        const newComment = new CommentDBType(
             postId,
             createData,
             {
@@ -53,8 +54,8 @@ export class CommentsService {
         };
     }
 
-    async likeStatus ( commentId: string, likeStatus: string) {
-        const commentIsExist = await this.checkIsExistingComment(commentId);
+    async likeStatus(commentId: string, userId: string, likeStatus: string) {
+        const commentIsExist = await this.commentsRepository.getCommentBy_Id(commentId);
         if (!commentIsExist) {
             return {
                 status: ResultStatus.NotFound,
@@ -63,13 +64,14 @@ export class CommentsService {
                 data: null,
             }
         }
-        if (likeStatus===LikeStatus.Like){
+        if (likeStatus === LikeStatus.Like) {
+
 
         }
-        if(likeStatus===LikeStatus.Dislike){
+        if (likeStatus === LikeStatus.Dislike) {
 
         }
-        if (likeStatus===LikeStatus.None){
+        if (likeStatus === LikeStatus.None) {
 
         }
 
@@ -99,7 +101,15 @@ export class CommentsService {
             }
         }
 
-        await this.commentsRepository.updateComment(commentId, updateComment);
+        const result = await this.commentsRepository.updateComment(commentId, updateComment);
+        if (!result) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Comment not found",
+                extensions: [{field: 'comment', message: 'Not Found'}],
+            }
+        }
         return {
             status: ResultStatus.NoContent,
             data: null,
@@ -139,7 +149,7 @@ export class CommentsService {
     }
 
     async checkIsExistingComment(commentId: string) {
-        const  comment = await this.commentsRepository.getCommentBy_Id(commentId);
+        const comment = await this.commentsRepository.getCommentBy_Id(commentId);
         if (!comment) {
             return {
                 status: ResultStatus.NotFound,
