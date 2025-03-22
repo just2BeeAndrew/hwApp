@@ -3,6 +3,7 @@ import {CommentDBType, UserDBType} from "../types/db.types";
 import {CommentsRepository} from "./commentsRepository";
 import {PostsRepository, postsRepository} from "../posts/postsRepository";
 import {UsersRepository} from "../users/usersRepository";
+import {LikeStatus} from "../types/db.types";
 import {WithId} from "mongodb";
 import {inject, injectable} from "inversify";
 
@@ -61,6 +62,15 @@ export class CommentsService {
                 extensions: [{field: 'comment', message: 'Not Found'}],
                 data: null,
             }
+        }
+        if (likeStatus===LikeStatus.Like){
+
+        }
+        if(likeStatus===LikeStatus.Dislike){
+
+        }
+        if (likeStatus===LikeStatus.None){
+
         }
 
 
