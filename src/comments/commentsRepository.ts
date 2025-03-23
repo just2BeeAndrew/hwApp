@@ -33,4 +33,8 @@ export class CommentsRepository {
         const isDeleted = await CommentsModel.deleteOne({_id: new ObjectId(_id)});
         return isDeleted.deletedCount === 1;
     }
+
+    async addLike(){
+
+    }
 }

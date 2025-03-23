@@ -1,7 +1,7 @@
 import {ResultStatus} from "../result/resultCode";
 import {CommentDBType, UserDBType} from "../types/db.types";
 import {CommentsRepository} from "./commentsRepository";
-import {PostsRepository, postsRepository} from "../posts/postsRepository";
+import {PostsRepository} from "../posts/postsRepository";
 import {UsersRepository} from "../users/usersRepository";
 import {LikeStatus} from "../types/db.types";
 import {WithId} from "mongodb";
