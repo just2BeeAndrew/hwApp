@@ -1,5 +1,5 @@
 import {ResultStatus} from "../result/resultCode";
-import {CommentDBType, UserDBType} from "../types/db.types";
+import {CommentDBType, LikesDBType, UserDBType} from "../types/db.types";
 import {CommentsRepository} from "./commentsRepository";
 import {PostsRepository} from "../posts/postsRepository";
 import {UsersRepository} from "../users/usersRepository";
@@ -65,6 +65,17 @@ export class CommentsService {
             }
         }
         if (likeStatus === LikeStatus.Like) {
+            const isExistLike = await this.commentsRepository.findStatus(userId, commentId, likeStatus);
+            if (!isExistLike) {
+                const newLike = new LikesDBType(
+                    userId,
+                    commentId,
+                    LikeStatus.Like,
+                    new Date().toISOString(),
+                )
+                await this.commentsRepository.createLike(newLike);
+                await this.commentsRepository.updateLikesCount(commentId, LikeStatus.Like)
+            }
 
 
         }

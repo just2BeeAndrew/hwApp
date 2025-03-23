@@ -1,19 +1,19 @@
-import {CommentDBType} from "../types/db.types";
-import {CommentsModel} from "../db/mongoDb";
+import {CommentDBType, LikesDBType, LikeStatus} from "../types/db.types";
+import {CommentsModel, LikesModel} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 import {injectable} from "inversify";
 
 @injectable()
 export class CommentsRepository {
     async getCommentBy_Id(_id: string) {
-        const comment = await CommentsModel.findOne({_id:new ObjectId(_id)});
+        const comment = await CommentsModel.findOne({_id: new ObjectId(_id)});
         if (!comment) {
             return null;
         }
         return comment;
     }
 
-    async createComment(newComment: CommentDBType ):Promise<string> {
+    async createComment(newComment: CommentDBType): Promise<string> {
         const res = await CommentsModel.create(newComment);
         return res._id.toString();
     }
@@ -34,7 +34,29 @@ export class CommentsRepository {
         return isDeleted.deletedCount === 1;
     }
 
-    async addLike(){
+    async findStatus(userId: string, commentId: string, status: string): Promise<boolean> {
+        await LikesModel.findOne({userid: userId, commentId: commentId, status: status}).exec();
+        if (!status) {
+            return false
+        }
+        return true
+    }
+
+    async createLike(newStatus: LikesDBType) {
+        await LikesModel.create(newStatus)
+    }
+
+    async updateLikesCount(commentId: string,likeStatus: LikeStatus) {
+        const commentInstance = await CommentsModel.findOne({_id: new ObjectId(commentId)})
+        if (!commentInstance) {return false}
+
+        commentInstance.likesInfo.likesCount +=1
+        commentInstance.likesInfo.myStatus = likeStatus
+        await commentInstance.save()
+        return true
+    }
+
+    async deleteLike(_id: string) {
 
     }
 }

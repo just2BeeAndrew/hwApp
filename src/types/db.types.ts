@@ -97,11 +97,11 @@ export class CommentOutputType {
     }
 }
 
-export class likesDBType {
+export class LikesDBType {
     constructor(public userId: string,//айди того кто поставил реакцию
                 public commentId: string,// айди комментария
-                public status: LikesInfoType,
-                public createdAt: Date,
+                public status: LikeStatus,
+                public createdAt: string,
     ) {
     }
 }
