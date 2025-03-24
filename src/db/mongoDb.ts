@@ -74,7 +74,6 @@ const LikesSchema = new mongoose.Schema<LikesDBType>({
     userId: {type: String, required: true},
     commentId: {type: String, required: true},
     status: {type: String, enum: Object.values(LikeStatus), required: true},
-    createdAt: {type: String, required: true},
 })
 
 export const LikesModel = mongoose.model(SETTINGS.PATH.LIKES, LikesSchema)

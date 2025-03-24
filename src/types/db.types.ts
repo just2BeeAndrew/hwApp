@@ -101,7 +101,6 @@ export class LikesDBType {
     constructor(public userId: string,//айди того кто поставил реакцию
                 public commentId: string,// айди комментария
                 public status: LikeStatus,
-                public createdAt: string,
     ) {
     }
 }

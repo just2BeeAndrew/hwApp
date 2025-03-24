@@ -6,6 +6,7 @@ import {HttpStatuses} from "../types/httpStatuses";
 import {RequestWithParams, RequestWithParamsAndBody} from "../types/requests";
 import {CommentsQueryRepository} from "./commentsQueryRepository";
 import {inject, injectable} from "inversify";
+import {LikeStatus} from "../types/db.types";
 
 @injectable()
 export class CommentsController {
@@ -14,11 +15,11 @@ export class CommentsController {
         @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository) {
     }
 
-    async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { likeStatus: string }>, res: Response) {
+    async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { status: LikeStatus }>, res: Response) {
         const userId = req.user!.id as string;
         const {commentId} = req.params;
-        const {likeStatus} = req.body;
-        const result = await this.commentsService.likeStatus(commentId, userId, likeStatus);
+        const {status} = req.body;
+        const result = await this.commentsService.likeStatus(commentId, userId, status);
 
     }
 

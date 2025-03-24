@@ -34,29 +34,32 @@ export class CommentsRepository {
         return isDeleted.deletedCount === 1;
     }
 
-    async findStatus(userId: string, commentId: string, status: string): Promise<boolean> {
-        await LikesModel.findOne({userid: userId, commentId: commentId, status: status}).exec();
-        if (!status) {
-            return false
-        }
-        return true
+    async findStatus(userId: string, commentId: string, status: string) {
+        return await LikesModel.findOne({userid: userId, commentId: commentId, status: status}).exec();
+
     }
 
-    async createLike(newStatus: LikesDBType) {
+    async createStatus(newStatus: LikesDBType) {
         await LikesModel.create(newStatus)
     }
 
-    async updateLikesCount(commentId: string,likeStatus: LikeStatus) {
-        const commentInstance = await CommentsModel.findOne({_id: new ObjectId(commentId)})
-        if (!commentInstance) {return false}
-
-        commentInstance.likesInfo.likesCount +=1
-        commentInstance.likesInfo.myStatus = likeStatus
-        await commentInstance.save()
+    async updateStatus(statusId: ObjectId, status: LikeStatus) {
+        const statusInstance = await LikesModel.findOne({_id: statusId})
+        if (!statusInstance) {
+            return false;
+        }
+        statusInstance.status = status
+        await statusInstance.save()
         return true
     }
 
-    async deleteLike(_id: string) {
-
+    async statusCount(commentId: string, status: LikeStatus) {
+        return await LikesModel.countDocuments({commentId: commentId, status: status})
     }
+
+    async updateStatusCounter(commentId: string, count: number) {
+        await CommentsModel.findOneAndUpdate({commentId: commentId}, {likesCount: count})
+    }
+
+
 }

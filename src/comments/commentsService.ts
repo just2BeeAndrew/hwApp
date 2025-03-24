@@ -6,6 +6,7 @@ import {UsersRepository} from "../users/usersRepository";
 import {LikeStatus} from "../types/db.types";
 import {WithId} from "mongodb";
 import {inject, injectable} from "inversify";
+import {CommentsModel} from "../db/mongoDb";
 
 @injectable()
 export class CommentsService {
@@ -54,39 +55,43 @@ export class CommentsService {
         };
     }
 
-    async likeStatus(commentId: string, userId: string, likeStatus: string) {
-        const commentIsExist = await this.commentsRepository.getCommentBy_Id(commentId);
-        if (!commentIsExist) {
-            return {
-                status: ResultStatus.NotFound,
-                errorMessage: "Comment isn't exists",
-                extensions: [{field: 'comment', message: 'Not Found'}],
-                data: null,
-            }
-        }
-        if (likeStatus === LikeStatus.Like) {
-            const isExistLike = await this.commentsRepository.findStatus(userId, commentId, likeStatus);
+    async likeStatus(commentId: string, userId: string, status: string) {
+        if (status === LikeStatus.Like) {
+            const isExistLike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Like);
+            //если лайка нет
             if (!isExistLike) {
                 const newLike = new LikesDBType(
                     userId,
                     commentId,
                     LikeStatus.Like,
-                    new Date().toISOString(),
                 )
-                await this.commentsRepository.createLike(newLike);
-                await this.commentsRepository.updateLikesCount(commentId, LikeStatus.Like)
+                await this.commentsRepository.createStatus(newLike);
+            } else {
+                //если лайк есть
+                const statusId = isExistLike._id
+                await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
             }
-
+            const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Like)
+            await this.commentsRepository.updateStatusCounter(commentId, likeCount)
+        }
+        if (status === LikeStatus.Dislike) {
+            const isExistDislike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Dislike);
+            if (!isExistDislike) {
+                const newLike = new LikesDBType(
+                    userId,
+                    commentId,
+                    LikeStatus.Dislike,
+                )
+                await this.commentsRepository.createStatus(newLike);
+            } else {
+                //если дизлайк есть
+                const statusId = isExistDislike._id
+                await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
+            }
+            const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike)
+            await this.commentsRepository.updateStatusCounter(commentId, likeCount)
 
         }
-        if (likeStatus === LikeStatus.Dislike) {
-
-        }
-        if (likeStatus === LikeStatus.None) {
-
-        }
-
-
     }
 
     async updateComment(commentId: string, updateComment: string, userId: string) {

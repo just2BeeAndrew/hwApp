@@ -1,4 +1,4 @@
-import {commentsCollection, CommentsModel, postsCollection} from "../db/mongoDb";
+import {CommentsModel, postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {CommentOutputType, CommentDBType} from "../types/db.types";
 import {SortType} from "../helpers/paginationValues";
@@ -15,7 +15,7 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
             userLogin: comment.commentatorInfo.userLogin
         },
         createdAt: comment.createdAt,
-        likesInfo:{
+        likesInfo: {
             likesCount: comment.likesInfo.likesCount,
             dislikesCount: comment.likesInfo.dislikesCount,
             myStatus: comment.likesInfo.myStatus,
@@ -32,13 +32,13 @@ export class CommentsQueryRepository {
         return commentsMapper(comment);
     }
 
-    async getCommentsByPostId(postId: string, sortData: SortType):Promise<Result<{
+    async getCommentsByPostId(postId: string, sortData: SortType): Promise<Result<{
         pagesCount: number;
         page: number;
         pageSize: number;
         totalCount: number;
         items: CommentOutputType[];
-    }|null>> {
+    } | null>> {
         if (!ObjectId.isValid(postId)) {
             return {
                 status: ResultStatus.BadRequest,
@@ -60,15 +60,13 @@ export class CommentsQueryRepository {
 
         const {pageNumber, pageSize, sortBy, sortDirection} = sortData;
         const [comments, commentsCount] = await Promise.all([
-            commentsCollection
+            CommentsModel
                 .find({postId})
                 .sort({[sortBy]: sortDirection === "asc" ? 1 : -1})
                 .skip((pageNumber - 1) * pageSize)
-                .limit(pageSize)
-                .toArray(),
+                .limit(pageSize),
             this.getCommentsCount(postId),
         ]);
-
         return {
             status: ResultStatus.Success,
             data: {
@@ -88,6 +86,6 @@ export class CommentsQueryRepository {
         if (postId) {
             filter.postId = postId;
         }
-        return commentsCollection.countDocuments(filter)
+        return CommentsModel.countDocuments(filter)
     }
 }

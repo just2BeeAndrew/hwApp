@@ -1,10 +1,10 @@
 import {
     blogsCollection,
-    commentsCollection,
     postsCollection,
     UserModelClass,
     tokensCollection,
-    devicesCollection
+    devicesCollection,
+    CommentsModel
 } from "../db/mongoDb";
 
 export const testingRepository = {
@@ -13,7 +13,7 @@ export const testingRepository = {
             blogsCollection.deleteMany({}),
             postsCollection.deleteMany({}),
             UserModelClass.deleteMany({}),
-            commentsCollection.deleteMany({}),
+            CommentsModel.deleteMany({}),
             tokensCollection.deleteMany({}),
             devicesCollection.deleteMany({}),
         ]);
