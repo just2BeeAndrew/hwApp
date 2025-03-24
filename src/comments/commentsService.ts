@@ -88,9 +88,8 @@ export class CommentsService {
                 const statusId = isExistDislike._id
                 await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
             }
-            const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike)
-            await this.commentsRepository.updateStatusCounter(commentId, likeCount)
-
+            const dislikeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike)
+            await this.commentsRepository.updateStatusCounter(commentId, dislikeCount)
         }
     }
 

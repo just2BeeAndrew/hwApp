@@ -4,6 +4,7 @@ import {errorsResultMiddleware} from "../middlewares/errorsResultMiddleware";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {CommentsController} from "./commentsController";
 import {container} from "../composition-root";
+import {authChecker} from "../middlewares/authChecker";
 
 const commentsController = container.get(CommentsController);
 
@@ -22,4 +23,6 @@ commentRouter.delete('/:commentId',
     accessTokenMiddleware,
     errorsResultMiddleware,
     commentsController.deleteComment.bind(commentsController),)
-commentRouter.get('/:commentId', commentsController.getCommentById.bind(commentsController));
+commentRouter.get('/:commentId',
+    authChecker,
+    commentsController.getCommentById.bind(commentsController));

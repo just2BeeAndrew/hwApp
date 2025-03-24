@@ -1,6 +1,6 @@
-import {CommentsModel, postsCollection} from "../db/mongoDb";
+import {CommentsModel, LikesModel, postsCollection} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
-import {CommentOutputType, CommentDBType} from "../types/db.types";
+import {CommentDBType, CommentOutputType, LikeStatus} from "../types/db.types";
 import {SortType} from "../helpers/paginationValues";
 import {ResultStatus} from "../result/resultCode";
 import {Result} from "../result/result.type";
@@ -26,9 +26,21 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
 @injectable()
 export class CommentsQueryRepository {
     async getCommentBy_Id(_id: string) {
-        console.log("getCommentBy_Id", _id);
         const comment = await CommentsModel.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
+        return commentsMapper(comment);
+    }
+
+    async getCommentById(commentId: string, userId: string) {
+        const comment = await CommentsModel.findOne({_id: new ObjectId(commentId)});
+        if (!comment) return null;
+        let userStatus: LikeStatus = LikeStatus.None
+        if (userId) {
+            const status = await this.getUserStatus(userId, commentId)
+            userStatus = status?.status ?? LikeStatus.None
+        }
+        comment.likesInfo.myStatus = userStatus
+        await comment.save()
         return commentsMapper(comment);
     }
 
@@ -80,6 +92,9 @@ export class CommentsQueryRepository {
         };
     }
 
+    async getUserStatus(commentId: string, userId: string) {
+        return LikesModel.findOne({commentId: commentId, userId: userId})
+    }
 
     getCommentsCount(postId?: string): Promise<number> {
         const filter: any = {}

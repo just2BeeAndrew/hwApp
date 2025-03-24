@@ -12,20 +12,15 @@ export const accessTokenMiddleware = async (req: Request, res: Response, next: N
         res.sendStatus(HttpStatuses.UNAUTHORIZED);
         return
     }
-
     const accessToken = req.headers.authorization.split(" ")[1];
-
     const payload = await jwtService.verifyAccessToken(accessToken);
     if (payload) {
         const {userId} = payload;
-
         const user = await usersRepository.doesExistById(userId);
-
         if (!user) {
             res.sendStatus(HttpStatuses.UNAUTHORIZED);
             return
         }
-
         req.user = {id:userId} as IdType;
         next()
         return

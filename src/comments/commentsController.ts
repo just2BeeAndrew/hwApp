@@ -19,8 +19,8 @@ export class CommentsController {
         const userId = req.user!.id as string;
         const {commentId} = req.params;
         const {status} = req.body;
-        const result = await this.commentsService.likeStatus(commentId, userId, status);
-
+        await this.commentsService.likeStatus(commentId, userId, status);
+        res.sendStatus(HttpStatuses.SUCCESS)
     }
 
     async updateComment(req: Request, res: Response) {
@@ -53,7 +53,8 @@ export class CommentsController {
 
     async getCommentById(req: RequestWithParams<{ commentId: string }>, res: Response) {
         const {commentId} = req.params;
-        const comment = await this.commentsQueryRepository.getCommentBy_Id(commentId);
+        const userId = req.user?.id as string;
+        const comment = await this.commentsQueryRepository.getCommentById(commentId, userId);
         if (!comment) {
             res.sendStatus(HttpStatuses.NOT_FOUND)
             return
