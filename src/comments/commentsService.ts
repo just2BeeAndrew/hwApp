@@ -4,7 +4,7 @@ import {CommentsRepository} from "./commentsRepository";
 import {PostsRepository} from "../posts/postsRepository";
 import {UsersRepository} from "../users/usersRepository";
 import {LikeStatus} from "../types/db.types";
-import {WithId} from "mongodb";
+import {ObjectId, WithId} from "mongodb";
 import {inject, injectable} from "inversify";
 import {CommentsModel} from "../db/mongoDb";
 
@@ -55,43 +55,104 @@ export class CommentsService {
         };
     }
 
-    async likeStatus(commentId: string, userId: string, status: string) {
-        if (status === LikeStatus.Like) {
-            const isExistLike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Like);
-            //если лайка нет
-            if (!isExistLike) {
-                const newLike = new LikesDBType(
-                    userId,
-                    commentId,
-                    LikeStatus.Like,
-                )
-                await this.commentsRepository.createStatus(newLike);
-            } else {
-                //если лайк есть
-                const statusId = isExistLike._id
-                await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
-            }
-            const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Like)
-            await this.commentsRepository.updateStatusCounter(commentId, likeCount)
+    async likeStatus(commentId: string, userId: string, likeStatus: LikeStatus) {
+        console.log(`Creating like: userId=${userId}, commentId=${commentId}, status=${likeStatus}`);
+        const commentExist = await this.commentsRepository.getCommentBy_Id(commentId);
+        if (!commentExist) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Could not find comment",
+                extensions: [{field: "comment", message: "Not Found"}],
+            };
         }
-        if (status === LikeStatus.Dislike) {
-            const isExistDislike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Dislike);
-            if (!isExistDislike) {
-                const newLike = new LikesDBType(
-                    userId,
-                    commentId,
-                    LikeStatus.Dislike,
-                )
-                await this.commentsRepository.createStatus(newLike);
-            } else {
-                //если дизлайк есть
-                const statusId = isExistDislike._id
-                await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
-            }
-            const dislikeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike)
-            await this.commentsRepository.updateStatusCounter(commentId, dislikeCount)
+
+        if (!Object.values(LikeStatus).includes(likeStatus)) {
+            return {
+                status: ResultStatus.BadRequest,
+                data: null,
+                errorMessage: "Invalid likeStatus value",
+                extensions: [{field: "likeStatus", message: "Invalid LikeStatus"}],
+            };
         }
+
+        const existingLike = await this.commentsRepository.findStatus(userId, commentId);
+        console.log("existingLike",existingLike)
+
+        if (existingLike) {
+            if (likeStatus === LikeStatus.None) {
+                await this.commentsRepository.deleteStatus(existingLike._id);
+            } else {
+                await this.commentsRepository.updateStatus(existingLike._id, likeStatus);
+            }
+        } else if (likeStatus !== LikeStatus.None) {
+            console.log(`Creating like: userId=${userId}, commentId=${commentId}, status=${likeStatus}`);
+            const newLike = new LikesDBType(userId, commentId, likeStatus);
+            console.log("new like",newLike);
+            const create = await this.commentsRepository.createStatus(newLike);
+            console.log("create",create);
+            const checkLike = await this.commentsRepository.findStatus(userId, commentId);
+            console.log("Like saved in DB:", checkLike);
+        }
+
+        const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Like);
+        const dislikeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike);
+
+        // **Обновляем счетчики в комментарии**
+        await this.commentsRepository.updateStatusCounter(commentId, likeCount, dislikeCount);
+
+        // 🔥 **Обновляем myStatus в commentExist перед возвратом**
+        commentExist.likesInfo.myStatus = likeStatus;
+
+        return {
+            status: ResultStatus.Success,
+            data: null,
+            extensions: [],
+        };
     }
+
+
+    // if (likeStatus1 === LikeStatus.Like) {
+    //     const isExistLike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Like);
+    //     //если лайка нет
+    //     if (!isExistLike) {
+    //         const newLike = new LikesDBType(
+    //             userId,
+    //             commentId,
+    //             LikeStatus.Like,
+    //         )
+    //         await this.commentsRepository.createStatus(newLike);
+    //     } else {
+    //         //если лайк есть
+    //         const statusId = isExistLike._id
+    //         await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
+    //     }
+    //     const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Like)
+    //     await this.commentsRepository.updateStatusCounter(commentId, likeCount)
+    // }
+    // if (likeStatus1 === LikeStatus.Dislike) {
+    //     const isExistDislike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Dislike);
+    //     if (!isExistDislike) {
+    //         const newLike = new LikesDBType(
+    //             userId,
+    //             commentId,
+    //             LikeStatus.Dislike,
+    //         )
+    //         await this.commentsRepository.createStatus(newLike);
+    //     } else {
+    //         //если дизлайк есть
+    //         const statusId = isExistDislike._id
+    //         await this.commentsRepository.updateStatus(statusId, LikeStatus.None)
+    //     }
+    //     const dislikeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike)
+    //     await this.commentsRepository.updateStatusCounter(commentId, dislikeCount)
+    // }
+    // return {
+    //     likeStatus1: ResultStatus.Success,
+    //     data: null,
+    //     extensions: [],
+    // }
+
 
     async updateComment(commentId: string, updateComment: string, userId: string) {
         const checkerResult = await this.checkIsExistingComment(commentId);

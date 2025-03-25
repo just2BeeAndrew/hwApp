@@ -32,17 +32,28 @@ export class CommentsQueryRepository {
     }
 
     async getCommentById(commentId: string, userId: string) {
-        const comment = await CommentsModel.findOne({_id: new ObjectId(commentId)});
+        const comment = await CommentsModel.findOne({ _id: new ObjectId(commentId) });
         if (!comment) return null;
-        let userStatus: LikeStatus = LikeStatus.None
+
+        let userStatus: LikeStatus = LikeStatus.None;
         if (userId) {
-            const status = await this.getUserStatus(userId, commentId)
-            userStatus = status?.status ?? LikeStatus.None
+            const status = await this.getUserStatus(userId, commentId);
+            userStatus = status?.status ?? LikeStatus.None;
         }
-        comment.likesInfo.myStatus = userStatus
-        await comment.save()
-        return commentsMapper(comment);
+
+        console.log(`User ${userId} has status ${userStatus} on comment ${commentId}`);
+
+        // **Обновляем `myStatus` перед возвратом**
+        await CommentsModel.updateOne(
+            { _id: new ObjectId(commentId) },
+            { $set: { "likesInfo.myStatus": userStatus } }
+        );
+
+        return commentsMapper({ ...comment.toObject(), likesInfo: { ...comment.likesInfo, myStatus: userStatus } });
     }
+
+
+
 
     async getCommentsByPostId(postId: string, sortData: SortType): Promise<Result<{
         pagesCount: number;
@@ -93,7 +104,15 @@ export class CommentsQueryRepository {
     }
 
     async getUserStatus(commentId: string, userId: string) {
-        return LikesModel.findOne({commentId: commentId, userId: userId})
+        console.log(`Searching like status for comment=${commentId}, user=${userId}`);
+
+        const likeStatus = await LikesModel.findOne({
+            commentId: commentId,
+            userId: userId
+        });
+
+        console.log(`Found like status:`, likeStatus);
+        return likeStatus;
     }
 
     getCommentsCount(postId?: string): Promise<number> {

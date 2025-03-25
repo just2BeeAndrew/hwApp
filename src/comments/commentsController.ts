@@ -15,12 +15,31 @@ export class CommentsController {
         @inject(CommentsQueryRepository) protected commentsQueryRepository: CommentsQueryRepository) {
     }
 
-    async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { status: LikeStatus }>, res: Response) {
+    async likeStatus(req: RequestWithParamsAndBody<{ commentId: string }, { likeStatus: LikeStatus }>, res: Response) {
         const userId = req.user!.id as string;
         const {commentId} = req.params;
-        const {status} = req.body;
-        await this.commentsService.likeStatus(commentId, userId, status);
-        res.sendStatus(HttpStatuses.SUCCESS)
+        const {likeStatus} = req.body;
+
+        if (!Object.values(LikeStatus).includes(likeStatus)) {
+            res.status(HttpStatuses.BAD_REQUEST).json({
+                errorsMessages: [
+                    {
+                        message: 'Invalid status value',
+                        field: 'likeStatus',
+                    }
+                ]
+            });
+            return;
+        }
+
+        const result = await this.commentsService.likeStatus(commentId, userId, likeStatus);
+        if (result.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .send(result.extensions);
+            return;
+        }
+        res.sendStatus(HttpStatuses.NOCONTENT)
     }
 
     async updateComment(req: Request, res: Response) {
