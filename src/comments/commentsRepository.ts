@@ -45,7 +45,7 @@ export class CommentsRepository {
             commentId: newStatus.commentId,
             status: newStatus.status,
         })
-        await savedStatus.save()
+        return await savedStatus.save()
     }
 
     async updateStatus(statusId: ObjectId, status: LikeStatus) {
