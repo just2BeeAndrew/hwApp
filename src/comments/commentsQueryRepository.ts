@@ -103,7 +103,7 @@ export class CommentsQueryRepository {
         };
     }
 
-    async getUserStatus(commentId: string, userId: string) {
+    async getUserStatus(userId: string, commentId: string) {
         console.log(`Searching like status for comment=${commentId}, user=${userId}`);
 
         const likeStatus = await LikesModel.findOne({

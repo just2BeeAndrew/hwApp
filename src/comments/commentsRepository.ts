@@ -35,7 +35,7 @@ export class CommentsRepository {
     }
 
     async findStatus(userId: string, commentId: string) {
-        return await LikesModel.findOne({userid: userId, commentId: commentId}).exec();
+        return await LikesModel.findOne({userId: userId, commentId: commentId}).exec();
     }
 
     async createStatus(newStatus: LikesDBType) {
@@ -45,7 +45,8 @@ export class CommentsRepository {
             commentId: newStatus.commentId,
             status: newStatus.status,
         })
-        return await savedStatus.save()
+        const result = await savedStatus.save()
+        return result.toObject({versionKey: false})
     }
 
     async updateStatus(statusId: ObjectId, status: LikeStatus) {
