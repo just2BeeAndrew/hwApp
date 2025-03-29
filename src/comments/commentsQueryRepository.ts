@@ -4,7 +4,8 @@ import {CommentDBType, CommentOutputType, LikeStatus} from "../types/db.types";
 import {SortType} from "../helpers/paginationValues";
 import {ResultStatus} from "../result/resultCode";
 import {Result} from "../result/result.type";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
+import {CommentsRepository} from "./commentsRepository";
 
 const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
     return {
@@ -25,37 +26,38 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
 
 @injectable()
 export class CommentsQueryRepository {
+    constructor(@inject(CommentsRepository) protected commentsRepository: CommentsRepository) {
+    }
     async getCommentBy_Id(_id: string) {
         const comment = await CommentsModel.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
         return commentsMapper(comment);
     }
 
-    async getCommentById(commentId: string, userId: string) {
+    async getCommentById(commentId: string, userId?: string) {
+        console.log("userId", userId, commentId);
         const comment = await CommentsModel.findOne({ _id: new ObjectId(commentId) });
         if (!comment) return null;
 
         let userStatus: LikeStatus = LikeStatus.None;
+
         if (userId) {
             const status = await this.getUserStatus(userId, commentId);
             userStatus = status?.status ?? LikeStatus.None;
         }
 
-        console.log(`User ${userId} has status ${userStatus} on comment ${commentId}`);
+        console.log(`User ${userId || "anonymous"} has status ${userStatus} on comment ${commentId}`);
 
-        // **Обновляем `myStatus` перед возвратом**
-        await CommentsModel.updateOne(
-            { _id: new ObjectId(commentId) },
-            { $set: { "likesInfo.myStatus": userStatus } }
-        );
-
-        return commentsMapper({ ...comment.toObject(), likesInfo: { ...comment.likesInfo, myStatus: userStatus } });
+        return commentsMapper({
+            ...comment.toObject(),
+            likesInfo: {
+                ...comment.likesInfo,
+                myStatus: userStatus  // <-- Если userId нет, то тут всегда будет None
+            }
+        });
     }
 
-
-
-
-    async getCommentsByPostId(postId: string, sortData: SortType): Promise<Result<{
+    async getCommentsByPostId(postId: string, sortData: SortType, userId: string): Promise<Result<{
         pagesCount: number;
         page: number;
         pageSize: number;
@@ -107,9 +109,9 @@ export class CommentsQueryRepository {
         console.log(`Searching like status for comment=${commentId}, user=${userId}`);
 
         const likeStatus = await LikesModel.findOne({
+            userId: userId,
             commentId: commentId,
-            userId: userId
-        });
+        }).lean();
 
         console.log(`Found like status:`, likeStatus);
         return likeStatus;

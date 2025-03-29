@@ -24,7 +24,8 @@ export class PostsController {
     async getCommentsByPostId(req: RequestWithParams<{ postId: string }>, res: Response) {
         const sortData = paginationQueries(req)
         const {postId} = req.params;
-        const comments = await this.commentsQueryRepository.getCommentsByPostId(postId, sortData);
+        const userId = req.user?.id as string;
+        const comments = await this.commentsQueryRepository.getCommentsByPostId(postId, sortData, userId);
         if (comments.status !== ResultStatus.Success) {
             res
                 .status(resultCodeToHttpException(comments.status))

@@ -67,15 +67,6 @@ export class CommentsService {
             };
         }
 
-        if (!Object.values(LikeStatus).includes(likeStatus)) {
-            return {
-                status: ResultStatus.BadRequest,
-                data: null,
-                errorMessage: "Invalid likeStatus value",
-                extensions: [{field: "likeStatus", message: "Invalid LikeStatus"}],
-            };
-        }
-
         const existingLike = await this.commentsRepository.findStatus(userId, commentId);
         console.log("existingLike",existingLike)
 
@@ -98,10 +89,8 @@ export class CommentsService {
         const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Like);
         const dislikeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike);
 
-        // **Обновляем счетчики в комментарии**
         await this.commentsRepository.updateStatusCounter(commentId, likeCount, dislikeCount);
 
-        // 🔥 **Обновляем myStatus в commentExist перед возвратом**
         commentExist.likesInfo.myStatus = likeStatus;
 
         return {

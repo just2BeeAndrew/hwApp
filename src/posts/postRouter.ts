@@ -11,13 +11,17 @@ import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {accessTokenMiddleware} from "../middlewares/accessTokenMiddleware";
 import {container} from "../composition-root";
 import {PostsController} from "./postsController";
+import {authChecker} from "../middlewares/authChecker";
 
 const postsController = container.get(PostsController);
 
 export const postRouter = Router();
 
 
-postRouter.get('/:postId/comments', postsController.getCommentsByPostId.bind(postsController));
+postRouter.get('/:postId/comments',
+    authChecker,
+    errorsResultMiddleware,
+    postsController.getCommentsByPostId.bind(postsController));
 postRouter.post('/:postId/comments',
     accessTokenMiddleware,
     commentContentValidator,
