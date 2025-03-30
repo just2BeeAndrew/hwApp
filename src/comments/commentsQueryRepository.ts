@@ -28,6 +28,7 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
 export class CommentsQueryRepository {
     constructor(@inject(CommentsRepository) protected commentsRepository: CommentsRepository) {
     }
+
     async getCommentBy_Id(_id: string) {
         const comment = await CommentsModel.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
@@ -36,7 +37,7 @@ export class CommentsQueryRepository {
 
     async getCommentById(commentId: string, userId?: string) {
         console.log("userId", userId, commentId);
-        const comment = await CommentsModel.findOne({ _id: new ObjectId(commentId) });
+        const comment = await CommentsModel.findOne({_id: new ObjectId(commentId)});
         if (!comment) return null;
 
         let userStatus: LikeStatus = LikeStatus.None;
@@ -92,6 +93,28 @@ export class CommentsQueryRepository {
                 .limit(pageSize),
             this.getCommentsCount(postId),
         ]);
+
+        if (userId) {
+            // Получаем статусы лайков/дизлайков пользователя для списка комментариев
+            const statuses = await LikesModel.find({
+                userId,
+                commentId: {$in: comments.map(comment => comment._id.toString())},
+            });
+
+            // Преобразуем список статусов в объект, где ключ - commentId, а значение - статус
+            const statusMap: Record<string, LikeStatus> = statuses.reduce((map, status) => {
+                map[status.commentId] = status.status;
+                return map;
+            }, {} as Record<string, LikeStatus>); // Явно указываем тип для statusMap
+
+            // Обновляем myStatus для каждого комментария
+            comments.forEach(comment => {
+                // Обновляем myStatus для комментария, если статус есть в statusMap, иначе ставим LikeStatus.None
+                comment.likesInfo.myStatus = statusMap[comment._id.toString()] || LikeStatus.None;
+            });
+        }
+
+// Возвращаем результат с комментариями
         return {
             status: ResultStatus.Success,
             data: {
@@ -99,10 +122,17 @@ export class CommentsQueryRepository {
                 page: pageNumber,
                 pageSize: pageSize,
                 totalCount: commentsCount,
-                items: comments.map(commentsMapper),
+                items: comments.map(comment => ({
+                    ...commentsMapper(comment), // Применяем маппер к комментариям
+                    likesInfo: {
+                        ...comment.likesInfo, // Сохраняем остальные данные likesInfo
+                        myStatus: comment.likesInfo.myStatus, // Убедитесь, что обновленный myStatus передается в итоговый ответ
+                    },
+                })),
             },
             extensions: [],
         };
+
     }
 
     async getUserStatus(userId: string, commentId: string) {
