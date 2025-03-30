@@ -100,7 +100,6 @@ export class CommentsService {
         };
     }
 
-
     // if (likeStatus1 === LikeStatus.Like) {
     //     const isExistLike = await this.commentsRepository.findStatus(userId, commentId, LikeStatus.Like);
     //     //если лайка нет

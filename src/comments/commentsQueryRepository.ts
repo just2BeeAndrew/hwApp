@@ -7,7 +7,7 @@ import {Result} from "../result/result.type";
 import {inject, injectable} from "inversify";
 import {CommentsRepository} from "./commentsRepository";
 
-const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
+const commentsMapper = (comment: WithId<CommentDBType>, status: LikeStatus): CommentOutputType => {
     return {
         id: comment._id.toString(),
         content: comment.content,
@@ -19,7 +19,7 @@ const commentsMapper = (comment: WithId<CommentDBType>): CommentOutputType => {
         likesInfo: {
             likesCount: comment.likesInfo.likesCount,
             dislikesCount: comment.likesInfo.dislikesCount,
-            myStatus: comment.likesInfo.myStatus,
+            myStatus:status,
         }
     }
 }
@@ -32,7 +32,7 @@ export class CommentsQueryRepository {
     async getCommentBy_Id(_id: string) {
         const comment = await CommentsModel.findOne({_id: new ObjectId(_id)});
         if (!comment) return null;
-        return commentsMapper(comment);
+        return commentsMapper(comment, LikeStatus.None);
     }
 
     async getCommentById(commentId: string, userId?: string) {
@@ -49,13 +49,7 @@ export class CommentsQueryRepository {
 
         console.log(`User ${userId || "anonymous"} has status ${userStatus} on comment ${commentId}`);
 
-        return commentsMapper({
-            ...comment.toObject(),
-            likesInfo: {
-                ...comment.likesInfo,
-                myStatus: userStatus  // <-- Если userId нет, то тут всегда будет None
-            }
-        });
+        return commentsMapper(comment, userStatus);
     }
 
     async getCommentsByPostId(postId: string, sortData: SortType, userId: string): Promise<Result<{
@@ -94,27 +88,20 @@ export class CommentsQueryRepository {
             this.getCommentsCount(postId),
         ]);
 
+        let statusMap: Map<string, LikeStatus> = new Map();
+
         if (userId) {
-            // Получаем статусы лайков/дизлайков пользователя для списка комментариев
             const statuses = await LikesModel.find({
                 userId,
-                commentId: {$in: comments.map(comment => comment._id.toString())},
+                commentId: { $in: comments.map(comment => comment._id.toString()) },
             });
 
-            // Преобразуем список статусов в объект, где ключ - commentId, а значение - статус
-            const statusMap: Record<string, LikeStatus> = statuses.reduce((map, status) => {
-                map[status.commentId] = status.status;
+            statusMap = statuses.reduce((map, status) => {
+                map.set(status.commentId, status.status);
                 return map;
-            }, {} as Record<string, LikeStatus>); // Явно указываем тип для statusMap
-
-            // Обновляем myStatus для каждого комментария
-            comments.forEach(comment => {
-                // Обновляем myStatus для комментария, если статус есть в statusMap, иначе ставим LikeStatus.None
-                comment.likesInfo.myStatus = statusMap[comment._id.toString()] || LikeStatus.None;
-            });
+            }, new Map<string, LikeStatus>());
         }
 
-// Возвращаем результат с комментариями
         return {
             status: ResultStatus.Success,
             data: {
@@ -122,17 +109,10 @@ export class CommentsQueryRepository {
                 page: pageNumber,
                 pageSize: pageSize,
                 totalCount: commentsCount,
-                items: comments.map(comment => ({
-                    ...commentsMapper(comment), // Применяем маппер к комментариям
-                    likesInfo: {
-                        ...comment.likesInfo, // Сохраняем остальные данные likesInfo
-                        myStatus: comment.likesInfo.myStatus, // Убедитесь, что обновленный myStatus передается в итоговый ответ
-                    },
-                })),
+                items: comments.map(comment => commentsMapper(comment, statusMap.get(comment._id.toString()) ?? LikeStatus.None)),
             },
             extensions: [],
         };
-
     }
 
     async getUserStatus(userId: string, commentId: string) {
