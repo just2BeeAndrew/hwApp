@@ -8,6 +8,10 @@ import {ObjectId, WithId} from "mongodb";
 import {inject, injectable} from "inversify";
 import {CommentsModel} from "../db/mongoDb";
 
+// const calculateLikesCount = (counts, existiongReactioon: LikeStatus, newReaction: LikeStatus): {likeCount: number, dislikeCount: number} => {
+//
+// }
+
 @injectable()
 export class CommentsService {
     constructor(
@@ -67,12 +71,14 @@ export class CommentsService {
             };
         }
 
+        commentExist.likesInfo.likesCount
+
         const existingLike = await this.commentsRepository.findStatus(userId, commentId);
         console.log("existingLike",existingLike)
 
         if (existingLike) {
             if (likeStatus === LikeStatus.None) {
-                await this.commentsRepository.deleteStatus(existingLike._id);
+                await this.commentsRepository.deleteStatus(existingLike._id);// add None
             } else {
                 await this.commentsRepository.updateStatus(existingLike._id, likeStatus);
             }
@@ -86,12 +92,18 @@ export class CommentsService {
             console.log("Like saved in DB:", checkLike);
         }
 
+        // if(!existingLike) {
+        //     //create
+        //     comment.likesCount += 1;
+        // }
+
+        //curerntReaction, counts, existiong Reaction
+
         const likeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Like);
         const dislikeCount = await this.commentsRepository.statusCount(commentId, LikeStatus.Dislike);
 
-        await this.commentsRepository.updateStatusCounter(commentId, likeCount, dislikeCount);
+        await this.commentsRepository.updateStatusCounter(commentId, 5, 15);
 
-        commentExist.likesInfo.myStatus = likeStatus;
 
         return {
             status: ResultStatus.Success,

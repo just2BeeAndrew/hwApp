@@ -82,7 +82,7 @@ export class CommentsQueryRepository {
         const [comments, commentsCount] = await Promise.all([
             CommentsModel
                 .find({postId})
-                .sort({[sortBy]: sortDirection === "asc" ? 1 : -1})
+                .sort({[sortBy]: sortDirection === "asc" ? 1 : -1})//вынести в хелпер
                 .skip((pageNumber - 1) * pageSize)
                 .limit(pageSize),
             this.getCommentsCount(postId),
