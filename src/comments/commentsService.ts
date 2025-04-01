@@ -71,8 +71,11 @@ export class CommentsService {
 
         if (existingLike) {
             if (existingLike.status === newStatus) {
-                await this.commentsRepository.updateStatus(existingLike._id, LikeStatus.None)
-                newStatus = LikeStatus.None;
+                return {
+                    status: ResultStatus.Success,
+                    data: null,
+                    extensions: [],
+                };
             } else {
                 await this.commentsRepository.updateStatus(existingLike._id, newStatus)
             }
@@ -82,10 +85,8 @@ export class CommentsService {
         }
 
         const updatedCounts = await this.calculateStatusCount(likesCount, dislikesCount, currentStatus, newStatus);
-        console.log("Updating likes count:", updatedCounts.likesCount, updatedCounts.dislikesCount);
 
-        const result = await this.commentsRepository.updateStatusCounter(commentId, updatedCounts.likesCount, updatedCounts.dislikesCount);
-        console.log("result",result)
+        await this.commentsRepository.updateStatusCounter(commentId, updatedCounts.likesCount, updatedCounts.dislikesCount);
 
         return {
             status: ResultStatus.Success,

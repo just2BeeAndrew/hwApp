@@ -19,7 +19,7 @@ const commentsMapper = (comment: WithId<CommentDBType>, status: LikeStatus): Com
         likesInfo: {
             likesCount: comment.likesInfo.likesCount,
             dislikesCount: comment.likesInfo.dislikesCount,
-            myStatus:status,
+            myStatus: status,
         }
     }
 }
@@ -90,7 +90,7 @@ export class CommentsQueryRepository {
         if (userId) {
             const statuses = await LikesModel.find({
                 userId,
-                commentId: { $in: comments.map(comment => comment._id.toString()) },
+                commentId: {$in: comments.map(comment => comment._id.toString())},
             });
 
             statusMap = statuses.reduce((map, status) => {
@@ -114,12 +114,10 @@ export class CommentsQueryRepository {
 
     async getUserStatus(userId: string, commentId: string) {
 
-        const likeStatus = await LikesModel.findOne({
+        return await LikesModel.findOne({
             userId: userId,
             commentId: commentId,
         }).lean();
-
-        return likeStatus;
     }
 
     getCommentsCount(postId?: string): Promise<number> {

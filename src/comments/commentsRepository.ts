@@ -54,10 +54,7 @@ export class CommentsRepository {
     }
 
     async updateStatusCounter(commentId: string, likesCount: number, dislikesCount: number) {
-        console.log(`comments=${commentId}likes=${likesCount}dislikes=${dislikesCount}`);
         await CommentsModel.findOneAndUpdate({_id: commentId},
             {'likesInfo.likesCount': likesCount, 'likesInfo.dislikesCount': dislikesCount})
     }
-
-
 }
