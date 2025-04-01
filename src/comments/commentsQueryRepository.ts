@@ -36,7 +36,6 @@ export class CommentsQueryRepository {
     }
 
     async getCommentById(commentId: string, userId?: string) {
-        console.log("userId", userId, commentId);
         const comment = await CommentsModel.findOne({_id: new ObjectId(commentId)});
         if (!comment) return null;
 
@@ -46,8 +45,6 @@ export class CommentsQueryRepository {
             const status = await this.getUserStatus(userId, commentId);
             userStatus = status?.status ?? LikeStatus.None;
         }
-
-        console.log(`User ${userId || "anonymous"} has status ${userStatus} on comment ${commentId}`);
 
         return commentsMapper(comment, userStatus);
     }
@@ -116,14 +113,12 @@ export class CommentsQueryRepository {
     }
 
     async getUserStatus(userId: string, commentId: string) {
-        console.log(`Searching like status for comment=${commentId}, user=${userId}`);
 
         const likeStatus = await LikesModel.findOne({
             userId: userId,
             commentId: commentId,
         }).lean();
 
-        console.log(`Found like status:`, likeStatus);
         return likeStatus;
     }
 

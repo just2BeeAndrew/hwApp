@@ -39,7 +39,6 @@ export class CommentsRepository {
     }
 
     async createStatus(newStatus: LikesDBType) {
-        console.log(`Creating comment: ${JSON.stringify(newStatus, null, 2)}`);
         const savedStatus = new LikesModel({
             userId: newStatus.userId,
             commentId: newStatus.commentId,
@@ -50,33 +49,12 @@ export class CommentsRepository {
     }
 
     async updateStatus(statusId: ObjectId, status: LikeStatus) {
-        // Проверка на корректность статуса
-        if (!Object.values(LikeStatus).includes(status)) {
-            return false;
-        }
         const result = await LikesModel.findByIdAndUpdate(statusId, {status}, {new: true});
         return !!result;
-
-
-        // const statusInstance = await LikesModel.findOne({_id: statusId})
-        // if (!statusInstance) {
-        //     return false;
-        // }
-        // statusInstance.status = status
-        // await statusInstance.save()
-        // return true
-    }
-
-    async deleteStatus(statusId: ObjectId): Promise<boolean> {
-        const result = await LikesModel.findByIdAndDelete(statusId);
-        return !!result;
-    }
-
-    async statusCount(commentId: string, status: LikeStatus) {
-        return await LikesModel.countDocuments({commentId: commentId, status: status})
     }
 
     async updateStatusCounter(commentId: string, likesCount: number, dislikesCount: number) {
+        console.log(`comments=${commentId}likes=${likesCount}dislikes=${dislikesCount}`);
         await CommentsModel.findOneAndUpdate({_id: commentId},
             {'likesInfo.likesCount': likesCount, 'likesInfo.dislikesCount': dislikesCount})
     }
