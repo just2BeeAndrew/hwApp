@@ -24,7 +24,6 @@ app.use(SETTINGS.PATH.TESTING, testingRouter)
 app.use(SETTINGS.PATH.USERS, userRouter)
 app.use(SETTINGS.PATH.SECURITY_DEVICES, securityDeviceRouter)
 
-
 app.get('/', (req, res) => {
     res.status(HttpStatuses.SUCCESS).json("Всё работает")
 })

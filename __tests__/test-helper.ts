@@ -2,9 +2,11 @@ import {app} from '../src/app'
 import {agent} from 'supertest'
 import {SETTINGS} from "../src/settings";
 import {HttpStatuses} from "../src/types/httpStatuses";
+import {UserModelClass} from "../src/db/mongoDb";
+import bcrypt from 'bcryptjs';
+import {v4 as uuidv4} from "uuid";
 
 export const req = agent(app)
-
 
 
 export const deleteAll = async () => {
@@ -21,22 +23,38 @@ export const createAndLoginTestUser = async () => {
         login: "adminTest",
         password: "adminTest",
         email: "adminTest@test.com",
-    }
+    };
 
-    const createUserRes = await req
-        .post(SETTINGS.PATH.USERS)
-        .set('Authorization', baseAuthorization())
-        .send(testUser)
-        .expect(HttpStatuses.CREATED);
+    const hashedPassword = await bcrypt.hash(testUser.password, 10);
+    const createdUser = await UserModelClass.create({
+        accountData: {
+            login: testUser.login,
+            email: testUser.email,
+            passwordHash: hashedPassword,
+            createdAt: new Date().toISOString(),
+        },
+        emailConfirmation: {
+            isConfirm: true,
+            confirmationCode: uuidv4(),
+            expirationDate: new Date(Date.now() + 3600000).toISOString(),
+            issuedAt: new Date().toISOString(),
+        },
+    });
 
-    const loginRes = await req
-        .post(`${SETTINGS.PATH.AUTH}/login`)
+    console.log("Created user:", createdUser);
+
+    const loginResponse = await req
+        .post("/auth/login")
+        .set("User-Agent", "Test-Agent")
         .send({
-            loginOrEmail: testUser.login,
-            password: testUser.password,
+            loginOrEmail: "adminTest",
+            password: "adminTest",
         })
         .expect(HttpStatuses.SUCCESS);
-    return {userId: createUserRes.body.userId, accessToken: loginRes.body.accessToken};
+
+    expect(loginResponse.body).toHaveProperty("accessToken");
+
+    return {userId: createdUser._id, accessToken: loginResponse.body.accessToken};
 };
 
 export const createBlog = async () => {

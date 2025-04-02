@@ -1,8 +1,9 @@
-import {createComment,baseAuthorization, createAndLoginTestUser, createBlog, createPost, deleteAll, req} from "./test-helper";
+import {createComment,baseAuthorization, createAndLoginTestUser, createBlog, createPost, req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
 import {runDb} from "../src/db/mongoDb";
 import {ObjectId} from "mongodb";
+import mongoose from "mongoose";
 
 describe(`/posts`, () => {
     let accessToken: string;
@@ -10,8 +11,15 @@ describe(`/posts`, () => {
 
     beforeAll(async () => {
         await runDb(SETTINGS.MONGO_URL)
-        await deleteAll();
-        ({userId, accessToken} = await createAndLoginTestUser())
+        await mongoose.connect(SETTINGS.MONGO_URL)
+        await req.delete('/testing/all-data/').expect(HttpStatuses.NOCONTENT);
+        const user = await createAndLoginTestUser()
+        userId = user.userId
+        accessToken = user.accessToken;
+    },30000)
+
+    afterAll(async () => {
+        await mongoose.connection.close();
     })
 
     it('should create a new post', async () => {
