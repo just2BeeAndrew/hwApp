@@ -1,5 +1,5 @@
 import {SortType} from "../helpers/paginationValues";
-import {postsCollection} from "../db/mongoDb";
+import {PostsModel} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {PostDBType, PostOutputType} from "../types/db.types";
 import {inject, injectable} from "inversify";
@@ -22,12 +22,11 @@ export class PostsQueryRepository {
     constructor(@inject(BlogsQueryRepository)protected blogsQueryRepository: BlogsQueryRepository) {}
     async getAllPosts(sortData: SortType) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
-        const posts = await postsCollection
+        const posts = await PostsModel
             .find()
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray()
         const postsCount = await this.getPostsCount() //await postsCollection.countDocuments({})
         return {
             pagesCount: Math.ceil(postsCount / sortData.pageSize),
@@ -43,11 +42,11 @@ export class PostsQueryRepository {
         if (blogId) {
             filter.blogId = blogId;
         }
-        return postsCollection.countDocuments(filter)
+        return PostsModel.countDocuments(filter)
     }
 
     async getPostById(id: string) {
-        const posts = await postsCollection.findOne({_id:new ObjectId(id)});
+        const posts = await PostsModel.findOne({_id:new ObjectId(id)});
         if (!posts) {
             return null
         }
@@ -55,7 +54,7 @@ export class PostsQueryRepository {
     }
 
     async getPostBy_Id(_id: ObjectId) {
-        const posts = await postsCollection.findOne({_id});
+        const posts = await PostsModel.findOne({_id});
         if (!posts) {
             return null
         }
@@ -73,12 +72,11 @@ export class PostsQueryRepository {
         }
         filteredPosts.blogId = blogId;
 
-        const posts = await postsCollection
+        const posts = await PostsModel
             .find(filteredPosts)
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .toArray()
         const postsCount = await this.getPostsCount(blogId)
         return {
             pagesCount: Math.ceil(postsCount / sortData.pageSize),

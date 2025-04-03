@@ -1,5 +1,5 @@
 import {SortType} from "../helpers/paginationValues";
-import {blogsCollection} from "../db/mongoDb";
+import {BlogsModel} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {BlogDBType, BlogOutputType} from "../types/db.types";
 import {injectable} from "inversify";
@@ -23,13 +23,12 @@ export class BlogsQueryRepository {
         if (searchNameTerm) {//если searchNameTerm существует то...
             filter.name = {$regex: searchNameTerm, $options: "i"} //присваиваем найденые значения
         }
-        const blogs = await blogsCollection //возвращает значения по заданым критериям
+        const blogs = await BlogsModel //возвращает значения по заданым критериям
             .find(filter)//поиск переменной filter и вывод без поля _id
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})//выполняет сортировку по уюыванию
             .skip((pageNumber - 1) * pageSize)//переход на нужную страницу пропуская указаное количество элементов
             .limit(pageSize)//устанавливает кол-во элементов на странице
-            .toArray()
-        const blogsCount = await blogsCollection.countDocuments(filter)
+        const blogsCount = await BlogsModel.countDocuments(filter)
         return {
             pagesCount: Math.ceil(blogsCount / sortData.pageSize),
             page: sortData.pageNumber,
@@ -40,7 +39,7 @@ export class BlogsQueryRepository {
     }
 
     async getBlogBy_Id(_id: string) {
-        const blog = await blogsCollection.findOne({_id: new ObjectId(_id)});
+        const blog = await BlogsModel.findOne({_id: new ObjectId(_id)});
         if (!blog) {
             return null
         }

@@ -1,4 +1,4 @@
-import {CommentsModel, LikesModel, postsCollection} from "../db/mongoDb";
+import {CommentsModel, LikesModel, PostsModel} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {CommentDBType, CommentOutputType, LikeStatus} from "../types/db.types";
 import {SortType} from "../helpers/paginationValues";
@@ -65,7 +65,7 @@ export class CommentsQueryRepository {
             };
         }
 
-        const isExistingPost = await postsCollection.findOne({_id: new ObjectId(postId)});
+        const isExistingPost = await PostsModel.findOne({_id: new ObjectId(postId)});
         if (!isExistingPost) {
             return {
                 status: ResultStatus.NotFound,

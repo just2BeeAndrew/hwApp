@@ -1,5 +1,5 @@
 import {body} from "express-validator";
-import {blogsCollection} from "../db/mongoDb";
+import {BlogsModel} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 
 //blogs validation
@@ -68,7 +68,7 @@ export const blogIdValidator = body("blogId")
     .withMessage("content is required")
     .custom(async (blogId) => {
         const object_Id = new ObjectId(blogId)
-        const blog = await blogsCollection.findOne({_id: object_Id});
+        const blog = await BlogsModel.findOne({_id: object_Id});
         if (!blog) throw new Error("blog index not found");
         return !!blog
     })

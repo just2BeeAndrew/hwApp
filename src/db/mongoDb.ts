@@ -13,11 +13,30 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-export let blogsCollection: Collection<BlogDBType>
-export let postsCollection: Collection<PostDBType>
-
 export let tokensCollection: Collection<BlackListRefreshTokensType>
 export let devicesCollection: Collection<DevicesDBType>
+
+const BlogsSchema = new mongoose.Schema<BlogDBType>({
+    name: {type: String, required: true},
+    description: {tyoe: String, required: true},
+    websiteUrl: {type: String, required: true},
+    createdAt: {type: String, required: true},
+    isMembership: {type: Boolean, required: true},
+})
+
+export const BlogsModel = mongoose.model(SETTINGS.PATH.BLOGS, BlogsSchema)
+
+const PostsSchema = new mongoose.Schema<PostDBType>({
+    title: {type: String, required: true},
+    shortDescription: {type: String, required: true},
+    content: {type: String, required: true},
+    blogId: {type: String, required: true},
+    blogName: {type: String, required: true},
+    createdAt: {type: String, required: true},
+
+})
+
+export const PostsModel = mongoose.model(SETTINGS.PATH.POSTS, PostsSchema)
 
 const CommentsSchema = new mongoose.Schema<CommentDBType>({
     postId: {type: String, required: true},
@@ -81,9 +100,6 @@ export const LikesModel = mongoose.model(SETTINGS.PATH.LIKES, LikesSchema)
 export async function runDb(url: string): Promise<boolean> {
     let client = new MongoClient(url)//удалить при полном переводе на mongoose
     let db = client.db(SETTINGS.DB_NAME)//удалить при полном переводе на mongoose
-
-    blogsCollection = db.collection<BlogDBType>(SETTINGS.PATH.BLOGS)
-    postsCollection = db.collection<PostDBType>(SETTINGS.PATH.POSTS)
 
     tokensCollection = db.collection<BlackListRefreshTokensType>(SETTINGS.PATH.BLACKLIST)
     devicesCollection = db.collection<DevicesDBType>(SETTINGS.PATH.SECURITY_DEVICES)

@@ -1,6 +1,6 @@
 import {
-    blogsCollection,
-    postsCollection,
+    BlogsModel,
+    PostsModel,
     UserModelClass,
     tokensCollection,
     devicesCollection,
@@ -10,8 +10,8 @@ import {
 export const testingRepository = {
     async deleteAll() {
         await Promise.all([
-            blogsCollection.deleteMany({}),
-            postsCollection.deleteMany({}),
+            BlogsModel.deleteMany({}),
+            PostsModel.deleteMany({}),
             UserModelClass.deleteMany({}),
             CommentsModel.deleteMany({}),
             tokensCollection.deleteMany({}),

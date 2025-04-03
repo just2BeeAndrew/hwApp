@@ -8,6 +8,7 @@ const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.
 
 describe('/blogs', () => {
     beforeAll(async () => {
+
         await runDb(SETTINGS.MONGO_URL)
         await req.delete('/testing/all-data/').expect(HttpStatuses.NOCONTENT);
     });
