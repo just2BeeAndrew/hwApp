@@ -1,20 +1,26 @@
 import {MongoClient, Collection} from "mongodb";
-import mongoose, {connection, Schema} from "mongoose";
+import mongoose from "mongoose";
 import {
     BlogDBType,
     CommentDBType,
     PostDBType,
     UserDBType,
     BlackListRefreshTokensType,
-    DevicesDBType, LikeStatus, LikesDBType
+    DevicesDBType,
+    LikeStatus,
+    LikesDBType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 
+//---COLLECTION---
+
 export let tokensCollection: Collection<BlackListRefreshTokensType>
 export let devicesCollection: Collection<DevicesDBType>
+
+//---SCHEMAS---
 
 const BlogsSchema = new mongoose.Schema<BlogDBType>({
     name: {type: String, required: true},
@@ -22,9 +28,7 @@ const BlogsSchema = new mongoose.Schema<BlogDBType>({
     websiteUrl: {type: String, required: true},
     createdAt: {type: String, required: true},
     isMembership: {type: Boolean, required: true},
-})
-
-export const BlogsModel = mongoose.model(SETTINGS.PATH.BLOGS, BlogsSchema)
+});
 
 const PostsSchema = new mongoose.Schema<PostDBType>({
     title: {type: String, required: true},
@@ -33,10 +37,7 @@ const PostsSchema = new mongoose.Schema<PostDBType>({
     blogId: {type: String, required: true},
     blogName: {type: String, required: true},
     createdAt: {type: String, required: true},
-
-})
-
-export const PostsModel = mongoose.model(SETTINGS.PATH.POSTS, PostsSchema)
+});
 
 const CommentsSchema = new mongoose.Schema<CommentDBType>({
     postId: {type: String, required: true},
@@ -55,9 +56,7 @@ const CommentsSchema = new mongoose.Schema<CommentDBType>({
             default: LikeStatus.None
         },
     }
-})
-
-export const CommentsModel = mongoose.model(SETTINGS.PATH.COMMENTS, CommentsSchema)
+});
 
 const UserSchema = new mongoose.Schema<UserDBType>({
     accountData: {
@@ -75,8 +74,6 @@ const UserSchema = new mongoose.Schema<UserDBType>({
     }
 });
 
-export const UserModelClass = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
-
 const DeviceRateSchema = new mongoose.Schema({
     IP: String,
     URL: String,
@@ -85,30 +82,36 @@ const DeviceRateSchema = new mongoose.Schema({
         expires: 10,
         default: Date.now
     }
-})
-
-export const DeviceRateModel = mongoose.model(SETTINGS.PATH.DEVICES, DeviceRateSchema);
+});
 
 const LikesSchema = new mongoose.Schema<LikesDBType>({
     userId: {type: String, required: true},
     commentId: {type: String, required: true},
     status: {type: String, enum: Object.values(LikeStatus), required: true},
-})
+});
 
+//---MODELS---
+
+export const BlogsModel = mongoose.model(SETTINGS.PATH.BLOGS, BlogsSchema)
+export const PostsModel = mongoose.model(SETTINGS.PATH.POSTS, PostsSchema)
+export const CommentsModel = mongoose.model(SETTINGS.PATH.COMMENTS, CommentsSchema)
+export const UserModelClass = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
+export const DeviceRateModel = mongoose.model(SETTINGS.PATH.DEVICES, DeviceRateSchema);
 export const LikesModel = mongoose.model(SETTINGS.PATH.LIKES, LikesSchema)
 
-export async function runDb(url: string): Promise<boolean> {
-    let client = new MongoClient(url)//удалить при полном переводе на mongoose
+let client: MongoClient
+
+export async function runMongoDb(url: string): Promise<boolean> {
+    client = new MongoClient(url)//удалить при полном переводе на mongoose
     let db = client.db(SETTINGS.DB_NAME)//удалить при полном переводе на mongoose
 
     tokensCollection = db.collection<BlackListRefreshTokensType>(SETTINGS.PATH.BLACKLIST)
     devicesCollection = db.collection<DevicesDBType>(SETTINGS.PATH.SECURITY_DEVICES)
 
-
     try {
         await client.connect();//удалить при полном переводе на mongoose
         await mongoose.connect(SETTINGS.MONGO_URL)
-        //await db.command({ ping: 1 });
+
         if (mongoose.connection.readyState !== 1) {
             throw new Error('Не встал =(')
         }
@@ -121,6 +124,28 @@ export async function runDb(url: string): Promise<boolean> {
         await client.close();//удалить при полном переводе на mongoose
         await mongoose.disconnect();
         return false;
+    }
+}
+
+export async function stopMongoDb(){
+    try{
+        if(client){
+            await client.close();
+        }
+        await mongoose.disconnect();
+        console.log("🛑Лёг полежать ...zzz")
+    } catch(error){
+        console.error("❌0❌ не могу уснуть");
+    }
+}
+
+export async function dropMongoCollections(): Promise<void> {
+    try {
+        await tokensCollection.deleteMany({});
+        await devicesCollection.deleteMany({});
+        console.log("🧹 ПХД");
+    } catch (error) {
+        console.error("❌ Отмена ПХД:", error);
     }
 }
 
