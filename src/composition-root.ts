@@ -18,24 +18,6 @@ import {BlogsService} from "./blogs/blogsService";
 import {BlogsQueryRepository} from "./blogs/blogsQueryRepository";
 import {PostsQueryRepository} from "./posts/postsQueryRepository";
 
-// const objects:any[] = []
-//
-// const userRepository = new UsersRepository();
-// objects.push(userRepository);
-//
-// const usersService = new UsersService(userRepository)
-// objects.push(usersService);
-//
-// const usersController = new UsersController(usersService)
-// objects.push(usersController);
-//
-// export const ioc = {
-//     getInstance<T>(ClassType: any){
-//         const targetInstance = objects.find(o => o instanceof ClassType);
-//         return targetInstance;
-//     }
-// }
-
 export const container = new Container();
 
 //Users
