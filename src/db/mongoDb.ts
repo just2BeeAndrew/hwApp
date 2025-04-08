@@ -139,7 +139,7 @@ export async function stopMongoDb(){
     }
 }
 
-export async function dropMongoCollections(): Promise<void> {
+export async function dropMongoDb(): Promise<void> {
     try {
         await tokensCollection.deleteMany({});
         await devicesCollection.deleteMany({});

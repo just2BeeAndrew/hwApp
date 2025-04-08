@@ -1,7 +1,7 @@
 import {createBlog, createPost, req} from "./test-helper";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {SETTINGS} from "../src/settings";
-import {runDb} from "../src/db/mongoDb";
+import {runMongoDb} from "../src/db/mongoDb";
 import {ObjectId} from "mongodb";
 
 const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.PASSWORD}`).toString('base64');
@@ -9,7 +9,7 @@ const credentials = Buffer.from(`${SETTINGS.BASEAUTH.LOGIN}:${SETTINGS.BASEAUTH.
 describe('/blogs', () => {
     beforeAll(async () => {
 
-        await runDb(SETTINGS.MONGO_URL)
+        await runMongoDb(SETTINGS.MONGO_URL)
         await req.delete('/testing/all-data/').expect(HttpStatuses.NOCONTENT);
     });
 
@@ -121,7 +121,7 @@ describe('/blogs', () => {
     });
 
     it('should return 404 if trying to delete a non-existent blog', async () => {
-        const fakeId = new ObjectId().toString(); // Генерируем случайный валидный ObjectId
+        const fakeId = new ObjectId().toString();
         await req
             .delete(`${SETTINGS.PATH.BLOGS}/${fakeId}`)
             .set('Authorization', `Basic ${credentials}`)

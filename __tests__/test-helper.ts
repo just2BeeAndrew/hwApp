@@ -1,10 +1,12 @@
-import {app} from '../src/app'
+import {initApp} from '../src/app'
 import {agent} from 'supertest'
 import {SETTINGS} from "../src/settings";
 import {HttpStatuses} from "../src/types/httpStatuses";
 import {UserModelClass} from "../src/db/mongoDb";
 import bcrypt from 'bcryptjs';
 import {v4 as uuidv4} from "uuid";
+
+const app = initApp();
 
 export const req = agent(app)
 
