@@ -16,7 +16,7 @@ describe(`/posts`, () => {
         const user = await createAndLoginTestUser()
         userId = user.userId
         accessToken = user.accessToken;
-    },30000)
+    })
 
     afterAll(async () => {
         await mongoose.connection.close();

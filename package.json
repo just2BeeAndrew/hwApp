@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/index.js",
-    "jest": "jest --config jest.config.json ",
+    "jest": "jest --config jest.config.json --detectOpenHandles --runInBand --forceExit",
     "jest:coverage": "jest -i --coverage",
     "test:e2e": "jest --config jest-e2e.json --runInBand --detectOpenHandles --forceExit"
   },
