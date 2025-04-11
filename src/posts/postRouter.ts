@@ -17,7 +17,10 @@ const postsController = container.get(PostsController);
 
 export const postRouter = Router();
 
-
+postRouter.put('/:postId/like-status',
+    accessTokenMiddleware,
+    errorsResultMiddleware,
+    postsController.likeStatusForPost.bind(postsController));
 postRouter.get('/:postId/comments',
     authChecker,
     errorsResultMiddleware,

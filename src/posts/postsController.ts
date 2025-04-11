@@ -21,6 +21,10 @@ export class PostsController {
     ) {
     }
 
+    async likeStatusForPost(){
+
+    }
+
     async getCommentsByPostId(req: RequestWithParams<{ postId: string }>, res: Response) {
         const sortData = paginationQueries(req)
         const {postId} = req.params;

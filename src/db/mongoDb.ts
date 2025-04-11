@@ -8,7 +8,7 @@ import {
     BlackListRefreshTokensType,
     DevicesDBType,
     LikeStatus,
-    LikesDBType
+    LikesDBType, PostsLikesDBType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -90,6 +90,12 @@ const LikesSchema = new mongoose.Schema<LikesDBType>({
     status: {type: String, enum: Object.values(LikeStatus), required: true},
 });
 
+const ReactionForPostsSchema = new mongoose.Schema<PostsLikesDBType>({
+    userId: {type: String, required: true},
+    postId: {type: String, required: true},
+    status: {type: String, enum: Object.values(LikeStatus), required: true},
+});
+
 //---MODELS---
 
 export const BlogsModel = mongoose.model(SETTINGS.PATH.BLOGS, BlogsSchema)
@@ -98,6 +104,7 @@ export const CommentsModel = mongoose.model(SETTINGS.PATH.COMMENTS, CommentsSche
 export const UserModelClass = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
 export const DeviceRateModel = mongoose.model(SETTINGS.PATH.DEVICES, DeviceRateSchema);
 export const LikesModel = mongoose.model(SETTINGS.PATH.LIKES, LikesSchema)
+export const ReactionForPostsModel = mongoose.model(SETTINGS.PATH.POSTS_LIKES)
 
 let client: MongoClient
 
