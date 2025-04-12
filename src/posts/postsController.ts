@@ -5,7 +5,7 @@ import {CommentsQueryRepository} from "../comments/commentsQueryRepository";
 import {ResultStatus} from "../result/resultCode";
 import {resultCodeToHttpException} from "../result/resultCodeToHttpException";
 import {HttpStatuses} from "../types/httpStatuses";
-import {CommentInputType, PostInputType} from "../types/db.types";
+import {CommentInputType, LikeStatus, PostInputType} from "../types/db.types";
 import {CommentsService} from "../comments/commentsService";
 import {PostsQueryRepository} from "./postsQueryRepository";
 import {PostsService} from "./postsService";
@@ -21,7 +21,8 @@ export class PostsController {
     ) {
     }
 
-    async likeStatusForPost(){
+    async likeStatusForPost(req: RequestWithParamsAndBody<{ postId: string }, {likeStatus: LikeStatus}>, res: Response) {
+
 
     }
 
