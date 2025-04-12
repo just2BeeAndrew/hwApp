@@ -128,8 +128,8 @@ export class PostDBType {
                 public content: string,
                 public blogId: string,
                 public blogName: string,
-                public createdAt: string
-    public extendedLikesInfo) {
+                public createdAt: string,
+                public extendedLikesInfo: ExtendedLikesInfoType) {
     }
 }
 
@@ -137,12 +137,14 @@ export class ExtendedLikesInfoType {
     constructor(public likesCount: number = 0,
                 public dislikesCount: number = 0,
                 public myStatus: LikeStatus = LikeStatus.None,
-                public newestLikes: []) {
+                public newestLikes: LikesDetailsType[] | null) {
     }
 }
 
 export class LikesDetailsType {
-    constructor() {
+    constructor(public addedAt: string,
+                public userId: string | null,
+                public login: string | null,) {
     }
 }
 

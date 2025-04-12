@@ -8,7 +8,7 @@ import {
     BlackListRefreshTokensType,
     DevicesDBType,
     LikeStatus,
-    LikesDBType, PostsLikesDBType
+    LikesDBType, PostsLikesDBType, ExtendedLikesInfoType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -37,6 +37,7 @@ const PostsSchema = new mongoose.Schema<PostDBType>({
     blogId: {type: String, required: true},
     blogName: {type: String, required: true},
     createdAt: {type: String, required: true},
+    extendedLikesInfo: {type: ExtendedLikesInfoType, required: true},
 });
 
 const CommentsSchema = new mongoose.Schema<CommentDBType>({
