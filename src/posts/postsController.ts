@@ -23,7 +23,7 @@ export class PostsController {
 
     async likeStatusForPost(req: RequestWithParamsAndBody<{ postId: string }, { likeStatus: LikeStatus }>, res: Response) {
         const userId = req.user!.id as string;
-        const postId = req.params;
+        const {postId} = req.params;
         const {likeStatus} = req.body;
 
         if (!Object.values(LikeStatus).includes(likeStatus)) {
@@ -39,8 +39,13 @@ export class PostsController {
         }
 
         const result = await this.postsService.likeStatusForPosts(userId, postId, likeStatus)
-
-
+        if (result.status !== ResultStatus.Success) {
+            res
+                .status(resultCodeToHttpException(result.status))
+                .send(result.extensions)
+            return
+        }
+        res.sendStatus(HttpStatuses.NOCONTENT)
     }
 
     async getCommentsByPostId(req: RequestWithParams<{ postId: string }>, res: Response) {
