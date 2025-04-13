@@ -21,7 +21,24 @@ export class PostsController {
     ) {
     }
 
-    async likeStatusForPost(req: RequestWithParamsAndBody<{ postId: string }, {likeStatus: LikeStatus}>, res: Response) {
+    async likeStatusForPost(req: RequestWithParamsAndBody<{ postId: string }, { likeStatus: LikeStatus }>, res: Response) {
+        const userId = req.user!.id as string;
+        const postId = req.params;
+        const {likeStatus} = req.body;
+
+        if (!Object.values(LikeStatus).includes(likeStatus)) {
+            res.status(HttpStatuses.BAD_REQUEST).json({
+                errorsMessages: [
+                    {
+                        message: 'Invalid status value',
+                        field: 'likeStatus',
+                    }
+                ]
+            });
+            return;
+        }
+
+        const result = await this.postsService.likeStatusForPosts(userId, postId, likeStatus)
 
 
     }

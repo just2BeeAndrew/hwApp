@@ -1,4 +1,4 @@
-import { PostDBType, PostInputType} from "../types/db.types";
+import {LikeStatus, PostDBType, PostInputType} from "../types/db.types";
 import {PostsRepository} from "./postsRepository";
 import {inject, injectable} from "inversify";
 import {PostsQueryRepository} from "./postsQueryRepository";
@@ -12,19 +12,24 @@ export class PostsService {
         @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
     ) {}
 
+
+    async likeStatusForPosts(userId: string, postId: string, likeStatus: LikeStatus) {
+
+    }
+
     async createPost(createData: PostInputType) {
         const blogsIndex = await this.blogsQueryRepository.getBlogBy_Id(createData.blogId);
         if (!blogsIndex) return null
 
-        const post: PostDBType = {
-            title: createData.title,
-            shortDescription: createData.shortDescription,
-            content: createData.content,
-            blogId: createData.blogId,
-            blogName: blogsIndex.name,
-            createdAt: new Date().toISOString()
-        }
-        return await this.postsRepository.createPost(post);
+        const newPost = new PostDBType (
+            createData.title,
+            createData.shortDescription,
+            createData.content,
+            createData.blogId,
+            blogsIndex.name,
+            new Date().toISOString()
+    )
+        return await this.postsRepository.createPost(newPost);
 
     }
 
