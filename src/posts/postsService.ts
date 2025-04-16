@@ -25,6 +25,11 @@ export class PostsService {
             }
         }
 
+        const {likesCount, dislikesCount} = postExist.extendedLikesInfo
+
+        const existingReaction = await this.postsRepository.findReaction(userId, postId)
+        const  currentReaction = existingReaction?.status ?? LikeStatus.None
+
         return {
             status: ResultStatus.Success,
             data: null,

@@ -67,7 +67,7 @@ export class CommentsService {
         const {likesCount, dislikesCount} = commentExist.likesInfo
 
         const existingLike = await this.commentsRepository.findStatus(userId, commentId);
-        const currentStatus = existingLike?.status || LikeStatus.None
+        const currentStatus = existingLike?.status ?? LikeStatus.None
 
         if (existingLike) {
             if (existingLike.status === newStatus) {

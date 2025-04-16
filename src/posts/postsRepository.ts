@@ -1,5 +1,5 @@
 import {PostInputType, PostDBType,   BlogOutputType} from "../types/db.types";
-import {PostsModel} from "../db/mongoDb";
+import {PostsModel, ReactionForPostsModel} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 import {injectable} from "inversify";
 
@@ -44,6 +44,8 @@ export class PostsRepository {
         }
         return false
     }
-}
 
-export const postsRepository = new PostsRepository();
+    async findReaction(userId: string, postid: string) {
+        return await ReactionForPostsModel.findOne({userId: userId, postid: postid});
+    }
+}
