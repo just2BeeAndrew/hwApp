@@ -3,6 +3,7 @@ import {PostsRepository} from "./postsRepository";
 import {inject, injectable} from "inversify";
 import {PostsQueryRepository} from "./postsQueryRepository";
 import {BlogsQueryRepository} from "../blogs/blogsQueryRepository";
+import {ResultStatus} from "../result/resultCode";
 
 @injectable()
 export class PostsService {
@@ -14,6 +15,22 @@ export class PostsService {
 
 
     async likeStatusForPosts(userId: string, postId: string, likeStatus: LikeStatus) {
+        const postExist = await this.postsRepository.getPostBy_Id(postId)
+        if (!postExist) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Couldn't find post",
+                extensions: [{field: "post", message: "Not Found"}],
+            }
+        }
+
+        return {
+            status: ResultStatus.Success,
+            data: null,
+            extensions: [],
+        };
+
 
     }
 
