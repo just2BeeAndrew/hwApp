@@ -14,7 +14,7 @@ export class PostsService {
     ) {}
 
 
-    async likeStatusForPosts(userId: string, postId: string, likeStatus: LikeStatus) {
+    async likeStatusForPosts(userId: string, postId: string, newReaction: LikeStatus) {
         const postExist = await this.postsRepository.getPostBy_Id(postId)
         if (!postExist) {
             return {
@@ -29,6 +29,16 @@ export class PostsService {
 
         const existingReaction = await this.postsRepository.findReaction(userId, postId)
         const  currentReaction = existingReaction?.status ?? LikeStatus.None
+
+        if (existingReaction) {
+            if (existingReaction.status === newReaction) {
+                return {
+                    status: ResultStatus.Success,
+                    data: null,
+                    extensions: [],
+                }
+            }
+        }
 
         return {
             status: ResultStatus.Success,
