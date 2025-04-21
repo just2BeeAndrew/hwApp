@@ -1,4 +1,4 @@
-import {PostInputType, PostDBType,   BlogOutputType} from "../types/db.types";
+import {PostInputType, PostDBType, BlogOutputType, LikeStatus, PostsLikesDBType} from "../types/db.types";
 import {PostsModel, ReactionForPostsModel} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 import {injectable} from "inversify";
@@ -47,5 +47,20 @@ export class PostsRepository {
 
     async findReaction(userId: string, postid: string) {
         return await ReactionForPostsModel.findOne({userId: userId, postid: postid});
+    }
+
+    async createReaction(newReaction: PostsLikesDBType ) {
+        const savedReaction = new ReactionForPostsModel({
+            userId: newReaction.userId,
+            postId: newReaction.postId,
+            status: newReaction.status,
+        })
+        const result = await savedReaction.save();
+        return result.toObject({versionKey: false});
+    }
+
+    async updateReaction(reactionId: ObjectId, reaction : LikeStatus){
+        const result = await ReactionForPostsModel.findByIdAndUpdate(reactionId, {reaction}, {new: true});
+        return !!result;
     }
 }

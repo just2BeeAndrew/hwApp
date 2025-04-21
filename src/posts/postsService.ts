@@ -1,4 +1,4 @@
-import {LikeStatus, PostDBType, PostInputType} from "../types/db.types";
+import {LikesDBType, LikeStatus, PostDBType, PostInputType, PostsLikesDBType} from "../types/db.types";
 import {PostsRepository} from "./postsRepository";
 import {inject, injectable} from "inversify";
 import {PostsQueryRepository} from "./postsQueryRepository";
@@ -37,7 +37,12 @@ export class PostsService {
                     data: null,
                     extensions: [],
                 }
+            } else {
+                await this.postsRepository.updateReaction(existingReaction._id, newReaction)
             }
+        } else if (newReaction !== LikeStatus.None) {
+            const reaction = new PostsLikesDBType(userId, postId, newReaction)
+            await this.postsRepository.createReaction(reaction)
         }
 
         return {
