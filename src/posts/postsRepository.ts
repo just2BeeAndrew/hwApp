@@ -63,4 +63,9 @@ export class PostsRepository {
         const result = await ReactionForPostsModel.findByIdAndUpdate(reactionId, {reaction}, {new: true});
         return !!result;
     }
+
+    async updateReactionCounter(postId: string, likesCount: number, dislikesCount: number) {
+        await PostsModel.findOneAndUpdate({_id: postId},
+            {'extendedLikesInfo.likesCount': likesCount, 'extendedLikesInfo.dislikesCount': dislikesCount})
+    }
 }

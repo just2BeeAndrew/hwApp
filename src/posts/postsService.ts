@@ -28,7 +28,7 @@ export class PostsService {
         const {likesCount, dislikesCount} = postExist.extendedLikesInfo
 
         const existingReaction = await this.postsRepository.findReaction(userId, postId)
-        const  currentReaction = existingReaction?.status ?? LikeStatus.None
+        const currentReaction = existingReaction?.status ?? LikeStatus.None
 
         if (existingReaction) {
             if (existingReaction.status === newReaction) {
@@ -44,6 +44,10 @@ export class PostsService {
             const reaction = new PostsLikesDBType(userId, postId, newReaction)
             await this.postsRepository.createReaction(reaction)
         }
+
+        const updatedCounts = await this.calculateReactionCount(likesCount, dislikesCount, currentReaction, newReaction);
+
+        await this.postsRepository.updateReactionCounter(postId, updatedCounts.likesCount, updatedCounts.dislikesCount);
 
         return {
             status: ResultStatus.Success,
@@ -79,5 +83,25 @@ export class PostsService {
 
     async deletePost(id: string): Promise<boolean> {
         return await this.postsRepository.deletePost(id);
+    }
+
+    async calculateReactionCount(likesCount: number, dislikesCount: number, existingReaction: LikeStatus, newReaction: LikeStatus): Promise<{
+        likesCount: number,
+        dislikesCount: number
+    }> {
+        if (existingReaction === LikeStatus.Like && newReaction !== LikeStatus.Like) {
+            likesCount -= 1;
+        }
+        if (existingReaction === LikeStatus.Dislike && newReaction !== LikeStatus.Dislike) {
+            dislikesCount -= 1;
+        }
+        if (newReaction === LikeStatus.Like && existingReaction !== LikeStatus.Like) {
+            likesCount += 1;
+        }
+        if (newReaction === LikeStatus.Dislike && existingReaction !== LikeStatus.Dislike) {
+            dislikesCount += 1;
+        }
+
+        return {likesCount, dislikesCount}
     }
 }
