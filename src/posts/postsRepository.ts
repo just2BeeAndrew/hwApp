@@ -54,6 +54,7 @@ export class PostsRepository {
             userId: newReaction.userId,
             postId: newReaction.postId,
             status: newReaction.status,
+            addedAt: newReaction.addedAt
         })
         const result = await savedReaction.save();
         return result.toObject({versionKey: false});

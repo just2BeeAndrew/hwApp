@@ -109,6 +109,7 @@ export class PostsLikesDBType {
     constructor(public userId: string,
                 public postId: string,
                 public status: LikeStatus,
+                public addedAt: string,
     ) {
     }
 }

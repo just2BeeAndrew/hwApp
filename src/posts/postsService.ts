@@ -41,7 +41,7 @@ export class PostsService {
                 await this.postsRepository.updateReaction(existingReaction._id, newReaction)
             }
         } else if (newReaction !== LikeStatus.None) {
-            const reaction = new PostsLikesDBType(userId, postId, newReaction)
+            const reaction = new PostsLikesDBType(userId, postId, newReaction, new Date().toISOString())
             await this.postsRepository.createReaction(reaction)
         }
 

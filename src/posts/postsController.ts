@@ -87,8 +87,9 @@ export class PostsController {
     }
 
     async getAllPosts(req: Request, res: Response) {
+        const userId = req.user?.id as string;
         const sortData = paginationQueries(req)
-        const posts = await this.postsQueryRepository.getAllPosts(sortData);
+        const posts = await this.postsQueryRepository.getAllPosts(sortData, userId);
         res.status(200).send(posts);
     }
 
@@ -105,7 +106,8 @@ export class PostsController {
     }
 
     async getPostById(req: Request, res: Response) {
-        const postId = await this.postsQueryRepository.getPostById(req.params.id);
+        const userId = req.user?.id as string;
+        const postId = await this.postsQueryRepository.getPostById(req.params.id, userId);
         if (postId) {
             res.status(200).send(postId);
             return;

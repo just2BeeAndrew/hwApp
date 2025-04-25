@@ -30,6 +30,27 @@ const BlogsSchema = new mongoose.Schema<BlogDBType>({
     isMembership: {type: Boolean, required: true},
 });
 
+const LikesDetailsSchema = new mongoose.Schema({
+    addedAt: { type: String, required: true },
+    userId: { type: String, required: true },
+    login: { type: String, required: true }
+});
+
+const ExtendedLikesInfoSchema = new mongoose.Schema({
+    likesCount: { type: Number, default: 0 },
+    dislikesCount: { type: Number, default: 0 },
+    myStatus: {
+        type: String,
+        enum: Object.values(LikeStatus),
+        default: LikeStatus.None
+    },
+    newestLikes: {
+        type: [LikesDetailsSchema],
+        required: true,
+        default: []
+    }
+});
+
 const PostsSchema = new mongoose.Schema<PostDBType>({
     title: {type: String, required: true},
     shortDescription: {type: String, required: true},
@@ -37,8 +58,18 @@ const PostsSchema = new mongoose.Schema<PostDBType>({
     blogId: {type: String, required: true},
     blogName: {type: String, required: true},
     createdAt: {type: String, required: true},
-    extendedLikesInfo: {type: ExtendedLikesInfoType, required: true},
+    extendedLikesInfo: {
+        type: ExtendedLikesInfoSchema,
+        default: () => ({
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: LikeStatus.None,
+            newestLikes: []
+        })
+    },
 });
+
+
 
 const CommentsSchema = new mongoose.Schema<CommentDBType>({
     postId: {type: String, required: true},
@@ -95,6 +126,7 @@ const ReactionForPostsSchema = new mongoose.Schema<PostsLikesDBType>({
     userId: {type: String, required: true},
     postId: {type: String, required: true},
     status: {type: String, enum: Object.values(LikeStatus), required: true},
+    addedAt: {type: String, required: true},
 });
 
 //---MODELS---
@@ -105,7 +137,7 @@ export const CommentsModel = mongoose.model(SETTINGS.PATH.COMMENTS, CommentsSche
 export const UserModelClass = mongoose.model(SETTINGS.PATH.USERS, UserSchema)
 export const DeviceRateModel = mongoose.model(SETTINGS.PATH.DEVICES, DeviceRateSchema);
 export const LikesModel = mongoose.model(SETTINGS.PATH.LIKES, LikesSchema)
-export const ReactionForPostsModel = mongoose.model(SETTINGS.PATH.POSTS_LIKES)
+export const ReactionForPostsModel = mongoose.model(SETTINGS.PATH.POSTS_LIKES, ReactionForPostsSchema)
 
 let client: MongoClient
 
