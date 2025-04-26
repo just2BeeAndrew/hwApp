@@ -31,14 +31,14 @@ const BlogsSchema = new mongoose.Schema<BlogDBType>({
 });
 
 const LikesDetailsSchema = new mongoose.Schema({
-    addedAt: { type: String, required: true },
-    userId: { type: String, required: true },
-    login: { type: String, required: true }
+    addedAt: {type: String, required: true},
+    userId: {type: String, required: true},
+    login: {type: String, required: true}
 });
 
 const ExtendedLikesInfoSchema = new mongoose.Schema({
-    likesCount: { type: Number, default: 0 },
-    dislikesCount: { type: Number, default: 0 },
+    likesCount: {type: Number, default: 0},
+    dislikesCount: {type: Number, default: 0},
     myStatus: {
         type: String,
         enum: Object.values(LikeStatus),
@@ -46,10 +46,9 @@ const ExtendedLikesInfoSchema = new mongoose.Schema({
     },
     newestLikes: {
         type: [LikesDetailsSchema],
-        required: true,
         default: []
-    }
-});
+    },
+})
 
 const PostsSchema = new mongoose.Schema<PostDBType>({
     title: {type: String, required: true},
@@ -58,18 +57,8 @@ const PostsSchema = new mongoose.Schema<PostDBType>({
     blogId: {type: String, required: true},
     blogName: {type: String, required: true},
     createdAt: {type: String, required: true},
-    extendedLikesInfo: {
-        type: ExtendedLikesInfoSchema,
-        default: () => ({
-            likesCount: 0,
-            dislikesCount: 0,
-            myStatus: LikeStatus.None,
-            newestLikes: []
-        })
-    },
+    extendedLikesInfo: {type: ExtendedLikesInfoSchema},
 });
-
-
 
 const CommentsSchema = new mongoose.Schema<CommentDBType>({
     postId: {type: String, required: true},
@@ -167,14 +156,14 @@ export async function runMongoDb(url: string): Promise<boolean> {
     }
 }
 
-export async function stopMongoDb(){
-    try{
-        if(client){
+export async function stopMongoDb() {
+    try {
+        if (client) {
             await client.close();
         }
         await mongoose.disconnect();
         console.log("🛑Лёг полежать ...zzz")
-    } catch(error){
+    } catch (error) {
         console.error("❌0❌ не могу уснуть");
     }
 }
