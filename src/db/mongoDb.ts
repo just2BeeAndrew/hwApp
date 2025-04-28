@@ -32,8 +32,8 @@ const BlogsSchema = new mongoose.Schema<BlogDBType>({
 
 const LikesDetailsSchema = new mongoose.Schema({
     addedAt: {type: String, required: true},
-    userId: {type: String, required: true},
-    login: {type: String, required: true}
+    userId: {type: String, default: null},
+    login: {type: String, default: null},
 });
 
 const ExtendedLikesInfoSchema = new mongoose.Schema({

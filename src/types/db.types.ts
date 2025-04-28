@@ -138,7 +138,7 @@ export class ExtendedLikesInfoType {
     constructor(public likesCount: number = 0,
                 public dislikesCount: number = 0,
                 public myStatus: LikeStatus = LikeStatus.None,
-                public newestLikes: LikesDetailsType[] | null = null) {
+                public newestLikes: LikesDetailsType[] = []) {
     }
 }
 

@@ -17,7 +17,7 @@ export class PostsRepository {
 
     async createPost(createdPost: PostDBType): Promise<ObjectId> {
         const res = await PostsModel.create(createdPost);
-        return res._id
+        return res._id;
     }
 
     async updatePost(id: string, body: PostInputType, blogsIndex: BlogOutputType): Promise<boolean> {
