@@ -105,9 +105,10 @@ export class PostsController {
 
     }
 
-    async getPostById(req: Request, res: Response) {
+    async getPostById(req: RequestWithParams<{postId: string}>, res: Response) {
         const userId = req.user?.id as string;
-        const postId = await this.postsQueryRepository.getPostById(req.params.id, userId);
+        const {postId} = req.params;
+        const post = await this.postsQueryRepository.getPostById(postId, userId);
         if (postId) {
             res.status(200).send(postId);
             return;

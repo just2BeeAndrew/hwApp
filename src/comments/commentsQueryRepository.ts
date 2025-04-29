@@ -113,11 +113,7 @@ export class CommentsQueryRepository {
     }
 
     async getUserStatus(userId: string, commentId: string) {
-
-        return await LikesModel.findOne({
-            userId: userId,
-            commentId: commentId,
-        }).lean();
+        return await LikesModel.findOne({userId: userId, commentId: commentId}).lean();
     }
 
     getCommentsCount(postId?: string): Promise<number> {

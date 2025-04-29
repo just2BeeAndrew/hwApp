@@ -136,44 +136,53 @@ export class PostsQueryRepository {
         return PostsModel.countDocuments(filter)
     }
 
-    async getPostById(id: string, userId: string) {
-        const post = await PostsModel.findOne({_id: new ObjectId(id)}).lean();
-        if (!post) {
-            return null
+    async getPostById(postId: string, userId?: string) {
+        const post = await PostsModel.findOne({_id: new ObjectId(postId)}).lean();
+        if (!post) return null
+
+        let userReaction: LikeStatus = LikeStatus.None;
+
+        if(userId) {
+            const status = await this.getUserReaction(userId, postId)
         }
-        const reactions = await ReactionForPostsModel.find({
-            postId: id
-        }).populate('userId', 'accountData.login').lean();
 
-        // Разделяем лайки и дизлайки
-        const likes = reactions.filter(r => r.status === 'Like');
-        const dislikes = reactions.filter(r => r.status === 'Dislike');
 
-        // Получаем последние 3 лайка
-        const newestLikes = likes
-            .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
-            .slice(0, 3)
-            .map(like => ({
-                addedAt: like.addedAt,
-                userId: like.userId,
-                login: (like.userId as any).accountData.login
-            }));
 
-        // Определяем статус текущего пользователя
-        const myStatus = userId
-            ? reactions.find(r => r.userId === userId)?.status || 'None'
-            : 'None';
 
-        // Формируем результат с использованием postMapper
-        return {
-            ...postMapper(post),
-            extendedLikesInfo: {
-                likesCount: likes.length,
-                dislikesCount: dislikes.length,
-                myStatus,
-                newestLikes
-            }
-        };
+
+        // const reactions = await ReactionForPostsModel.find({
+        //     postId: id
+        // }).populate('userId', 'accountData.login').lean();
+        //
+        // // Разделяем лайки и дизлайки
+        // const likes = reactions.filter(r => r.status === 'Like');
+        // const dislikes = reactions.filter(r => r.status === 'Dislike');
+        //
+        // // Получаем последние 3 лайка
+        // const newestLikes = likes
+        //     .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+        //     .slice(0, 3)
+        //     .map(like => ({
+        //         addedAt: like.addedAt,
+        //         userId: like.userId,
+        //         login: (like.userId as any).accountData.login
+        //     }));
+        //
+        // // Определяем статус текущего пользователя
+        // const myStatus = userId
+        //     ? reactions.find(r => r.userId === userId)?.status || 'None'
+        //     : 'None';
+        //
+        // // Формируем результат с использованием postMapper
+        // return {
+        //     ...postMapper(post),
+        //     extendedLikesInfo: {
+        //         likesCount: likes.length,
+        //         dislikesCount: dislikes.length,
+        //         myStatus,
+        //         newestLikes
+        //     }
+        // };
     }
 
     async getPostBy_Id(_id: ObjectId) {
@@ -208,5 +217,9 @@ export class PostsQueryRepository {
             totalCount: postsCount,
             items: posts.map(postMapper),
         }
+    }
+
+    async getUserReaction(userId: string, postId: string) {
+
     }
 }
