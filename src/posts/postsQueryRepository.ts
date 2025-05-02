@@ -5,7 +5,7 @@ import {LikeStatus, PostDBType, PostOutputType} from "../types/db.types";
 import {inject, injectable} from "inversify";
 import {BlogsQueryRepository} from "../blogs/blogsQueryRepository";
 
-const postMapper = (post: WithId<PostDBType>): PostOutputType => {
+const postMapper = (post: WithId<PostDBType>, reaction: LikeStatus): PostOutputType => {
     return {
         id: post._id.toString(),
         title: post.title,
@@ -13,7 +13,13 @@ const postMapper = (post: WithId<PostDBType>): PostOutputType => {
         content: post.content,
         blogId: post.blogId,
         blogName: post.blogName,
-        createdAt: post.createdAt
+        createdAt: post.createdAt,
+        extendedLikesInfo: {
+            likesCount: post.extendedLikesInfo.likesCount,
+            dislikesCount: post.extendedLikesInfo.dislikesCount,
+            myStatus: reaction,
+            newestLikes: post.extendedLikesInfo.newestLikes
+        }
     }
 }
 
@@ -32,100 +38,7 @@ export class PostsQueryRepository {
             .exec()
         const postsCount = await this.getPostsCount()
 
-        const postId = posts.map(post => post._id.toString())
 
-        const allReactions = await ReactionForPostsModel.find({
-            postId: {$in: postId}
-        }).lean();
-        console.log("all Reactions", allReactions);
-
-// создаю массив и преобразую в новую уникальную коллекцию в которой хранятся все пользователи со значением Like
-        const userIdForNewestLikes = Array.from(new Set(
-            allReactions
-                .filter(r => r.status === 'Like')
-                .map(r => r.userId)
-        ));
-
-        console.log("userIdForNewestLikes", userIdForNewestLikes);
-
-        const users = await UserModelClass.find(
-            {_id: {$in: userIdForNewestLikes}},
-            {'accountData.login': 1}
-        ).lean();
-
-        const usersMap = users.reduce((map, user) => {
-            map.set(user._id.toString(), user.accountData.login);
-            return map;
-        }, new Map<string, string>());
-
-        console.log("usersMap", usersMap);
-
-        const reactionsByPostId = allReactions.reduce((map, reaction) => {
-            const postId = reaction.postId;
-            if (!map.has(postId)) {
-                map.set(postId, []);
-            }
-            map.get(postId)!.push(reaction);
-            return map;
-        }, new Map<string, typeof allReactions>());
-
-        console.log("reactionsByPostId", reactionsByPostId);
-
-        const myStatusMap = userId ? allReactions.reduce((map, reaction) => {
-            if (reaction.userId === userId) {
-                map.set(reaction.postId, reaction.status);
-            }
-            return map;
-        }, new Map<string, LikeStatus>()) : new Map<string, LikeStatus>();
-
-        console.log("myStatusMap", myStatusMap)
-
-        // Формируем итоговый ответ
-        const items = posts.map(post => {
-            const postId = post._id.toString();
-            const postReactions = reactionsByPostId.get(postId) || [];
-
-            // Разделяем лайки и дизлайки
-            const { likes, dislikes } = postReactions.reduce((acc, reaction) => {
-                if (reaction.status === 'Like') acc.likes.push(reaction);
-                if (reaction.status === 'Dislike') acc.dislikes.push(reaction);
-                return acc;
-            }, { likes: [] as typeof allReactions, dislikes: [] as typeof allReactions });
-
-            // Получаем последние 3 лайка с логинами
-            const newestLikes = likes
-                .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
-                .slice(0, 3)
-                .map(like => ({
-                    addedAt: like.addedAt,
-                    userId: like.userId,
-                    login: usersMap.get(like.userId) || 'unknown'
-                }));
-
-            return {
-                id: post._id.toString(),
-                title: post.title,
-                shortDescription: post.shortDescription,
-                content: post.content,
-                blogId: post.blogId,
-                blogName: post.blogName,
-                createdAt: post.createdAt,
-                extendedLikesInfo: {
-                    likesCount: likes.length,
-                    dislikesCount: dislikes.length,
-                    myStatus: myStatusMap.get(postId) || 'None',
-                    newestLikes
-                }
-            };
-        });
-
-        return {
-            pagesCount: Math.ceil(postsCount / sortData.pageSize),
-            page: sortData.pageNumber,
-            pageSize: sortData.pageSize,
-            totalCount: postsCount,
-            items: items,
-        }
     }
 
     getPostsCount(blogId?: string): Promise<number> {
@@ -220,6 +133,6 @@ export class PostsQueryRepository {
     }
 
     async getUserReaction(userId: string, postId: string) {
-
+return await ReactionForPostsModel.findOne({userId: userId, postId: postId })
     }
 }

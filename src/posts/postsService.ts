@@ -1,4 +1,4 @@
-import {LikesDBType, LikeStatus, PostDBType, PostInputType, PostsLikesDBType} from "../types/db.types";
+import {LikeStatus, PostDBType, PostInputType, PostsLikesDBType} from "../types/db.types";
 import {PostsRepository} from "./postsRepository";
 import {inject, injectable} from "inversify";
 import {PostsQueryRepository} from "./postsQueryRepository";
@@ -68,7 +68,13 @@ export class PostsService {
             createData.content,
             createData.blogId,
             blogsIndex.name,
-            new Date().toISOString()
+            new Date().toISOString(),
+        {
+            likesCount: 0,
+            dislikesCount: 0,
+            myStatus: LikeStatus.None,
+            newestLikes: []
+        }
     )
         return await this.postsRepository.createPost(newPost);
 

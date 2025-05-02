@@ -157,6 +157,7 @@ export type PostOutputType = {
     blogId: string,
     blogName: string,
     createdAt: string
+    extendedLikesInfo: ExtendedLikesInfoType
 }
 
 
