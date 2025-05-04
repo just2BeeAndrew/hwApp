@@ -8,7 +8,7 @@ import {
     BlackListRefreshTokensType,
     DevicesDBType,
     LikeStatus,
-    LikesDBType, PostsLikesDBType, ExtendedLikesInfoType
+    LikesDBType, PostsLikesDBType, ExtendedLikesInfoType, LikesDetailsType
 } from "../types/db.types";
 import {SETTINGS} from "../settings";
 import * as dotenv from "dotenv";
@@ -30,13 +30,13 @@ const BlogsSchema = new mongoose.Schema<BlogDBType>({
     isMembership: {type: Boolean, required: true},
 });
 
-const LikesDetailsSchema = new mongoose.Schema({
+const LikesDetailsSchema = new mongoose.Schema<LikesDetailsType>({
     addedAt: {type: String, required: true},
     userId: {type: String, default: null},
     login: {type: String, default: null},
 });
 
-const ExtendedLikesInfoSchema = new mongoose.Schema({
+const ExtendedLikesInfoSchema = new mongoose.Schema<ExtendedLikesInfoType>({
     likesCount: {type: Number, default: 0},
     dislikesCount: {type: Number, default: 0},
     myStatus: {
@@ -113,6 +113,7 @@ const LikesSchema = new mongoose.Schema<LikesDBType>({
 
 const ReactionForPostsSchema = new mongoose.Schema<PostsLikesDBType>({
     userId: {type: String, required: true},
+    login: {type: String, required: true},
     postId: {type: String, required: true},
     status: {type: String, enum: Object.values(LikeStatus), required: true},
     addedAt: {type: String, required: true},

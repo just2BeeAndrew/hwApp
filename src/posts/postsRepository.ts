@@ -1,4 +1,11 @@
-import {PostInputType, PostDBType, BlogOutputType, LikeStatus, PostsLikesDBType} from "../types/db.types";
+import {
+    PostInputType,
+    PostDBType,
+    BlogOutputType,
+    LikeStatus,
+    PostsLikesDBType,
+    LikesDetailsType
+} from "../types/db.types";
 import {PostsModel, ReactionForPostsModel} from "../db/mongoDb";
 import {ObjectId} from "mongodb";
 import {injectable} from "inversify";
@@ -8,7 +15,7 @@ export class PostsRepository {
 
 
     async getPostBy_Id(_id: string) {
-        const post = await PostsModel.findOne({_id:new ObjectId(_id)});
+        const post = await PostsModel.findOne({_id: new ObjectId(_id)});
         if (!post) {
             return null
         }
@@ -49,9 +56,10 @@ export class PostsRepository {
         return await ReactionForPostsModel.findOne({userId: userId, postid: postid});
     }
 
-    async createReaction(newReaction: PostsLikesDBType ) {
+    async createReaction(newReaction: PostsLikesDBType) {
         const savedReaction = new ReactionForPostsModel({
             userId: newReaction.userId,
+            login: newReaction.login,
             postId: newReaction.postId,
             status: newReaction.status,
             addedAt: newReaction.addedAt
@@ -60,7 +68,7 @@ export class PostsRepository {
         return result.toObject({versionKey: false});
     }
 
-    async updateReaction(reactionId: ObjectId, reaction : LikeStatus){
+    async updateReaction(reactionId: ObjectId, reaction: LikeStatus) {
         const result = await ReactionForPostsModel.findByIdAndUpdate(reactionId, {reaction}, {new: true});
         return !!result;
     }
@@ -69,4 +77,20 @@ export class PostsRepository {
         await PostsModel.findOneAndUpdate({_id: postId},
             {'extendedLikesInfo.likesCount': likesCount, 'extendedLikesInfo.dislikesCount': dislikesCount})
     }
+
+    async getNewestLikesByPostId(postId: string) {
+        const likes = await ReactionForPostsModel
+            .find({postId: postId, status: LikeStatus.Like})
+            .sort({createdAt: -1})
+            .limit(3)
+            .exec();
+        return likes.map(like => {
+            return new LikesDetailsType(
+                like.addedAt,
+                like.userId,
+                like.login
+            );
+        });
+    }
+
 }

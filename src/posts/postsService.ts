@@ -1,16 +1,18 @@
-import {LikeStatus, PostDBType, PostInputType, PostsLikesDBType} from "../types/db.types";
+import {LikesDetailsType, LikeStatus, PostDBType, PostInputType, PostsLikesDBType} from "../types/db.types";
 import {PostsRepository} from "./postsRepository";
 import {inject, injectable} from "inversify";
 import {PostsQueryRepository} from "./postsQueryRepository";
 import {BlogsQueryRepository} from "../blogs/blogsQueryRepository";
 import {ResultStatus} from "../result/resultCode";
+import {UsersRepository} from "../users/usersRepository";
 
 @injectable()
 export class PostsService {
     constructor(
         @inject(PostsRepository) protected postsRepository: PostsRepository,
         @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
-        @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository
+        @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
+        @inject(UsersRepository) protected usersRepository: UsersRepository,
     ) {}
 
 
@@ -25,6 +27,17 @@ export class PostsService {
             }
         }
 
+        const user = await this.usersRepository.getUserBy_Id(userId)
+        if (!user) {
+            return {
+                status: ResultStatus.NotFound,
+                data: null,
+                errorMessage: "Couldn't find user",
+                extensions: [{field: "user", message: "Not Found"}],
+            }
+        }
+
+        const {login} = user.accountData
         const {likesCount, dislikesCount} = postExist.extendedLikesInfo
 
         const existingReaction = await this.postsRepository.findReaction(userId, postId)
@@ -41,13 +54,15 @@ export class PostsService {
                 await this.postsRepository.updateReaction(existingReaction._id, newReaction)
             }
         } else if (newReaction !== LikeStatus.None) {
-            const reaction = new PostsLikesDBType(userId, postId, newReaction, new Date().toISOString())
+            const reaction = new PostsLikesDBType(userId, login, postId, newReaction, new Date().toISOString())
             await this.postsRepository.createReaction(reaction)
         }
 
         const updatedCounts = await this.calculateReactionCount(likesCount, dislikesCount, currentReaction, newReaction);
 
         await this.postsRepository.updateReactionCounter(postId, updatedCounts.likesCount, updatedCounts.dislikesCount);
+
+        const newestLikes: LikesDetailsType[] = await this.postsRepository.getNewestLikesByPostId(postId)
 
         return {
             status: ResultStatus.Success,
