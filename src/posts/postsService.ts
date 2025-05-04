@@ -5,6 +5,8 @@ import {PostsQueryRepository} from "./postsQueryRepository";
 import {BlogsQueryRepository} from "../blogs/blogsQueryRepository";
 import {ResultStatus} from "../result/resultCode";
 import {UsersRepository} from "../users/usersRepository";
+import {PostsModel} from "../db/mongoDb";
+import {ObjectId} from "mongodb";
 
 @injectable()
 export class PostsService {
@@ -64,13 +66,20 @@ export class PostsService {
 
         const newestLikes: LikesDetailsType[] = await this.postsRepository.getNewestLikesByPostId(postId)
 
+        const post = await PostsModel.findById({_id: new ObjectId(postId)})
+        if (!post) {
+            throw new Error("No post found with id " + postId)
+        }
+
+        post.extendedLikesInfo.newestLikes = newestLikes
+
+        await post.save()
+
         return {
             status: ResultStatus.Success,
             data: null,
             extensions: [],
         };
-
-
     }
 
     async createPost(createData: PostInputType) {

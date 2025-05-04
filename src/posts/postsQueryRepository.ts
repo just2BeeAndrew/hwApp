@@ -1,5 +1,5 @@
 import {SortType} from "../helpers/paginationValues";
-import {PostsModel, ReactionForPostsModel, UserModelClass} from "../db/mongoDb";
+import {PostsModel, ReactionForPostsModel} from "../db/mongoDb";
 import {ObjectId, WithId} from "mongodb";
 import {LikeStatus, PostDBType, PostOutputType} from "../types/db.types";
 import {inject, injectable} from "inversify";
@@ -30,17 +30,44 @@ export class PostsQueryRepository {
 
     async getAllPosts(sortData: SortType, userId: string) {
         const {sortBy, sortDirection, pageSize, pageNumber} = sortData;
+
+        // Получаем посты
         const posts = await PostsModel
             .find()
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
-            .exec()
-        const postsCount = await this.getPostsCount()
+            .exec();
 
+        let reactionMap = new Map<string, LikeStatus>();
 
+        if (userId) {
+            const reactions = await ReactionForPostsModel.find({
+                userId,
+                postId: {$in: posts.map(post => post._id.toString())},
+            });
+
+            reactionMap = reactions.reduce((map, reaction) => {
+                map.set(reaction.postId.toString(), reaction.status);
+                return map;
+            }, new Map<string, LikeStatus>());
+        }
+
+        const postsCount = await this.getPostsCount();
+
+        return {
+            pagesCount: Math.ceil(postsCount / pageSize),
+            page: pageNumber,
+            pageSize: pageSize,
+            totalCount: postsCount,
+            items: posts.map(post =>
+                postMapper(
+                    post,
+                    reactionMap.get(post._id.toString()) || LikeStatus.None
+                )
+            )
+        };
     }
-
     getPostsCount(blogId?: string): Promise<number> {
         const filter: any = {}
         if (blogId) {
@@ -55,47 +82,10 @@ export class PostsQueryRepository {
 
         let userReaction: LikeStatus = LikeStatus.None;
 
-        if(userId) {
+        if (userId) {
             const status = await this.getUserReaction(userId, postId)
         }
-
-
-
-
-
-        // const reactions = await ReactionForPostsModel.find({
-        //     postId: id
-        // }).populate('userId', 'accountData.login').lean();
-        //
-        // // Разделяем лайки и дизлайки
-        // const likes = reactions.filter(r => r.status === 'Like');
-        // const dislikes = reactions.filter(r => r.status === 'Dislike');
-        //
-        // // Получаем последние 3 лайка
-        // const newestLikes = likes
-        //     .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
-        //     .slice(0, 3)
-        //     .map(like => ({
-        //         addedAt: like.addedAt,
-        //         userId: like.userId,
-        //         login: (like.userId as any).accountData.login
-        //     }));
-        //
-        // // Определяем статус текущего пользователя
-        // const myStatus = userId
-        //     ? reactions.find(r => r.userId === userId)?.status || 'None'
-        //     : 'None';
-        //
-        // // Формируем результат с использованием postMapper
-        // return {
-        //     ...postMapper(post),
-        //     extendedLikesInfo: {
-        //         likesCount: likes.length,
-        //         dislikesCount: dislikes.length,
-        //         myStatus,
-        //         newestLikes
-        //     }
-        // };
+        return postMapper(post, userReaction)
     }
 
     async getPostBy_Id(_id: ObjectId) {
@@ -103,7 +93,7 @@ export class PostsQueryRepository {
         if (!posts) {
             return null
         }
-        return postMapper(posts);
+        return postMapper(posts, LikeStatus.None);
     }
 
     async getPostsByBlogId(blogId: string, sortData: SortType) {
@@ -122,17 +112,19 @@ export class PostsQueryRepository {
             .sort({[sortBy]: sortDirection === 'asc' ? 1 : -1})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
+            .lean()
+
         const postsCount = await this.getPostsCount(blogId)
         return {
             pagesCount: Math.ceil(postsCount / sortData.pageSize),
             page: sortData.pageNumber,
             pageSize: sortData.pageSize,
             totalCount: postsCount,
-            items: posts.map(postMapper),
+            items: posts.map(post => postMapper(post, LikeStatus.None)),
         }
     }
 
     async getUserReaction(userId: string, postId: string) {
-return await ReactionForPostsModel.findOne({userId: userId, postId: postId })
+        return await ReactionForPostsModel.findOne({userId: userId, postId: postId})
     }
 }

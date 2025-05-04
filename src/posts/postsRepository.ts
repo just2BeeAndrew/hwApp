@@ -81,7 +81,7 @@ export class PostsRepository {
     async getNewestLikesByPostId(postId: string) {
         const likes = await ReactionForPostsModel
             .find({postId: postId, status: LikeStatus.Like})
-            .sort({createdAt: -1})
+            .sort({addedAt: -1})
             .limit(3)
             .exec();
         return likes.map(like => {
