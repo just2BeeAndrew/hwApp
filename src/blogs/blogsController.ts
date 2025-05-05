@@ -33,8 +33,9 @@ export class BlogsController {
 
     async getPostsByBlogId(req: RequestWithParams<{ blogId: string }>, res: Response) {
         const {blogId} = req.params;
+        const userId = req.user?.id as string;
         const sortData = paginationQueries(req)
-        const posts = await this.postsQueryRepository.getPostsByBlogId(blogId, sortData)
+        const posts = await this.postsQueryRepository.getPostsByBlogId(blogId, sortData, userId)
         if (posts) {
             res.status(HttpStatuses.SUCCESS).json(posts);
             return

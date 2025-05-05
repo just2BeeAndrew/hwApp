@@ -52,8 +52,8 @@ export class PostsRepository {
         return false
     }
 
-    async findReaction(userId: string, postid: string) {
-        return await ReactionForPostsModel.findOne({userId: userId, postid: postid});
+    async findReaction(userId: string, postId: string) {
+        return await ReactionForPostsModel.findOne({userId: userId, postId: postId});
     }
 
     async createReaction(newReaction: PostsLikesDBType) {
@@ -69,7 +69,7 @@ export class PostsRepository {
     }
 
     async updateReaction(reactionId: ObjectId, reaction: LikeStatus) {
-        const result = await ReactionForPostsModel.findByIdAndUpdate(reactionId, {reaction}, {new: true});
+        const result = await ReactionForPostsModel.findByIdAndUpdate(reactionId, {status: reaction}, {new: true});
         return !!result;
     }
 

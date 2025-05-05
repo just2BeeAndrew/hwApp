@@ -30,7 +30,7 @@ postRouter.post('/:postId/comments',
     commentContentValidator,
     errorsResultMiddleware,
     postsController.createComment.bind(postsController));
-postRouter.get('/', postsController.getAllPosts.bind(postsController));
+postRouter.get('/',authChecker, errorsResultMiddleware, postsController.getAllPosts.bind(postsController));
 postRouter.post('/',
     authorizationMiddleware,
     titleValidator,
@@ -39,7 +39,7 @@ postRouter.post('/',
     blogIdValidator,
     errorsResultMiddleware,
     postsController.createPost.bind(postsController));
-postRouter.get('/:id', postsController.getPostById.bind(postsController));
+postRouter.get('/:id',authChecker, postsController.getPostById.bind(postsController));
 postRouter.put('/:id',
     authorizationMiddleware,
     titleValidator,

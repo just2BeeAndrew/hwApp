@@ -18,5 +18,5 @@ export const authChecker = async (req: Request, res: Response, next: NextFunctio
             }
         }
     }
-    next(); // Пропускаем запрос даже без токена
+    next();
 }

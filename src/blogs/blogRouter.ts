@@ -11,6 +11,7 @@ import {
 import {authorizationMiddleware} from "../middlewares/authorizationMiddleware";
 import {container} from "../composition-root";
 import {BlogsController} from "./blogsController";
+import {authChecker} from "../middlewares/authChecker";
 
 const blogsController = container.get(BlogsController);
 
@@ -25,7 +26,9 @@ blogRouter.post('/',
     websiteUrlValidator,
     errorsResultMiddleware,
     blogsController.createBlog.bind(blogsController));
-blogRouter.get('/:blogId/posts', blogsController.getPostsByBlogId.bind(blogsController));
+blogRouter.get('/:blogId/posts',
+    authChecker,
+    errorsResultMiddleware, blogsController.getPostsByBlogId.bind(blogsController));
 blogRouter.post('/:blogId/posts',
     authorizationMiddleware,
     titleValidator,

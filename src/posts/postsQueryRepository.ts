@@ -18,7 +18,11 @@ const postMapper = (post: WithId<PostDBType>, reaction: LikeStatus): PostOutputT
             likesCount: post.extendedLikesInfo.likesCount,
             dislikesCount: post.extendedLikesInfo.dislikesCount,
             myStatus: reaction,
-            newestLikes: post.extendedLikesInfo.newestLikes
+            newestLikes: post.extendedLikesInfo.newestLikes.map(like => ({
+                addedAt: like.addedAt,
+                userId: like.userId,
+                login: like.login
+            }))
         }
     }
 }
@@ -68,6 +72,7 @@ export class PostsQueryRepository {
             )
         };
     }
+
     getPostsCount(blogId?: string): Promise<number> {
         const filter: any = {}
         if (blogId) {
@@ -83,7 +88,8 @@ export class PostsQueryRepository {
         let userReaction: LikeStatus = LikeStatus.None;
 
         if (userId) {
-            const status = await this.getUserReaction(userId, postId)
+            const reaction = await this.getUserReaction(userId, postId)
+            userReaction = reaction?.status ?? LikeStatus.None;
         }
         return postMapper(post, userReaction)
     }
@@ -96,7 +102,7 @@ export class PostsQueryRepository {
         return postMapper(posts, LikeStatus.None);
     }
 
-    async getPostsByBlogId(blogId: string, sortData: SortType) {
+    async getPostsByBlogId(blogId: string, sortData: SortType, userId?: string) {
         const blogsIndex = await this.blogsQueryRepository.getBlogBy_Id(blogId);
         if (!blogsIndex) return null
 
@@ -115,12 +121,26 @@ export class PostsQueryRepository {
             .lean()
 
         const postsCount = await this.getPostsCount(blogId)
+
+        const reactionsMap = new Map<string, LikeStatus>()
+
+        if (userId) {
+            const postIds = posts.map(p => p._id.toString());
+            const reactions = await ReactionForPostsModel.find({
+                userId,
+                postId: { $in: postIds }
+            });
+
+            for (const reaction of reactions) {
+                reactionsMap.set(reaction.postId.toString(), reaction.status);
+            }
+        }
         return {
             pagesCount: Math.ceil(postsCount / sortData.pageSize),
             page: sortData.pageNumber,
             pageSize: sortData.pageSize,
             totalCount: postsCount,
-            items: posts.map(post => postMapper(post, LikeStatus.None)),
+            items: posts.map(post => postMapper(post, reactionsMap.get(post._id.toString()) || LikeStatus.None)),
         }
     }
 
