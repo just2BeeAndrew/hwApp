@@ -27,7 +27,6 @@ class SecurityDevicesController {
     async deleteSessionsById(req: RequestWithParams<{ deviceId: string }>, res: Response) {
         const userId = req.user?.id as string
         const deviceId = req.params.deviceId
-        console.log(deviceId)
         const deleteSession = await devicesService.deleteSessionsById(deviceId, userId)
         if (deleteSession.status !== ResultStatus.NoContent) {
             res

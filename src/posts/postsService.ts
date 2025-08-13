@@ -15,7 +15,8 @@ export class PostsService {
         @inject(PostsQueryRepository) protected postsQueryRepository: PostsQueryRepository,
         @inject(BlogsQueryRepository) protected blogsQueryRepository: BlogsQueryRepository,
         @inject(UsersRepository) protected usersRepository: UsersRepository,
-    ) {}
+    ) {
+    }
 
 
     async likeStatusForPosts(userId: string, postId: string, newReaction: LikeStatus) {
@@ -86,25 +87,25 @@ export class PostsService {
         const blogsIndex = await this.blogsQueryRepository.getBlogBy_Id(createData.blogId);
         if (!blogsIndex) return null
 
-        const newPost = new PostDBType (
+        const newPost = new PostDBType(
             createData.title,
             createData.shortDescription,
             createData.content,
             createData.blogId,
             blogsIndex.name,
             new Date().toISOString(),
-        {
-            likesCount: 0,
-            dislikesCount: 0,
-            myStatus: LikeStatus.None,
-            newestLikes: []
-        }
-    )
+            {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: LikeStatus.None,
+                newestLikes: []
+            }
+        )
         return await this.postsRepository.createPost(newPost);
 
     }
 
-    async updatePost(id:string, updateData: PostInputType) {
+    async updatePost(id: string, updateData: PostInputType) {
         const blogsIndex = await this.blogsQueryRepository.getBlogBy_Id(updateData.blogId);
         if (!blogsIndex) throw new Error("blog index not found");
 

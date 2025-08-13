@@ -44,6 +44,5 @@ export const refreshTokenMiddleware = async (req: Request, res: Response, next: 
             }
         }
     }
-    console.log("6")
     res.status(HttpStatuses.UNAUTHORIZED)
 }

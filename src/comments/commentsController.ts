@@ -46,7 +46,6 @@ export class CommentsController {
         const {commentId} = req.params;
         const {content} = req.body;
         const userId = req.user!.id as string;
-        console.log(userId);
         const updatedComment = await this.commentsService.updateComment(commentId, content, userId);
         if (updatedComment.status !== ResultStatus.NoContent) {
             res
